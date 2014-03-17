@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.widget.DrawerLayout;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,11 +18,31 @@ public class MainScreen extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_mainscreen);
-
+		setContentView(R.layout.activity_main_screen);
+		// TODO Убрать в класс NavigationDrawer (отслеживает проиходящее с NavigationDrawer, включает кнопку HOME/UP)
+		DrawerLayout DrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+		ActionBarDrawerToggle DrawerToggle = new ActionBarDrawerToggle(
+				this,
+				DrawerLayout,
+				R.drawable.ic_drawer,
+				R.string.navigation_drawer_open,
+				R.string.navigation_drawer_close) {
+			@Override
+			public void onDrawerOpened(View drawerView) {
+				// TODO Auto-generated method stub
+				super.onDrawerOpened(drawerView);
+			}
+			public void onDrawerClosed(View drawerView) {
+				// TODO Auto-generated method stub
+				super.onDrawerClosed(drawerView);
+			}
+		};
+		DrawerLayout.setDrawerListener(DrawerToggle);
+		//
 		if (savedInstanceState == null) {
 			getFragmentManager().beginTransaction()
-					.add(R.id.container, new PlaceholderFragment()).commit();
+					.add(R.id.container, new TimetableFragment())
+					.commit();
 		}
 	}
 
@@ -55,7 +77,7 @@ public class MainScreen extends Activity {
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
-			View rootView = inflater.inflate(R.layout.fragment_mainscreen,
+			View rootView = inflater.inflate(R.layout.fragment_main_screen,
 					container, false);
 			return rootView;
 		}

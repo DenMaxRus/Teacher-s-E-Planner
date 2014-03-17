@@ -26,6 +26,7 @@ public class NavigationDrawerFragment extends Fragment {
 		mdbHelper = new DBHelper(getActivity());
 		setHasOptionsMenu(true);
 		getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
+		getActivity().getActionBar().setHomeButtonEnabled(true);
 	}
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,

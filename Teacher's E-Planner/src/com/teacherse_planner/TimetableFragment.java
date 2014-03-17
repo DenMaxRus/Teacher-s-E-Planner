@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.HeaderViewListAdapter;
 import android.widget.LinearLayout;
@@ -38,16 +39,22 @@ public class TimetableFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
-		mTimetableLayout = (LinearLayout) inflater.inflate(R.layout.fragment_timetable, container, false);
-		
-		mDayList = (ListView) mTimetableLayout.findViewById(R.id.day_list);
-		
-		mTimetableGrid = (GridView) mTimetableLayout.findViewById(R.id.timetable_grid);
 		// TODO Разве здесь подключать адаптеры?
+		
+		mTimetableLayout = (LinearLayout) inflater.inflate(R.layout.fragment_timetable, container, false);// Вся панель расписания
+
+		mDayList = (ListView) mTimetableLayout.findViewById(R.id.day_list);// Лист дней недели
+		// TODO Либо изменить полностью, либо дополнить выбором текущего дня и выделением ячейки
+		mDayList.setAdapter(new ArrayAdapter<String>(
+				getActivity(),
+				android.R.layout.simple_list_item_1,
+				new String[]{"Пн", "Вт", "Ср", "Чт", "Пт", "Сб"}));
+		
+		mTimetableGrid = (GridView) mTimetableLayout.findViewById(R.id.timetable_grid);// Сетка расписания
+		// TODO Выборка текущей пары
 		mTimetableGrid.setAdapter(new SimpleCursorAdapter(// Двух уровневый адаптер: 1lvl - Название группы, 2lvl - номер аудитории
 				getActivity(),
-				android.R.layout.simple_list_item_2,
+				R.layout.timetable_grid_item_2,
 				null,
 				new String[]{DBHelper.SPECIALTY_NAME, DBHelper.TIMETABLE_CLASSROOM},
 				new int[]{android.R.id.text1, android.R.id.text2},
@@ -55,13 +62,18 @@ public class TimetableFragment extends Fragment {
 			@Override
 			public void bindView(View view, Context context, Cursor cursor) {
 				// TODO Изменить заполнение текстовых полей и выборку из курсора (?)
-				((TextView) view.findViewById(android.R.id.text1)).setText(cursor.getString(cursor.getColumnIndex(DBHelper.SPECIALTY_NAME)));// Название группы
-				((TextView) view.findViewById(android.R.id.text2)).setText(cursor.getString(cursor.getColumnIndex(DBHelper.TIMETABLE_CLASSROOM)));// Номер аудитории
+				((TextView) view.findViewById(R.id.text1)).setText(cursor.getString(cursor.getColumnIndex(DBHelper.SPECIALTY_NAME)));// Название группы
+				((TextView) view.findViewById(R.id.text2)).setText(cursor.getString(cursor.getColumnIndex(DBHelper.TIMETABLE_CLASSROOM)));// Номер аудитории
 				super.bindView(view, context, cursor);
 			}
 		});
 		
-		mPairTimeGrid = (GridView) mTimetableLayout.findViewById(R.id.pairtime_grid);
+		mPairTimeGrid = (GridView) mTimetableLayout.findViewById(R.id.pairtime_grid);// Сетка времени пар
+		// TODO Изменить время, добавить возможность изменения
+		mPairTimeGrid.setAdapter(new ArrayAdapter<String>(
+				getActivity(),
+				R.layout.pair_time_list_item_1,
+				new String[]{"8.00 - 9.30", "9.40 - 11.10", "11.30 - 13.00", "13.10 - 14.40", "14.50 - 16.20", "16.30 - 18.00", "18.00 - 19.30"}));
 		
 		return mTimetableLayout;
 		//return super.onCreateView(inflater, container, savedInstanceState);
