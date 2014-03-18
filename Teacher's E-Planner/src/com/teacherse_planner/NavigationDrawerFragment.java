@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -23,7 +24,10 @@ public class NavigationDrawerFragment extends Fragment {
 	FrameLayout mDrawerPanel;// Вся панель NavigationDrawer
 	ListView mDrawerMenuList;// Главное меню
 	ListView mDrawerSpecialtiesList;// Появляющийся список групп
-	DBHelper mdbHelper;
+	ActionBarDrawerToggle mDrawerToggle;// Управление Navigation Drawer'a
+	
+	DBHelper mdbHelper;// Связь с бд
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -40,9 +44,10 @@ public class NavigationDrawerFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
-		mDrawerPanel = (FrameLayout) inflater.inflate(R.layout.fragment_navigation_drawer, container, false);// Вся панель NavigationDrawer
-
-		mDrawerMenuList = (ListView) mDrawerPanel.findViewById(R.id.drawer_menu_list);// Главное меню
+		// Вся панель NavigationDrawer
+		mDrawerPanel = (FrameLayout) inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
+		// Главное меню
+		mDrawerMenuList = (ListView) mDrawerPanel.findViewById(R.id.drawer_menu_list);
 		mDrawerMenuList.setAdapter(new ArrayAdapter<String>(
 				getActivity(),
 				android.R.layout.simple_list_item_1,
@@ -76,22 +81,28 @@ public class NavigationDrawerFragment extends Fragment {
 		return mDrawerPanel;
 		//return super.onCreateView(inflater, container, savedInstanceState);
 	}
-	private void maintainSpecialtiesList(){ // Управление списком групп
+	// Управление списком групп
+	private void maintainSpecialtiesList(){
 		if(mDrawerSpecialtiesList == null || mDrawerSpecialtiesList.getVisibility() == ListView.VISIBLE)
 			mDrawerSpecialtiesList.setVisibility(ListView.GONE);
 		else
 			mDrawerSpecialtiesList.setVisibility(ListView.VISIBLE);
 		
 	}
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Если выбрали иконку - использовать управление NavigationDrawer'a
+        if (mDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        // TODO Управление остальными элементами actionbar'a
+		return super.onOptionsItemSelected(item);
+	}
+	//Настройка NavigationDrawer'a
 	public void setUp(DrawerLayout drawerLayout){
-		// TODO Убрать в класс NavigationDrawer (отслеживает проиходящее с NavigationDrawer, включает кнопку HOME/UP)
-		DrawerLayout mDrawerLayout = drawerLayout;
-		
-        ActionBar actionBar = getActivity().getActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setHomeButtonEnabled(true);
-        
-		ActionBarDrawerToggle DrawerToggle = new ActionBarDrawerToggle(
+		mDrawerLayout = drawerLayout;
+        // Управление Navigation Drawer
+        mDrawerToggle = new ActionBarDrawerToggle(
 				getActivity(),
 				mDrawerLayout,
 				R.drawable.ic_drawer,
@@ -107,6 +118,17 @@ public class NavigationDrawerFragment extends Fragment {
 				super.onDrawerClosed(drawerView);
 			}
 		};
-		mDrawerLayout.setDrawerListener(DrawerToggle);
+		mDrawerLayout.post(new Runnable() {
+			@Override
+			public void run() {
+				mDrawerToggle.syncState();
+			}
+		});
+		
+		mDrawerLayout.setDrawerListener(mDrawerToggle);
+		
+        ActionBar actionBar = getActivity().getActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeButtonEnabled(true);
 	}
 }

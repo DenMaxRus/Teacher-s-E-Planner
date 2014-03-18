@@ -13,7 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.os.Build;
 
-public class MainScreen extends Activity {
+public class MainActivity extends Activity {
 	
 	NavigationDrawerFragment mNavigationDrawerFragment;// Управляющий класс Navigation Drawer'a
 
@@ -21,7 +21,7 @@ public class MainScreen extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main_screen);
-		// Настройка Navigation Drawer'a
+		// Найти фрагмент Navigation Drawer'a и вызвать его настройку
 		mNavigationDrawerFragment = (NavigationDrawerFragment)getFragmentManager().findFragmentById(R.id.navigation_drawer);
 		mNavigationDrawerFragment.setUp((DrawerLayout) findViewById(R.id.drawer_layout));
 		
@@ -45,17 +45,17 @@ public class MainScreen extends Activity {
 		// Handle action bar item clicks here. The action bar will
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
-		}
+		//int id = item.getItemId();
+		//if (id == R.id.action_settings) {
+			//return true;
+		//}
 		return super.onOptionsItemSelected(item);
 	}
 
 	/**
 	 * A placeholder fragment containing a simple view.
 	 */
-	public static class PlaceholderFragment extends Fragment {
+	/*public static class PlaceholderFragment extends Fragment {
 
 		public PlaceholderFragment() {
 		}
@@ -67,6 +67,6 @@ public class MainScreen extends Activity {
 					container, false);
 			return rootView;
 		}
-	}
+	}*/
 
 }
