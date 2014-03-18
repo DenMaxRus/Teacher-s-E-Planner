@@ -10,7 +10,8 @@
 		android:id="@+id/day_list"
 		android:layout_width="0dp"
 		android:layout_height="match_parent"
-		android:layout_weight="1" >
+		android:layout_weight="1"
+		android:clickable="false" >
 	</ListView>
 		
 	<LinearLayout
@@ -27,7 +28,8 @@
 			android:verticalSpacing="1dp"
 			android:numColumns="7"
 			android:drawSelectorOnTop="true"
-			android:background="@android:color/black" >
+			android:background="@android:color/black"
+			android:scrollbars="none" >
 		</GridView>
 			
 		<GridView

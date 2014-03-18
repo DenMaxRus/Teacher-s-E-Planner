@@ -1,7 +1,10 @@
 package com.teacherse_planner;
 
+import android.app.ActionBar;
 import android.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.widget.DrawerLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,18 +18,23 @@ import android.widget.TextView;
 
 
 public class NavigationDrawerFragment extends Fragment {
+	
+	DrawerLayout mDrawerLayout;
 	FrameLayout mDrawerPanel;// Вся панель NavigationDrawer
 	ListView mDrawerMenuList;// Главное меню
 	ListView mDrawerSpecialtiesList;// Появляющийся список групп
 	DBHelper mdbHelper;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		// TODO Добавить actonbar
 		super.onCreate(savedInstanceState);
+		// TODO Слишком много хелперов БД
 		mdbHelper = new DBHelper(getActivity());
+	}
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		// Говорим, что хотим добавить изменения в actionbar
 		setHasOptionsMenu(true);
-		getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
-		getActivity().getActionBar().setHomeButtonEnabled(true);
 	}
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -74,5 +82,31 @@ public class NavigationDrawerFragment extends Fragment {
 		else
 			mDrawerSpecialtiesList.setVisibility(ListView.VISIBLE);
 		
+	}
+	public void setUp(DrawerLayout drawerLayout){
+		// TODO Убрать в класс NavigationDrawer (отслеживает проиходящее с NavigationDrawer, включает кнопку HOME/UP)
+		DrawerLayout mDrawerLayout = drawerLayout;
+		
+        ActionBar actionBar = getActivity().getActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeButtonEnabled(true);
+        
+		ActionBarDrawerToggle DrawerToggle = new ActionBarDrawerToggle(
+				getActivity(),
+				mDrawerLayout,
+				R.drawable.ic_drawer,
+				R.string.navigation_drawer_open,
+				R.string.navigation_drawer_close) {
+			@Override
+			public void onDrawerOpened(View drawerView) {
+				// TODO Auto-generated method stub
+				super.onDrawerOpened(drawerView);
+			}
+			public void onDrawerClosed(View drawerView) {
+				// TODO Auto-generated method stub
+				super.onDrawerClosed(drawerView);
+			}
+		};
+		mDrawerLayout.setDrawerListener(DrawerToggle);
 	}
 }

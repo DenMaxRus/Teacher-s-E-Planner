@@ -14,31 +14,17 @@ import android.view.ViewGroup;
 import android.os.Build;
 
 public class MainScreen extends Activity {
+	
+	NavigationDrawerFragment mNavigationDrawerFragment;// Управляющий класс Navigation Drawer'a
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main_screen);
-		// TODO Убрать в класс NavigationDrawer (отслеживает проиходящее с NavigationDrawer, включает кнопку HOME/UP)
-		DrawerLayout DrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-		ActionBarDrawerToggle DrawerToggle = new ActionBarDrawerToggle(
-				this,
-				DrawerLayout,
-				R.drawable.ic_drawer,
-				R.string.navigation_drawer_open,
-				R.string.navigation_drawer_close) {
-			@Override
-			public void onDrawerOpened(View drawerView) {
-				// TODO Auto-generated method stub
-				super.onDrawerOpened(drawerView);
-			}
-			public void onDrawerClosed(View drawerView) {
-				// TODO Auto-generated method stub
-				super.onDrawerClosed(drawerView);
-			}
-		};
-		DrawerLayout.setDrawerListener(DrawerToggle);
-		//
+		// Настройка Navigation Drawer'a
+		mNavigationDrawerFragment = (NavigationDrawerFragment)getFragmentManager().findFragmentById(R.id.navigation_drawer);
+		mNavigationDrawerFragment.setUp((DrawerLayout) findViewById(R.id.drawer_layout));
+		
 		if (savedInstanceState == null) {
 			getFragmentManager().beginTransaction()
 					.add(R.id.container, new TimetableFragment())
