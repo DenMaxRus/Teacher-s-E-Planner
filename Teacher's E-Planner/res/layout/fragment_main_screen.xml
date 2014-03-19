@@ -9,15 +9,16 @@
 	tools:context="com.teacherse_planner.MainScreen$PlaceholderFragment" >
 
 	<TextView
+		android:id="@+id/greetings_text"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:text="@string/greetings" />
 	
 	<ImageView
-		android:src="@drawable/the_guy"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_alignParentBottom="true"
+		android:layout_below="@+id/greetings_text"
+		android:src="@drawable/the_guy"
 		android:contentDescription="@string/the_guy_description" />
 
 </RelativeLayout>

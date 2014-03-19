@@ -8,6 +8,8 @@ import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -114,9 +116,27 @@ public class NavigationDrawerFragment extends Fragment {
         // TODO Управление остальными элементами actionbar'a
 		return super.onOptionsItemSelected(item);
 	}
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallbacks = null;
+    }
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // If the drawer is open, show the global app actions in the action bar. See also
+        // showGlobalContextActionBar, which controls the top-left area of the action bar.
+        if (mDrawerLayout != null && isDrawerOpen()) {
+            inflater.inflate(R.menu.main_screen, menu);
+        }
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+    public boolean isDrawerOpen() {
+        return mDrawerLayout != null && mDrawerLayout.isDrawerOpen(Gravity.START);
+    }
 	//Настройка NavigationDrawer'a
 	public void setUp(DrawerLayout drawerLayout){
 		mDrawerLayout = drawerLayout;
+		mDrawerLayout.setDrawerShadow(R.drawable.drawer_hint, Gravity.START);
         // Управление Navigation Drawer
         mDrawerToggle = new ActionBarDrawerToggle(
 				getActivity(),
@@ -128,6 +148,7 @@ public class NavigationDrawerFragment extends Fragment {
 			public void onDrawerOpened(View drawerView) {
 				// TODO Auto-generated method stub
 				super.onDrawerOpened(drawerView);
+				getActivity().invalidateOptionsMenu();
 			}
 			public void onDrawerClosed(View drawerView) {
 				// TODO Auto-generated method stub
@@ -135,6 +156,7 @@ public class NavigationDrawerFragment extends Fragment {
 				// Закрыть список групп при закрытии NavigationDrawer'a
 				if(mDrawerSpecialtiesList != null && mDrawerSpecialtiesList.getVisibility() == ListView.VISIBLE)
 					mDrawerSpecialtiesList.setVisibility(ListView.GONE);
+				getActivity().invalidateOptionsMenu();
 			}
 		};
 		mDrawerLayout.post(new Runnable() {

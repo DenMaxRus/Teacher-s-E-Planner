@@ -1,9 +1,13 @@
 package com.teacherse_planner;
 
+import java.util.Calendar;
+
 import com.teacherse_planner.NavigationDrawerFragment.NavigationDrawerCallbacks;
 
 import android.app.Activity;
 import android.app.ActionBar;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
@@ -14,12 +18,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.os.Build;
 
 public class MainActivity extends Activity implements NavigationDrawerCallbacks {
 	
-	NavigationDrawerFragment mNavigationDrawerFragment;// Управляющий класс Navigation Drawer'a
-	TimetableFragment mTimetableFragment;
+	public Calendar mCalendar;
+	public DBHelper mdbHelper;
+	
+	private NavigationDrawerFragment mNavigationDrawerFragment;// Управляющий класс Navigation Drawer'a
+	private TimetableFragment mTimetableFragment;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -27,6 +37,9 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 		// Найти фрагмент Navigation Drawer'a и вызвать его настройку
 		mNavigationDrawerFragment = (NavigationDrawerFragment)getFragmentManager().findFragmentById(R.id.navigation_drawer);
 		mNavigationDrawerFragment.setUp((DrawerLayout) findViewById(R.id.drawer_layout));
+		// Создаем вспомогательные объекты помошники, из всех фгарментов будем использовать отсюда
+		mdbHelper = new DBHelper(this);
+		mCalendar = Calendar.getInstance();
 		
 		if (savedInstanceState == null) {
 			getFragmentManager().beginTransaction()
@@ -34,7 +47,6 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 					.commit();
 		}
 	}
-
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 
@@ -79,6 +91,19 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 			break;
 		}
 		NewTransaction.commit();
+	}
+	// TODO Подумать над класом диалогов
+	public static class DialogBilder extends DialogFragment {
+		public static DialogBilder newInstance(Bundle args){
+			DialogBilder instance = new DialogBilder();
+			instance.setArguments(args);
+			return instance;
+		}
+		@Override
+		public Dialog onCreateDialog(Bundle savedInstanceState) {
+			// TODO Auto-generated method stub
+			return super.onCreateDialog(savedInstanceState);
+		}
 	}
 	/**
 	 * A placeholder fragment containing a simple view.
