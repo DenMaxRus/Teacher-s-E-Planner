@@ -3,14 +3,12 @@ package com.teacherse_planner;
 import android.app.Fragment;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
-import android.widget.HeaderViewListAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
@@ -23,7 +21,7 @@ public class TimetableFragment extends Fragment {
 	GridView mTimetableGrid; // Сетка расписания
 	ListView mDayList; // Лист дней недели
 	DBHelper mdbHelper; // Класс работы с БД
-	int CurrentWeek;	
+	int CurrentWeek; // Текущая неделя (1/2)
 	
 	public TimetableFragment(){}
 	@Override
@@ -40,7 +38,8 @@ public class TimetableFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		// TODO Разве здесь подключать адаптеры?
-		
+		if(savedInstanceState != null)
+			return super.onCreateView(inflater, container, savedInstanceState);
 		mTimetableLayout = (LinearLayout) inflater.inflate(R.layout.fragment_timetable, container, false);// Вся панель расписания
 		// Лист дней недели
 		mDayList = (ListView) mTimetableLayout.findViewById(R.id.day_list);

@@ -11,6 +11,13 @@
 	<TextView
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:text="@string/hello_world" />
+		android:text="@string/greetings" />
+	
+	<ImageView
+		android:src="@drawable/the_guy"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentBottom="true"
+		android:contentDescription="the_guy.jpg" />
 
 </RelativeLayout>

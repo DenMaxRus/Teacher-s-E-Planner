@@ -1,10 +1,12 @@
 package com.teacherse_planner;
 
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,6 +22,8 @@ import android.widget.TextView;
 
 public class NavigationDrawerFragment extends Fragment {
 	
+	NavigationDrawerCallbacks mCallbacks;
+	
 	DrawerLayout mDrawerLayout;
 	FrameLayout mDrawerPanel;// Вся панель NavigationDrawer
 	ListView mDrawerMenuList;// Главное меню
@@ -27,7 +31,16 @@ public class NavigationDrawerFragment extends Fragment {
 	ActionBarDrawerToggle mDrawerToggle;// Управление Navigation Drawer'a
 	
 	DBHelper mdbHelper;// Связь с бд
-	
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		// Указатель на текущую callbacks instance (MainActivity)
+        try {
+            mCallbacks = (NavigationDrawerCallbacks) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException("Activity must implement NavigationDrawerCallbacks.");
+        }
+	}
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -44,6 +57,8 @@ public class NavigationDrawerFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
+		if(savedInstanceState != null)
+			return super.onCreateView(inflater, container, savedInstanceState);
 		// Вся панель NavigationDrawer
 		mDrawerPanel = (FrameLayout) inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
 		// Главное меню
@@ -51,16 +66,20 @@ public class NavigationDrawerFragment extends Fragment {
 		mDrawerMenuList.setAdapter(new ArrayAdapter<String>(
 				getActivity(),
 				android.R.layout.simple_list_item_1,
-				new String[]{"Расписание", "Группы"}));
+				new String[]{"Расписание", "Группы", "Настройки", "Выход", "Test"}));
 		mDrawerMenuList.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position,
 					long id) {
 				// TODO Добавить управление ко всем элементам меню
+				selectNavigationMenuItem(position);
 				switch(position){
 				case 1:// Список групп
 					maintainSpecialtiesList();
 					break;
+				default:
+					selectNavigationMenuItem(position);
+					mDrawerLayout.closeDrawer(Gravity.LEFT);
 				}
 			}
 		});
@@ -79,7 +98,6 @@ public class NavigationDrawerFragment extends Fragment {
 				0));
 		
 		return mDrawerPanel;
-		//return super.onCreateView(inflater, container, savedInstanceState);
 	}
 	// Управление списком групп
 	private void maintainSpecialtiesList(){
@@ -116,6 +134,9 @@ public class NavigationDrawerFragment extends Fragment {
 			public void onDrawerClosed(View drawerView) {
 				// TODO Auto-generated method stub
 				super.onDrawerClosed(drawerView);
+				// Закрыть список групп при закрытии NavigationDrawer'a
+				if(mDrawerSpecialtiesList != null && mDrawerSpecialtiesList.getVisibility() == ListView.VISIBLE)
+					mDrawerSpecialtiesList.setVisibility(ListView.GONE);
 			}
 		};
 		mDrawerLayout.post(new Runnable() {
@@ -130,5 +151,12 @@ public class NavigationDrawerFragment extends Fragment {
         ActionBar actionBar = getActivity().getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
+	}
+	void selectNavigationMenuItem(int position){
+		if(mCallbacks != null)
+			mCallbacks.onNavigationMenuItemSelected(position);
+	}
+	public static interface NavigationDrawerCallbacks{
+		void onNavigationMenuItemSelected(int position);
 	}
 }
