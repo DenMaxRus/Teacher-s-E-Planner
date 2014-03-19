@@ -11,6 +11,10 @@
 		android:layout_width="0dp"
 		android:layout_height="match_parent"
 		android:layout_weight="1"
+		android:paddingRight="1dp"
+		android:dividerHeight="1dp"
+		android:divider="@android:color/black"
+		android:background="@android:color/black"
 		android:clickable="false" >
 	</ListView>
 		
@@ -24,6 +28,7 @@
 			android:id="@+id/pairtime_grid"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:paddingBottom="1dp"
 			android:horizontalSpacing="1dp"
 			android:verticalSpacing="1dp"
 			android:numColumns="7"

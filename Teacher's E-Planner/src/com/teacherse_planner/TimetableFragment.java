@@ -42,15 +42,20 @@ public class TimetableFragment extends Fragment {
 		// TODO Разве здесь подключать адаптеры?
 		
 		mTimetableLayout = (LinearLayout) inflater.inflate(R.layout.fragment_timetable, container, false);// Вся панель расписания
-
-		mDayList = (ListView) mTimetableLayout.findViewById(R.id.day_list);// Лист дней недели
+		// Лист дней недели
+		mDayList = (ListView) mTimetableLayout.findViewById(R.id.day_list);
+		// Header для дней недели (Пары)
+		TextView DayListHeader = (TextView) inflater.inflate(R.layout.pair_time_list_item_1, null);
+		DayListHeader.setText("Пары");
+		mDayList.addHeaderView(DayListHeader);
 		// TODO Либо изменить полностью, либо дополнить выбором текущего дня и выделением ячейки
 		mDayList.setAdapter(new ArrayAdapter<String>(
 				getActivity(),
-				android.R.layout.simple_list_item_1,
+				R.layout.timetable_grid_item_2,
+				R.id.text1,
 				new String[]{"Пн", "Вт", "Ср", "Чт", "Пт", "Сб"}));
-		
-		mTimetableGrid = (GridView) mTimetableLayout.findViewById(R.id.timetable_grid);// Сетка расписания
+		// Сетка расписания
+		mTimetableGrid = (GridView) mTimetableLayout.findViewById(R.id.timetable_grid);
 		// TODO Выборка текущей пары
 		mTimetableGrid.setAdapter(new SimpleCursorAdapter(// Двух уровневый адаптер: 1lvl - Название группы, 2lvl - номер аудитории
 				getActivity(),
@@ -68,7 +73,8 @@ public class TimetableFragment extends Fragment {
 			}
 		});
 		
-		mPairTimeGrid = (GridView) mTimetableLayout.findViewById(R.id.pairtime_grid);// Сетка времени пар
+		// Сетка времени пар
+		mPairTimeGrid = (GridView) mTimetableLayout.findViewById(R.id.pairtime_grid);
 		// TODO Изменить время, добавить возможность изменения
 		mPairTimeGrid.setAdapter(new ArrayAdapter<String>(
 				getActivity(),
