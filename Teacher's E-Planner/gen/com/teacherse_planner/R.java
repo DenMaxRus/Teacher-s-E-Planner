@@ -63,6 +63,7 @@ public final class R {
         public static final int greetings=0x7f050001;
         public static final int navigation_drawer_close=0x7f050004;
         public static final int navigation_drawer_open=0x7f050003;
+        public static final int the_guy_description=0x7f050005;
     }
     public static final class style {
         /** 
