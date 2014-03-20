@@ -127,7 +127,7 @@ public class TimetableFragment extends Fragment {
 				classroom.setText(((TextView)view.findViewById(R.id.text2)).getText());
 				// Спиннер списка групп
 				final Spinner specialtiesSpinner = (Spinner) dialogView.findViewById(R.id.specialties_spinner);
-				// TODO Выделение текущей группы
+				// Заполнение списка выбора групп группами
 				specialtiesSpinner.setAdapter(new SimpleCursorAdapter(
 						getActivity(),
 						android.R.layout.simple_spinner_item,
@@ -135,7 +135,15 @@ public class TimetableFragment extends Fragment {
 						new String[]{DBHelper.SPECIALTY_NAME},
 						new int[]{android.R.id.text1},
 						0));
-				//specialtiesSpinner.setSelection(((SimpleCursorAdapter)specialtiesSpinner.getAdapter()).getCursor().);
+				//specialtiesSpinner.setPrompt(((TextView)view.findViewById(R.id.text1)).getText());
+				// Выделение текущей группы TODO ну не через отдельный курсор же
+				Cursor groupName = mdbHelper.getReadableDatabase().query(
+						DBHelper.SPECIALTY,
+						new String[]{DBHelper.SPECIALTY_ID},
+						DBHelper.SPECIALTY_NAME+"=?",
+						new String[]{((TextView)view.findViewById(R.id.text1)).getText().toString()}, null, null, null);
+				groupName.moveToFirst();
+				specialtiesSpinner.setSelection(groupName.getInt(0)-1);
 				
 				AlertDialog.Builder builder=new AlertDialog.Builder(getActivity());
 				builder

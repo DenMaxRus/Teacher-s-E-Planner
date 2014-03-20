@@ -49,7 +49,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		
 		ContentValues cv=new ContentValues();
 		// Добавляем в группы пустое значение
-		cv.putNull(SPECIALTY_NAME);
+		cv.put(SPECIALTY_NAME, "");
 		db.insert(SPECIALTY, null, cv);
 		cv.clear();
 		// Добавляем 84 пустых записи в расписание (_id: 1-42 - первая неделя, 43-84 - вторая неделя)
