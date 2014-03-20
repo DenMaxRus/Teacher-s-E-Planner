@@ -2,6 +2,7 @@
 <resources>
 
 	<string name="app_name">Teacher\'s E-Planner</string>
+	<string name="navigation_menu">Navigation Menu</string>
 	<string name="greetings">Hello and welcome to the most ****** Android application in the world! Have fun!</string>
 	<string name="action_settings">Settings</string>
 	<string name="navigation_drawer_open">Open navigation drawer</string>

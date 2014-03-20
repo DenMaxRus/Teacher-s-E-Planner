@@ -7,14 +7,14 @@
 
     <Spinner
         android:id="@+id/specialties_spinner"
-		android:layout_width="wrap_content"
-		android:layout_height="match_parent"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
 		android:prompt="@string/dialog_timetable_griditem_title" />
 
     <EditText
         android:id="@+id/classroom"
-		android:layout_width="wrap_content"
-		android:layout_height="match_parent"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="text"
         android:hint="@string/dialog_timetable_griditem_hint" >

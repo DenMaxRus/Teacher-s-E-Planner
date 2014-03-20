@@ -24,12 +24,15 @@ import android.os.Build;
 
 public class MainActivity extends Activity implements NavigationDrawerCallbacks {
 	
-	public Calendar mCalendar;
+	private Calendar mCalendar; //
+	public Calendar getCalendar(){
+		return mCalendar;
+	}
 	public DBHelper mdbHelper;
 	
-	private NavigationDrawerFragment mNavigationDrawerFragment;// Управляющий класс Navigation Drawer'a
+	private NavigationDrawerFragment mNavigationDrawerFragment; // Управляющий класс Navigation Drawer'a
 	private TimetableFragment mTimetableFragment;
-	
+	private CharSequence mTitle; // Название текущего окна
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -41,6 +44,8 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 		mdbHelper = new DBHelper(this);
 		mCalendar = Calendar.getInstance();
 		
+		mTitle = getTitle();
+		
 		if (savedInstanceState == null) {
 			getFragmentManager().beginTransaction()
 					.add(R.id.container, new PlaceholderFragment())
@@ -49,10 +54,13 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-
+		if (!mNavigationDrawerFragment.isDrawerOpen()) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main_screen, menu);
-		return true;
+			getMenuInflater().inflate(R.menu.main_screen, menu);
+			restoreActionBar();
+			return true;
+		}
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
@@ -76,6 +84,7 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 				mTimetableFragment = new TimetableFragment();
 			NewTransaction
 				.replace(R.id.container, mTimetableFragment);
+			mTitle = mTimetableFragment.getmTitle();
 			break;
 		case 1:// Окно группы (обрабатывается самим NavigationDrawer'ом
 			break;
@@ -88,10 +97,17 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 		case 4:// Test
 			NewTransaction
 				.replace(R.id.container, new PlaceholderFragment());
+			mTitle = getResources().getText(R.string.app_name);
 			break;
 		}
 		NewTransaction.commit();
 	}
+    public void restoreActionBar() {
+        ActionBar actionBar = getActionBar();
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+        actionBar.setDisplayShowTitleEnabled(true);
+        actionBar.setTitle(mTitle);
+    }
 	// TODO Подумать над класом диалогов
 	public static class DialogBilder extends DialogFragment {
 		public static DialogBilder newInstance(Bundle args){

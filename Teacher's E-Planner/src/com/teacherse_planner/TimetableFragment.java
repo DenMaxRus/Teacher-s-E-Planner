@@ -30,6 +30,10 @@ import android.widget.TextView;
 
 public class TimetableFragment extends Fragment {
 	
+	private String mTitle = "Расписание"; // Заголовок
+	public String getmTitle() {
+		return mTitle;
+	}
 	LinearLayout mTimetableLayout; // Вся панель расписания
 	GridView mPairTimeGrid; // Сетка времени пар
 	GridView mTimetableGrid; // Сетка расписания
@@ -210,7 +214,7 @@ public class TimetableFragment extends Fragment {
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
 		// Показать текущее значение недели в actionbar'e
-		menu.findItem(R.id.current_week).setTitle(String.valueOf(mCurrentWeek));
+		menu.findItem(R.id.current_week).setTitle("Идет "+String.valueOf(mCurrentWeek)+" неделя");
 		super.onPrepareOptionsMenu(menu);
 	}
 	// Перерисовать расписание

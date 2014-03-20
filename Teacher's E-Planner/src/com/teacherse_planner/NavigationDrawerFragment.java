@@ -99,14 +99,6 @@ public class NavigationDrawerFragment extends Fragment {
 		
 		return mDrawerPanel;
 	}
-	// Управление списком групп
-	private void maintainSpecialtiesList(){
-		if(mDrawerSpecialtiesList == null || mDrawerSpecialtiesList.getVisibility() == ListView.VISIBLE)
-			mDrawerSpecialtiesList.setVisibility(ListView.GONE);
-		else
-			mDrawerSpecialtiesList.setVisibility(ListView.VISIBLE);
-		
-	}
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Если выбрали иконку - использовать управление NavigationDrawer'a
@@ -127,12 +119,27 @@ public class NavigationDrawerFragment extends Fragment {
         // showGlobalContextActionBar, which controls the top-left area of the action bar.
         if (mDrawerLayout != null && isDrawerOpen()) {
             inflater.inflate(R.menu.main_screen, menu);
+            showGlobalContextActionBar();
         }
         super.onCreateOptionsMenu(menu, inflater);
     }
     public boolean isDrawerOpen() {
         return mDrawerLayout != null && mDrawerLayout.isDrawerOpen(Gravity.START);
     }
+    private void showGlobalContextActionBar() {
+        ActionBar actionBar = getActivity().getActionBar();
+        actionBar.setDisplayShowTitleEnabled(true);
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+        actionBar.setTitle(R.string.navigation_menu);
+    }
+	// Управление списком групп
+	private void maintainSpecialtiesList(){
+		if(mDrawerSpecialtiesList == null || mDrawerSpecialtiesList.getVisibility() == ListView.VISIBLE)
+			mDrawerSpecialtiesList.setVisibility(ListView.GONE);
+		else
+			mDrawerSpecialtiesList.setVisibility(ListView.VISIBLE);
+		
+	}
 	//Настройка NavigationDrawer'a
 	public void setUp(DrawerLayout drawerLayout){
 		mDrawerLayout = drawerLayout;
