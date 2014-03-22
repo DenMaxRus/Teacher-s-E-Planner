@@ -51,12 +51,12 @@ public class DBHelper extends SQLiteOpenHelper {
 		db.insert(SPECIALTY, null, cv);
 		cv.clear();
 		// Добавляем 84 пустых записи в расписание (_id: 1-42 - первая неделя, 43-84 - вторая неделя)
-		/*cv.put(TIMETABLE_WEEK, 1);
+		cv.put(TIMETABLE_WEEK, 1);
 		for(int i=0;i<42;++i)
 			db.insert(TIMETABLE, null, cv);
 		cv.put(TIMETABLE_WEEK, 2);
 		for(int i=0;i<42;++i)
-			db.insert(TIMETABLE, null, cv);*/
+			db.insert(TIMETABLE, null, cv);
 		cv.clear();
 		
 		// TODO Убрать в дальнейшем - добавление стандартных групп в бд

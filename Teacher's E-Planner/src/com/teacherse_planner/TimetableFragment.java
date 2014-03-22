@@ -29,7 +29,7 @@ import android.widget.TextView;
 public class TimetableFragment extends Fragment implements MainActivity.DialogBuilder.DialogCallbacks {
 	
 	private String mTitle = "Расписание"; // Заголовок
-	public String getmTitle() {
+	public String getTitle() {
 		return mTitle;
 	}
 	LinearLayout mTimetableLayout; // Вся панель расписания
