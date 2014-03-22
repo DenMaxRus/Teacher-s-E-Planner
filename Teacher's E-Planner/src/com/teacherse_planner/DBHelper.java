@@ -8,11 +8,9 @@ import android.util.Log;
 
 
 public class DBHelper extends SQLiteOpenHelper {
-
-	private Context mContext;
 	
 	public static final String DB_NAME="teachereplanner.db";
-	public static final String TIMETABLE="timetable",TIMETABLE_ID="_id",TIMETABLE_SPECIALTY_ID="specialty_id",TIMETABLE_CLASSROOM="classroom",TIMETABLE_WEEK="week";
+	public static final String TIMETABLE="timetable",TIMETABLE_ID="_id",TIMETABLE_SPECIALTY_ID="specialty_id",TIMETABLE_CLASSROOM="classroom",TIMETABLE_WEEK="week",TIMETABLE_COLOR="color";
 	public static final String SPECIALTY="specialty",SPECIALTY_ID="_id",SPECIALTY_NAME="name";
 	public static final String STUDENT="student",STUDENT_ID="_id",STUDENT_NAME="name";
 	private static final String CREATE_SPECIALITY=
@@ -31,12 +29,12 @@ public class DBHelper extends SQLiteOpenHelper {
 		+TIMETABLE_SPECIALTY_ID+" integer default 1, "
 		+TIMETABLE_CLASSROOM+" text default null, "
 		+TIMETABLE_WEEK+" integer not null, "
+		+TIMETABLE_COLOR+" text default 'none', "
 		+"foreign key("+TIMETABLE_SPECIALTY_ID+") references "+SPECIALTY+" ("+SPECIALTY_ID+")"
 	+");";
 	public DBHelper(Context context) {
 		super(context, DB_NAME, null, 1);
 		// TODO Добавить версию для сравнения
-		mContext = context;
 	}
 
 	@Override
@@ -53,12 +51,12 @@ public class DBHelper extends SQLiteOpenHelper {
 		db.insert(SPECIALTY, null, cv);
 		cv.clear();
 		// Добавляем 84 пустых записи в расписание (_id: 1-42 - первая неделя, 43-84 - вторая неделя)
-		cv.put(TIMETABLE_WEEK, 1);
+		/*cv.put(TIMETABLE_WEEK, 1);
 		for(int i=0;i<42;++i)
 			db.insert(TIMETABLE, null, cv);
 		cv.put(TIMETABLE_WEEK, 2);
 		for(int i=0;i<42;++i)
-			db.insert(TIMETABLE, null, cv);
+			db.insert(TIMETABLE, null, cv);*/
 		cv.clear();
 		
 		// TODO Убрать в дальнейшем - добавление стандартных групп в бд

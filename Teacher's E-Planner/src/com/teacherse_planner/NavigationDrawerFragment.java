@@ -22,7 +22,7 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 
-public class NavigationDrawerFragment extends Fragment {
+public class NavigationDrawerFragment extends FragmentExtended {
 	
 	NavigationDrawerCallbacks mCallbacks;
 	
@@ -32,7 +32,7 @@ public class NavigationDrawerFragment extends Fragment {
 	ListView mDrawerSpecialtiesList;// Появляющийся список групп
 	ActionBarDrawerToggle mDrawerToggle;// Управление Navigation Drawer'a
 	
-	DBHelper mdbHelper;// Связь с бд
+
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
@@ -46,8 +46,6 @@ public class NavigationDrawerFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		// TODO Слишком много хелперов БД
-		mdbHelper = new DBHelper(getActivity());
 	}
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -92,7 +90,7 @@ public class NavigationDrawerFragment extends Fragment {
 		mDrawerSpecialtiesList.setAdapter(new SimpleCursorAdapter(
 				getActivity(),
 				android.R.layout.simple_list_item_1,
-				mdbHelper.getReadableDatabase().query(DBHelper.SPECIALTY, null, DBHelper.SPECIALTY_ID+">?", new String[]{"1"}, null, null, null),
+				getDbHelper().getReadableDatabase().query(DBHelper.SPECIALTY, null, DBHelper.SPECIALTY_ID+">?", new String[]{"1"}, null, null, null),
 				new String[]{DBHelper.SPECIALTY_NAME},
 				new int[]{android.R.id.text1},
 				0));
