@@ -1,5 +1,8 @@
 package com.teacherse_planner;
 
+import com.teacherse_planner.DBHelper.TABLES;
+import com.teacherse_planner.DBHelper.TABLES.SPECIALTY;
+
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
@@ -92,8 +95,8 @@ public class NavigationDrawerFragment extends Fragment {
 		mDrawerSpecialtiesList.setAdapter(new SimpleCursorAdapter(
 				getActivity(),
 				android.R.layout.simple_list_item_1,
-				mdbHelper.getReadableDatabase().query(DBHelper.SPECIALTY, null, DBHelper.SPECIALTY_ID+">?", new String[]{"1"}, null, null, null),
-				new String[]{DBHelper.SPECIALTY_NAME},
+				mdbHelper.getReadableDatabase().query(TABLES.SPECIALTY, null, SPECIALTY.ID+">?", new String[]{"1"}, null, null, null),
+				new String[]{SPECIALTY.NAME},
 				new int[]{android.R.id.text1},
 				0));
 		
@@ -132,7 +135,7 @@ public class NavigationDrawerFragment extends Fragment {
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setTitle(R.string.navigation_menu);
     }
-	// Управление списком групп
+	/** Убрать/показать список групп */
 	private void maintainSpecialtiesList(){
 		if(mDrawerSpecialtiesList == null || mDrawerSpecialtiesList.getVisibility() == ListView.VISIBLE)
 			mDrawerSpecialtiesList.setVisibility(ListView.GONE);
@@ -140,7 +143,8 @@ public class NavigationDrawerFragment extends Fragment {
 			mDrawerSpecialtiesList.setVisibility(ListView.VISIBLE);
 		
 	}
-	//Настройка NavigationDrawer'a
+	/** Настройка NavigationDrawer'a
+	 * @param drawerLayout - Полотно NavigationDrawer'a */
 	public void setUp(DrawerLayout drawerLayout){
 		mDrawerLayout = drawerLayout;
 		mDrawerLayout.setDrawerShadow(R.drawable.drawer_hint, Gravity.START);

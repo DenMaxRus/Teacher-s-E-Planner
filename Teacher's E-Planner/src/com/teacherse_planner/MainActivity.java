@@ -3,6 +3,9 @@ package com.teacherse_planner;
 import java.security.InvalidKeyException;
 import java.util.Calendar;
 
+import com.teacherse_planner.DBHelper.TABLES;
+import com.teacherse_planner.DBHelper.TABLES.SPECIALTY;
+import com.teacherse_planner.DBHelper.TABLES.TIMETABLE;
 import com.teacherse_planner.NavigationDrawerFragment.NavigationDrawerCallbacks;
 
 import android.app.Activity;
@@ -111,20 +114,45 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 		}
 		NewTransaction.commit();
 	}
+	/**
+	 * Перестроить ActionBar
+	 */
     public void restoreActionBar() {
         ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setTitle(mTitle);
     }
-	// TODO Подумать над класом диалогов
+	
+    /**
+     * Класс, управляющий диалогами
+     */
+    // TODO Подумать над класом диалогов
 	public static class DialogBuilder extends DialogFragment {
-		
-		public static Dialog mCurrentDialogInstance; // Текущий готовый диалог
-		public static IdDialog mCurrentDialogId; // Id текущего диалога
-		private DialogCallbacks mDialogCallbacks; // Интерфейс для свзязи с фрагментами
+		/** Текущий готовый диалог */
+		private static Dialog mCurrentDialogInstance = null;
+		/** ID текущего диалога */
+		private static IdDialog mCurrentDialogId = null;
+		/** Интерфейс для свзязи с фрагментами */
+		private DialogCallbacks mDialogCallbacks;
 		public static enum IdDialog { Timetable_ChangeDay }; // Сюда добавлять Id новых диалогов
-		
+		/** Возвращает текущий диалог 
+		 * @return Текущий диалог или null
+		 */
+		public static Dialog getCurrentDialog(){
+			return mCurrentDialogInstance;
+		}
+		/** Возвращает ID текущего диалога 
+		 * @return ID текущего диалога или null
+		 */
+		public static IdDialog getCurrentDialogId(){
+			return mCurrentDialogId;
+		}
+		/** Создает новый диалог
+		 * 
+		 * @param dialogInfo - куча передаваемых параметров
+		 * @return Новый диалог DialogBuilder
+		 */
 		public static DialogBuilder newInstance(Bundle dialogInfo){
 			DialogBuilder instance = new DialogBuilder();
 			instance.setArguments(dialogInfo);
@@ -137,7 +165,7 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
         	} catch (ClassCastException e) {
         		throw new ClassCastException("Fragent must implement DialogCallbacks.");
         	}
-			// Пока затычка
+			// TODO Пока затычка
 			final DBHelper mdbHelper = new DBHelper(getActivity());
 			// Создаем различные окна диалогов
 			try {
@@ -145,10 +173,21 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 			mCurrentDialogId = IdDialog.valueOf(getArguments().getString("idDialog"));
 			switch (mCurrentDialogId) {
 			case Timetable_ChangeDay:{ // Диалог по долгому нажатию на клетку в расписании фрагмента TimetableFragment
-				final int currentWeek = getArguments().getInt("currentWeek", 1);
+				
 				final int idTimetable = getArguments().getInt("idTimetable");
-				final String currentSpecialityName = getArguments().getString("currentSpecialityName");
-				final String currentClassroom = getArguments().getString("currentClassroom");
+				// Получаем требуемые значения для заполнения текущими данными из БД
+				Cursor dayInfo = ((MainActivity)getActivity()).getDbHelper().getReadableDatabase().query(
+						TABLES.TIMETABLE+" LEFT OUTER JOIN "+TABLES.SPECIALTY+" ON "+SPECIALTY.fID+"="+ SPECIALTY.fID,
+						new String[]{TIMETABLE.fID, TIMETABLE.CLASSROOM, TIMETABLE.COLOR, TIMETABLE.WEEK, SPECIALTY.fID},
+						TIMETABLE.fID+"=?",
+						new String[]{String.valueOf(idTimetable)},
+						null, null, null);
+				dayInfo.moveToFirst();
+				
+				final String currentClassroom = dayInfo.getString(dayInfo.getColumnIndex(TIMETABLE.CLASSROOM));
+				final int currentSpecialtyPosition = dayInfo.getInt(dayInfo.getColumnIndex(SPECIALTY.ID)) - 1;
+				final int currentWeek = dayInfo.getInt(dayInfo.getColumnIndex(TIMETABLE.WEEK));
+				
 				// Создание собственного вида для диалога, настрока спиннера и текстового поля
 				View dialogView = View.inflate(getActivity(), R.layout.dialog_timetable_griditemlongclick, null);
 				// Номер аудитории
@@ -160,18 +199,11 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 				specialtiesSpinner.setAdapter(new SimpleCursorAdapter(
 						getActivity(),
 						android.R.layout.simple_spinner_item,
-						mdbHelper.getReadableDatabase().query(DBHelper.SPECIALTY, null, null, null, null, null, null),
-						new String[]{DBHelper.SPECIALTY_NAME},
+						mdbHelper.getReadableDatabase().query(TABLES.SPECIALTY, null, null, null, null, null, null),
+						new String[]{SPECIALTY.NAME},
 						new int[]{android.R.id.text1},
 						0));
-				// Выделение текущей группы TODO ну не через отдельный курсор же , да?
-				Cursor CurrentSpecialityNameCursor = mdbHelper.getReadableDatabase().query(
-						DBHelper.SPECIALTY,
-						new String[]{DBHelper.SPECIALTY_ID},
-						DBHelper.SPECIALTY_NAME+"=?",
-						new String[]{currentSpecialityName}, null, null, null);
-				CurrentSpecialityNameCursor.moveToFirst();
-				specialtiesSpinner.setSelection(CurrentSpecialityNameCursor.getInt(0)-1);
+				specialtiesSpinner.setSelection(currentSpecialtyPosition);
 				// Список цвета
 				final Spinner colorSpinner = (Spinner) dialogView.findViewById(R.id.color_spinner);
 				
@@ -184,14 +216,14 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 					public void onClick(DialogInterface dialog, int which) {
 						//Помещаемые значения
 						ContentValues cv = new ContentValues();
-						cv.put(DBHelper.TIMETABLE_SPECIALTY_ID, specialtiesSpinner.getSelectedItemId());
-						cv.put(DBHelper.TIMETABLE_CLASSROOM, classroom.getText().toString());
-						cv.put(DBHelper.TIMETABLE_COLOR, colorSpinner.getSelectedItem().toString());
+						cv.put(TIMETABLE.SPECIALTY_ID, specialtiesSpinner.getSelectedItemId());
+						cv.put(TIMETABLE.CLASSROOM, classroom.getText().toString());
+						cv.put(TIMETABLE.COLOR, colorSpinner.getSelectedItem().toString());
 						mdbHelper.getWritableDatabase()
 							.update(
-									DBHelper.TIMETABLE,
+									TABLES.TIMETABLE,
 									cv,
-									DBHelper.TIMETABLE_ID+"=? AND "+DBHelper.TIMETABLE_WEEK+"=?",
+									TIMETABLE.ID+"=? AND "+TIMETABLE.WEEK+"=?",
 									new String[]{String.valueOf(idTimetable), String.valueOf(currentWeek)});
 						dialog.dismiss();
 					}
@@ -215,7 +247,16 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 			super.onDismiss(dialog);
 			mDialogCallbacks.onDialogDismiss(mCurrentDialogId);
 		}
+		@Override
+		public void onDetach() {
+			// TODO Auto-generated method stub
+			super.onDetach();
+			mCurrentDialogInstance = null;
+			mCurrentDialogId = null;
+		}
 		public static interface DialogCallbacks{
+			/** Вызывается после метода OnDismiss() 
+			 * @param dialogId - ID диалога */
 			public void onDialogDismiss(IdDialog dialogId);
 		}
 	}

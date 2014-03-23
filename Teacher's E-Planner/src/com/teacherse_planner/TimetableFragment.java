@@ -3,6 +3,9 @@ package com.teacherse_planner;
 import java.util.Calendar;
 import java.util.Locale;
 
+import com.teacherse_planner.DBHelper.TABLES;
+import com.teacherse_planner.DBHelper.TABLES.SPECIALTY;
+import com.teacherse_planner.DBHelper.TABLES.TIMETABLE;
 import com.teacherse_planner.MainActivity.DialogBuilder;
 
 import android.app.Activity;
@@ -27,17 +30,23 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 public class TimetableFragment extends Fragment implements MainActivity.DialogBuilder.DialogCallbacks {
-	
-	private String mTitle = "Расписание"; // Заголовок
+	/** Заголовок */
+	private String mTitle = "Расписание";
 	public String getTitle() {
 		return mTitle;
 	}
-	LinearLayout mTimetableLayout; // Вся панель расписания
-	GridView mPairTimeGrid; // Сетка времени пар
-	GridView mTimetableGrid; // Сетка расписания
-	ListView mDayList; // Лист дней недели
-	DBHelper mdbHelper; // Класс работы с БД
-	int mCurrentWeek; // Текущая неделя (1/2)
+	/** Вся панель расписания */
+	LinearLayout mTimetableLayout;
+	/** Сетка времени пар */
+	GridView mPairTimeGrid;
+	/** Сетка расписания */
+	GridView mTimetableGrid;
+	/** Лист дней недели */
+	ListView mDayList;
+	/** Объект для работы с БД */
+	DBHelper mdbHelper;
+	/** Текущая неделя (1/2) */
+	int mCurrentWeek;
 	
 	public TimetableFragment(){}
 	@Override
@@ -92,14 +101,14 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 				getActivity(),
 				R.layout.timetable_grid_item_2,
 				null,
-				new String[]{DBHelper.SPECIALTY_NAME, DBHelper.TIMETABLE_CLASSROOM, DBHelper.TIMETABLE_COLOR},
+				new String[]{SPECIALTY.NAME, TIMETABLE.CLASSROOM, TIMETABLE.COLOR},
 				new int[]{android.R.id.text1, android.R.id.text2},
 				0){
 			@Override
 			public void bindView(View view, Context context, Cursor cursor) {
 				// TODO Изменить заполнение текстовых полей и выборку из курсора (?) проблема с БД
-				((TextView) view.findViewById(R.id.text1)).setText(cursor.getString(cursor.getColumnIndex(DBHelper.SPECIALTY_NAME)));// Название группы
-				((TextView) view.findViewById(R.id.text2)).setText(cursor.getString(cursor.getColumnIndex(DBHelper.TIMETABLE_CLASSROOM)));// Номер аудитории
+				((TextView) view.findViewById(R.id.text1)).setText(cursor.getString(cursor.getColumnIndex(SPECIALTY.NAME)));// Название группы
+				((TextView) view.findViewById(R.id.text2)).setText(cursor.getString(cursor.getColumnIndex(TIMETABLE.CLASSROOM)));// Номер аудитории
 				// TODO Педелать выбор текущей пары
 				int id = cursor.getInt(0);
 				if(id>42)
@@ -111,7 +120,7 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 				int pair=id-(id/8)*7-1;
 				int pairtime=8*60+pair*(90+10);
 				if(c2.get(Calendar.DAY_OF_WEEK)==(id/8+2) && currentTime>=pairtime && currentTime<pairtime+90){
-					view.setBackgroundColor(Color.YELLOW);
+					view.setBackgroundColor(Color.RED);
 				}
 				super.bindView(view, context, cursor);
 			}
@@ -126,22 +135,18 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 				Bundle dialogInfo = new Bundle();
 				dialogInfo.putString("idDialog", DialogBuilder.IdDialog.Timetable_ChangeDay.toString());
 				dialogInfo.putInt("idTimetable", (int) id);
-				dialogInfo.putInt("currentWeek", mCurrentWeek);
-				dialogInfo.putString("currentSpecialityName", ((TextView)view.findViewById(R.id.text1)).getText().toString());
-				dialogInfo.putString("currentClassroom", ((TextView)view.findViewById(R.id.text2)).getText().toString());
-				DialogBuilder df = MainActivity.DialogBuilder.newInstance(dialogInfo);
-				df.show(getFragmentManager(), DialogBuilder.IdDialog.Timetable_ChangeDay.toString());
+				MainActivity.DialogBuilder.newInstance(dialogInfo).show(getFragmentManager(), DialogBuilder.IdDialog.Timetable_ChangeDay.toString());
 				return true;
 			}
 		});
 		
-		// Сетка времени пар
 		mPairTimeGrid = (GridView) mTimetableLayout.findViewById(R.id.pairtime_grid);
 		// TODO Изменить время, добавить возможность изменения
 		mPairTimeGrid.setAdapter(new ArrayAdapter<String>(
 				getActivity(),
 				R.layout.pair_time_list_item_1,
 				new String[]{"8.00 - 9.30", "9.40 - 11.10", "11.30 - 13.00", "13.10 - 14.40", "14.50 - 16.20", "16.30 - 18.00", "18.00 - 19.30"}));
+		
 		return mTimetableLayout;
 		//return super.onCreateView(inflater, container, savedInstanceState);
 	}
@@ -152,9 +157,12 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 		refillTimetable();
 	}
 	@Override
-	public void onPause() {
-		// TODO Проверить, есть ли диалог, если есть - добавить команду на восстановление
-		super.onPause();
+	public void onResume() {
+		super.onResume();
+		// Проверить, есть ли диалог, если есть - добавить команду на восстановление
+		if(DialogBuilder.getCurrentDialogId() == DialogBuilder.IdDialog.Timetable_ChangeDay){
+			DialogBuilder.getCurrentDialog().show();
+		}
 	}
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
@@ -189,14 +197,14 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 		menu.findItem(R.id.current_week).setTitle("Идет "+String.valueOf(mCurrentWeek)+" неделя");
 		super.onPrepareOptionsMenu(menu);
 	}
-	// Перерисовать расписание
+	/** Перерисовать текущее расписание */
 	public void refillTimetable(){
 		((SimpleCursorAdapter)(mTimetableGrid.getAdapter()))
 				.changeCursor(mdbHelper.getReadableDatabase()
 						.query(
-								DBHelper.TIMETABLE+" LEFT OUTER JOIN "+DBHelper.SPECIALTY+" ON "+DBHelper.TIMETABLE_SPECIALTY_ID+"="+DBHelper.SPECIALTY+"."+DBHelper.SPECIALTY_ID,
-								new String[]{DBHelper.TIMETABLE+"."+DBHelper.TIMETABLE_ID, DBHelper.SPECIALTY_NAME, DBHelper.TIMETABLE_CLASSROOM, DBHelper.TIMETABLE_COLOR},
-								DBHelper.TIMETABLE_WEEK+"=?",
+								TABLES.TIMETABLE+" LEFT OUTER JOIN "+TABLES.SPECIALTY+" ON "+TIMETABLE.fSPECIALTY_ID+"="+SPECIALTY.fID,
+								new String[]{TIMETABLE.fID, SPECIALTY.NAME, TIMETABLE.CLASSROOM, TIMETABLE.COLOR},
+								TIMETABLE.WEEK+"=?",
 								new String[]{String.valueOf(mCurrentWeek)},
 								null, null, null));
 		((SimpleCursorAdapter)mTimetableGrid.getAdapter()).notifyDataSetChanged();
