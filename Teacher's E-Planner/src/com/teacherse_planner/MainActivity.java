@@ -203,7 +203,7 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 						null, null, null);
 				dayInfo.moveToFirst();
 				final boolean dayInfoIsEmpty = dayInfo.getCount() == 0 ? true : false;
-				
+				// Текущие значение (на момент открытия диалога)
 				final String currentClassroom = dayInfoIsEmpty ? "" : dayInfo.getString(dayInfo.getColumnIndex(TIMETABLE.CLASSROOM));
 				final int currentSpecialtyPosition = dayInfoIsEmpty ? 0 : dayInfo.getInt(dayInfo.getColumnIndex(SPECIALTY.aID)) - 1;
 				
@@ -242,7 +242,6 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 						
 						//Пустые ли новые значения
 						boolean newdayInfoisEmpty = (selectedSpecialityId == 1 && selectedClassroom.length() == 0 && selectedColor.compareTo(getResources().getStringArray(R.array.colors)[0]) == 0) ? true : false;
-						long res = 1;
 						if(!newdayInfoisEmpty){
 							ContentValues cv = new ContentValues();
 							cv.put(TIMETABLE.SPECIALTY_ID, selectedSpecialityId);
@@ -251,7 +250,7 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 							if(dayInfoIsEmpty){
 								cv.put(TIMETABLE.ID, idTimetable);
 								cv.put(TIMETABLE.WEEK, currentWeek);
-								res = db.insert(TABLES.TIMETABLE, null, cv);
+								db.insert(TABLES.TIMETABLE, null, cv);
 							}else
 								db.update(TABLES.TIMETABLE, cv, TIMETABLE.ID+"=? AND "+TIMETABLE.WEEK+"=?",new String[]{String.valueOf(idTimetable), String.valueOf(currentWeek)});
 						}else

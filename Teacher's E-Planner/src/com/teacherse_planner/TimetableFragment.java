@@ -24,13 +24,11 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.CursorAdapter;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.WrapperListAdapter;
-
+/** Окно расписания на 2 недели */
 public class TimetableFragment extends Fragment implements MainActivity.DialogBuilder.DialogCallbacks {
 	/** Заголовок */
 	private String mTitle = "Расписание";
@@ -63,7 +61,7 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 		// TODO Добавить actionbar
 		super.onCreate(savedInstanceState);
 		// Если есть сохраненное состояние - вынимаем оттуда неделю, иначе будет первая
-		mCurrentWeek = savedInstanceState == null ? 2 : savedInstanceState.getInt("mCurrentWeek");
+		mCurrentWeek = savedInstanceState == null ? 1 : savedInstanceState.getInt("mCurrentWeek");
 		
 		// TODO Заменить - один и тот же объект во всех классах.
 		mdbHelper = new DBHelper(getActivity());
@@ -100,8 +98,8 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 			}});
 		// Сетка расписания
 		mTimetableGrid = (GridView) mTimetableLayout.findViewById(R.id.timetable_grid);
-		// Заполнение таблицы из базы данных5
-		mTimetableGrid.setAdapter(new TableCursorAdapter(
+		// Заполнение таблицы из базы данных
+		mTimetableGrid.setAdapter(new TimetableGridAdapter(
 				getActivity(),
 				R.layout.timetable_grid_item_2,
 				null,
@@ -171,7 +169,6 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 		default:
 			return super.onOptionsItemSelected(item);
 		}
-		
 	}
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
@@ -182,7 +179,8 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 	/** Перерисовать текущее расписание */
 	public void refillTimetable(){
 		SQLiteDatabase db = mdbHelper.getReadableDatabase();
-		((TableCursorAdapter)(mTimetableGrid.getAdapter()))
+		TableCursorAdapter TimetableGridAdapter = (TableCursorAdapter)(mTimetableGrid.getAdapter());		
+		TimetableGridAdapter
 				.changeCursor(
 						db.query(
 								TABLES.TIMETABLE+" JOIN "+TABLES.SPECIALTY+" ON "+TIMETABLE.fSPECIALTY_ID+"="+SPECIALTY.fID,
@@ -191,8 +189,6 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 								new String[]{String.valueOf(mCurrentWeek)},
 								null, null,
 								TIMETABLE.fID));
-		// TODO обновлять mTimetableGrid при загрузке пустого расписания
-		((TableCursorAdapter)mTimetableGrid.getAdapter()).notifyDataSetChanged();
 		db.close();
 	}
 	@Override
@@ -206,133 +202,21 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 			break;
 		}
 	}
-	public class TableCursorAdapter extends CursorAdapter {
-		
-		private Context mContext;
-		protected LayoutInflater mInflater;
-		private int mLayout;
-		private String[] mFrom;
-		private int[] mTo;
-		private int mSize;
-		private long mCursorId;
-		private int mCursorIdPosition;
-		private int mViewPosition;
-		private int mRowIDColumn;
-		/**
-		 * 
-		 * @param context The context where the ListView associated with this SimpleListItemFactory is running 
-		 * @param layout resource identifier of a layout file that defines the views for this list item. The layout file should include at least those named views defined in "to" 
-		 * @param c The database cursor. Can be null if the cursor is not available yet. 
-		 * @param from A list of column names representing the data to bind to the UI. Can be null if the cursor is not available yet. 
-		 * @param to The views that should display column in the "from" parameter. These should all be TextViews. The first N views in this list are given the values of the first N columns in the from parameter. Can be null if the cursor is not available yet. 
-		 * @param size How many items should be in the data set represented by this Adapter.
-		 */
-		public TableCursorAdapter(Context context,int layout, Cursor c, String[] from, int[] to, int size) {
-			super(context, c, 0);
-			mContext = context;
-			mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			mLayout = layout;
-			mFrom = from;
-			mTo = to;
-			mSize = size;
-			boolean cursorPresent = c != null;
-			mRowIDColumn = cursorPresent  ? c.getColumnIndexOrThrow("_id") : -1;
-			mViewPosition = 0;
-			setStartIdPosition(cursorPresent);
-		}
-		/**
-		 * Проверяет, совпадает ли позиция(!)(позиция+1) в списке с id записи 
-		 * @return true если совпадает, иначе - false
-		 */
-		protected boolean isAtCurrent() {
-			return mViewPosition == mCursorId ? true : false;
-		}
-		protected void setStartIdPosition(boolean cursorPresent){
-			if(cursorPresent){
-				setNextIdPosition();
-				getCursor().moveToPosition(-1);
-			}else {
-				mCursorId = mCursorIdPosition = -1;
-			}
-		}
-		protected void setNextIdPosition(){
-			if(getCursor().moveToNext()){
-				mCursorId = getCursor().getLong(mRowIDColumn);
-				mCursorIdPosition = getCursor().getPosition();
-			} else {
-				mCursorId = mCursorIdPosition = -1;
-			}
+	public class TimetableGridAdapter extends TableCursorAdapter {
+		public TimetableGridAdapter(Context context, int layout, Cursor c,
+				String[] from, int[] to, int size) {
+			super(context, layout, c, from, to, size);
 		}
 		@Override
-		public void changeCursor(Cursor cursor) {
-			// TODO Auto-generated method stub
-			super.changeCursor(cursor);
-			boolean cursorPresent = cursor != null;
-			mRowIDColumn = cursorPresent  ? cursor.getColumnIndexOrThrow("_id") : -1;
-			setStartIdPosition(cursorPresent);
-		}
-		@Override
-		public int getCount() {
-			if(getCursor() != null)
-				return mSize;
-			else
-				return 0;
-		};
-		@Override
-		public Object getItem(int position) {
-			mViewPosition = position+1;
-			if(getCursor() != null){
-				if(isAtCurrent())
-					return super.getItem(mCursorIdPosition);
-				else
-					return null;
-			}else
-				return null;
-		}
-		@Override
-		public long getItemId(int position) {
-			mViewPosition = position+1;
-			if(isAtCurrent())
-				return super.getItemId(mCursorIdPosition);
-			else
-				return 0;
-		}
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			if((mViewPosition = position+1) == mCursorId) {
-				getCursor().moveToPosition(mCursorIdPosition);
-			}
-	        View view;
-	        if (convertView == null) {
-	            view = newView(mContext, getCursor(), parent);
-	        } else {
-	            view = convertView;
-	        }
-	        bindView(view, mContext, getCursor());
-	        return view;
-		}
-		@Override
-		public void bindView(View view, Context context, Cursor cursor) {
-			if(isAtCurrent()) {
-				for(int i=0; i < (mFrom.length > mTo.length ? mTo.length : mFrom.length); ++i){
-					TextView tv = (TextView) view.findViewById(mTo[i]);
-					String data = cursor.getString(cursor.getColumnIndex(mFrom[i]));
-					tv.setText(data);
-				}
-				setNextIdPosition();
-			}
-			// Выделение текущей пары цветом TODO сделать бы градиентом
-			Calendar calendar=Calendar.getInstance();
-			int currentTime=calendar.get(Calendar.HOUR_OF_DAY)*60+calendar.get(Calendar.MINUTE);
-			int pairTime=8 * 60 + (mViewPosition - (mViewPosition / 8) * 7 - 1) * (90 + 10);
-			if(calendar.get(Calendar.DAY_OF_WEEK) == (mViewPosition / 8 + 2) && currentTime >= pairTime && currentTime < pairTime + 90) {
+		public void bindAfter(View view, Context context) {
+			super.bindAfter(view, context);
+			// Выделение текущей пары цветом TODO сделать градиентом и убрать календарь
+			Calendar calendar = Calendar.getInstance();
+			int currentTime = calendar.get(Calendar.HOUR_OF_DAY)*60+calendar.get(Calendar.MINUTE);
+			int pairTime = 8 * 60 + (getViewPosition() - (getViewPosition() / 8) * 7 - 1) * (90 + 10);
+			if(calendar.get(Calendar.DAY_OF_WEEK) == (getViewPosition() / 8 + 2) && currentTime >= pairTime && currentTime < pairTime + 90) {
 				view.setBackgroundColor(Color.RED);
 			}
-		}
-		@Override
-		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			View view = mInflater.inflate(mLayout, parent, false);
-			return view;
 		}
 	}
 }
