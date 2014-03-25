@@ -38,7 +38,9 @@ public class DBHelper extends SQLiteOpenHelper {
 				fSPECIALTY_ID = TIMETABLE + "." + SPECIALTY_ID,
 				fCLASSROOM = TIMETABLE + "." + CLASSROOM,
 				fWEEK = TIMETABLE + "." + WEEK,
-				fCOLOR = TIMETABLE + "." + COLOR;
+				fCOLOR = TIMETABLE + "." + COLOR,
+			
+				aID = "timetable_table_id";
 			private TIMETABLE(){}
 		};
 		/** Таблица групп. Полные пути вида %TABLE%.%FIELD% можно получить через f%FIELD% переменные. */
@@ -48,7 +50,10 @@ public class DBHelper extends SQLiteOpenHelper {
 				NAME = "name",
 				
 				fID = SPECIALTY + "." + ID,
-				fNAME = SPECIALTY + "." + NAME;
+				fNAME = SPECIALTY + "." + NAME,
+
+				aID = "specialty_table_id";
+			
 			private SPECIALTY(){}
 		};
 		/** Таблица студентов. Полные пути вида %TABLE%.%FIELD% можно получить через f%FIELD% переменные. */
@@ -58,7 +63,9 @@ public class DBHelper extends SQLiteOpenHelper {
 				NAME = "name",
 				
 				fID = STUDENT + "." + ID,
-				fNAME = STUDENT + "." + NAME;
+				fNAME = STUDENT + "." + NAME,
+				
+				aID = "student_table_id";
 			private STUDENT(){}
 		};
 	};
@@ -121,11 +128,12 @@ public class DBHelper extends SQLiteOpenHelper {
 	+");";
 	private static final String CREATE_TIMETABLE=
 	"create table "+TABLES.TIMETABLE+" ("
-		+TIMETABLE.ID+" integer primary key autoincrement, "
+		+TIMETABLE.ID+" integer, "
 		+TIMETABLE.SPECIALTY_ID+" integer default 1, "
 		+TIMETABLE.CLASSROOM+" text default null, "
-		+TIMETABLE.WEEK+" integer not null, "
+		+TIMETABLE.WEEK+" integer, "
 		+TIMETABLE.COLOR+" text default 'none', "
+		+"primary key("+TIMETABLE.ID+", "+TIMETABLE.WEEK+"), "
 		+"foreign key("+TIMETABLE.SPECIALTY_ID+") references "+TABLES.SPECIALTY+" ("+SPECIALTY.ID+")"
 	+");";
 	public DBHelper(Context context) {
@@ -146,22 +154,29 @@ public class DBHelper extends SQLiteOpenHelper {
 		cv.put(SPECIALTY.NAME, "");
 		db.insert(TABLES.SPECIALTY, null, cv);
 		cv.clear();
-		// Добавляем 84 пустых записи в расписание (_id: 1-42 - первая неделя, 43-84 - вторая неделя)
+		/*// Добавляем 84 пустых записи в расписание (_id: 1-42 - первая неделя, 43-84 - вторая неделя)
 		cv.put(TIMETABLE.WEEK, 1);
 		for(int i=0;i<42;++i)
 			db.insert(TABLES.TIMETABLE, null, cv);
 		cv.put(TIMETABLE.WEEK, 2);
 		for(int i=0;i<42;++i)
 			db.insert(TABLES.TIMETABLE, null, cv);
+		cv.clear();*/
+		cv.put(TIMETABLE.WEEK, 1);
+		cv.put(TIMETABLE.ID, 2);
+		cv.put(TIMETABLE.SPECIALTY_ID, 3);
+		db.insert(TABLES.TIMETABLE, null, cv);
+		cv.put(TIMETABLE.ID, 15);
+		db.insert(TABLES.TIMETABLE, null, cv);
+		cv.put(TIMETABLE.ID, 32);
+		db.insert(TABLES.TIMETABLE, null, cv);
 		cv.clear();
-		
 		// TODO Убрать в дальнейшем - добавление стандартных групп в бд
-		String[] Groups=new String[]{"ПИбд-21","ПСбд-11","ИВТАПбд-11","Нбд-21","БАбд-21","СОбд-31","МКбд-21","СОд-41","УПбд-21","ПИбд-11"};
+		String[] Groups=new String[]{"ПИбд-21", "ПСбд-11", "ИВТАПбд-11", "Нбд-21", "БАбд-21", "СОбд-31", "МКбд-21", "СОд-41", "УПбд-21", "ПИбд-11"};
 		for (String str : Groups) {
 			cv.put(SPECIALTY.NAME, str);
 			db.insert(TABLES.SPECIALTY, null, cv);
 		}
-		
 		Log.d("MyLog", "Timetable DB Created");
 	}
 

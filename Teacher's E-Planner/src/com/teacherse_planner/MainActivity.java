@@ -17,8 +17,10 @@ import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.view.LayoutInflater;
@@ -40,10 +42,16 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 	public DBHelper getDbHelper(){
 		return mdbHelper;
 	}
-	
-	private NavigationDrawerFragment mNavigationDrawerFragment; // Управляющий класс Navigation Drawer'a
+	/** Управляющий класс Navigation Drawer'a */
+	private NavigationDrawerFragment mNavigationDrawerFragment;
+	/** Фрагмент расписания */
 	private TimetableFragment mTimetableFragment;
-	private CharSequence mTitle; // Название текущего окна
+	/** Заголовок текущего окна */
+	private CharSequence mTitle;
+	
+	public TimetableFragment getmTimetableFragment() {// TODO убрать!!! используется пока только в создании диалогов для получения недели
+		return mTimetableFragment;
+	}
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +71,13 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 					.add(R.id.container, new PlaceholderFragment())
 					.commit();
 		}
+	}
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		// TODO сохранить последний видимый фрагмент
+		outState.putInt("lastFragment",(getFragmentManager().findFragmentById(R.id.container).getId()));
+		
 	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -104,7 +119,7 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 			break;
 		case 3:// Выход
 			finish();
-			System.exit(0);
+			//System.exit(0);
 			break;
 		case 4:// Test
 			NewTransaction
@@ -133,6 +148,8 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 		private static Dialog mCurrentDialogInstance = null;
 		/** ID текущего диалога */
 		private static IdDialog mCurrentDialogId = null;
+		/** Текущая активити */
+		private static Activity mContext;
 		/** Интерфейс для свзязи с фрагментами */
 		private DialogCallbacks mDialogCallbacks;
 		public static enum IdDialog { Timetable_ChangeDay }; // Сюда добавлять Id новых диалогов
@@ -153,7 +170,8 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 		 * @param dialogInfo - куча передаваемых параметров
 		 * @return Новый диалог DialogBuilder
 		 */
-		public static DialogBuilder newInstance(Bundle dialogInfo){
+		public static DialogBuilder newInstance(Context context,Bundle dialogInfo){
+			mContext = (Activity) context;
 			DialogBuilder instance = new DialogBuilder();
 			instance.setArguments(dialogInfo);
 			return instance;
@@ -168,25 +186,26 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 			// TODO Пока затычка
 			final DBHelper mdbHelper = new DBHelper(getActivity());
 			// Создаем различные окна диалогов
-			try {
 			AlertDialog.Builder builder = new Builder(getActivity());
+			try {
 			mCurrentDialogId = IdDialog.valueOf(getArguments().getString("idDialog"));
 			switch (mCurrentDialogId) {
 			case Timetable_ChangeDay:{ // Диалог по долгому нажатию на клетку в расписании фрагмента TimetableFragment
-				
+				SQLiteDatabase db = mdbHelper.getReadableDatabase();
 				final int idTimetable = getArguments().getInt("idTimetable");
+				final int currentWeek = ((MainActivity) mContext).getmTimetableFragment().getWeek();
 				// Получаем требуемые значения для заполнения текущими данными из БД
-				Cursor dayInfo = ((MainActivity)getActivity()).getDbHelper().getReadableDatabase().query(
-						TABLES.TIMETABLE+" LEFT OUTER JOIN "+TABLES.SPECIALTY+" ON "+SPECIALTY.fID+"="+ SPECIALTY.fID,
-						new String[]{TIMETABLE.fID, TIMETABLE.CLASSROOM, TIMETABLE.COLOR, TIMETABLE.WEEK, SPECIALTY.fID},
-						TIMETABLE.fID+"=?",
-						new String[]{String.valueOf(idTimetable)},
+				Cursor dayInfo = db.query(
+						TABLES.TIMETABLE+" INNER JOIN "+TABLES.SPECIALTY+" ON "+TIMETABLE.SPECIALTY_ID+"="+ SPECIALTY.aID,
+						new String[]{TIMETABLE.fID+" AS "+TIMETABLE.aID, TIMETABLE.CLASSROOM, TIMETABLE.COLOR, TIMETABLE.WEEK, SPECIALTY.fID+" AS "+SPECIALTY.aID},
+						TIMETABLE.aID+"=? AND "+TIMETABLE.WEEK+"=?",
+						new String[]{String.valueOf(idTimetable), String.valueOf(currentWeek)},
 						null, null, null);
 				dayInfo.moveToFirst();
+				final boolean dayInfoIsEmpty = dayInfo.getCount() == 0 ? true : false;
 				
-				final String currentClassroom = dayInfo.getString(dayInfo.getColumnIndex(TIMETABLE.CLASSROOM));
-				final int currentSpecialtyPosition = dayInfo.getInt(dayInfo.getColumnIndex(SPECIALTY.ID)) - 1;
-				final int currentWeek = dayInfo.getInt(dayInfo.getColumnIndex(TIMETABLE.WEEK));
+				final String currentClassroom = dayInfoIsEmpty ? "" : dayInfo.getString(dayInfo.getColumnIndex(TIMETABLE.CLASSROOM));
+				final int currentSpecialtyPosition = dayInfoIsEmpty ? 0 : dayInfo.getInt(dayInfo.getColumnIndex(SPECIALTY.aID)) - 1;
 				
 				// Создание собственного вида для диалога, настрока спиннера и текстового поля
 				View dialogView = View.inflate(getActivity(), R.layout.dialog_timetable_griditemlongclick, null);
@@ -206,7 +225,7 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 				specialtiesSpinner.setSelection(currentSpecialtyPosition);
 				// Список цвета
 				final Spinner colorSpinner = (Spinner) dialogView.findViewById(R.id.color_spinner);
-				
+				db.close();
 				builder
 				.setMessage("Изменить день")
 				.setView(dialogView)
@@ -214,17 +233,30 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 				.setPositiveButton("Сохранить", new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
+						SQLiteDatabase db = mdbHelper.getWritableDatabase();
+						
 						//Помещаемые значения
-						ContentValues cv = new ContentValues();
-						cv.put(TIMETABLE.SPECIALTY_ID, specialtiesSpinner.getSelectedItemId());
-						cv.put(TIMETABLE.CLASSROOM, classroom.getText().toString());
-						cv.put(TIMETABLE.COLOR, colorSpinner.getSelectedItem().toString());
-						mdbHelper.getWritableDatabase()
-							.update(
-									TABLES.TIMETABLE,
-									cv,
-									TIMETABLE.ID+"=? AND "+TIMETABLE.WEEK+"=?",
-									new String[]{String.valueOf(idTimetable), String.valueOf(currentWeek)});
+						long selectedSpecialityId = specialtiesSpinner.getSelectedItemId();
+						String selectedClassroom = classroom.getText().toString();
+						String selectedColor = colorSpinner.getSelectedItem().toString();
+						
+						//Пустые ли новые значения
+						boolean newdayInfoisEmpty = (selectedSpecialityId == 1 && selectedClassroom.length() == 0 && selectedColor.compareTo(getResources().getStringArray(R.array.colors)[0]) == 0) ? true : false;
+						long res = 1;
+						if(!newdayInfoisEmpty){
+							ContentValues cv = new ContentValues();
+							cv.put(TIMETABLE.SPECIALTY_ID, selectedSpecialityId);
+							cv.put(TIMETABLE.CLASSROOM, selectedClassroom);
+							cv.put(TIMETABLE.COLOR, selectedColor);
+							if(dayInfoIsEmpty){
+								cv.put(TIMETABLE.ID, idTimetable);
+								cv.put(TIMETABLE.WEEK, currentWeek);
+								res = db.insert(TABLES.TIMETABLE, null, cv);
+							}else
+								db.update(TABLES.TIMETABLE, cv, TIMETABLE.ID+"=? AND "+TIMETABLE.WEEK+"=?",new String[]{String.valueOf(idTimetable), String.valueOf(currentWeek)});
+						}else
+							db.delete(TABLES.TIMETABLE, TIMETABLE.ID+"=? AND "+TIMETABLE.WEEK+"=?",new String[]{String.valueOf(idTimetable), String.valueOf(currentWeek)});;
+						db.close();
 						dialog.dismiss();
 					}
 				})
@@ -233,13 +265,13 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 				break;
 
 			default:
-				throw new InvalidKeyException("No such ID in DialogBuilder.DialogID");
+				throw new InvalidKeyException("No such ID in DialogBuilder.IdDialog");
 			}
-			// Возвращаем созданное окно и записываем как текущее
-			return mCurrentDialogInstance = builder.create();
 			} catch (InvalidKeyException e) {
 				return null;
 			}
+			// Возвращаем созданное окно и записываем как текущее
+			return mCurrentDialogInstance = builder.create();
 		}
 		@Override
 		public void onDismiss(DialogInterface dialog) {

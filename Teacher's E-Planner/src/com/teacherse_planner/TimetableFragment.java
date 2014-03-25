@@ -12,7 +12,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Color;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,10 +23,10 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.CursorAdapter;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 public class TimetableFragment extends Fragment implements MainActivity.DialogBuilder.DialogCallbacks {
@@ -47,7 +47,9 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 	DBHelper mdbHelper;
 	/** Текущая неделя (1/2) */
 	int mCurrentWeek;
-	
+	public int getWeek(){
+		return mCurrentWeek;
+	}
 	public TimetableFragment(){}
 	@Override
 	public void onAttach(Activity activity) {
@@ -78,7 +80,7 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 		DayListHeader.setText("Пары");
 		mDayList.addHeaderView(DayListHeader);
 		// TODO Либо изменить полностью, либо дополнить выбором текущего дня и выделением ячейки
-		final Calendar calendar = Calendar.getInstance(); // Засунуть бы такие объекты в активити
+		final Calendar calendar = Calendar.getInstance(); // TODO Засунуть бы такие объекты в активити
 		mDayList.setAdapter(new ArrayAdapter<String>(
 				getActivity(),
 				R.layout.timetable_grid_item_2,
@@ -97,7 +99,7 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 		// Сетка расписания
 		mTimetableGrid = (GridView) mTimetableLayout.findViewById(R.id.timetable_grid);
 		// Заполнение таблицы из базы данных
-		mTimetableGrid.setAdapter(new SimpleCursorAdapter(// Двух уровневый адаптер: 1lvl - Название группы, 2lvl - номер аудитории
+		/*mTimetableGrid.setAdapter(new SimpleCursorAdapter(// Двух уровневый адаптер: 1lvl - Название группы, 2lvl - номер аудитории
 				getActivity(),
 				R.layout.timetable_grid_item_2,
 				null,
@@ -105,26 +107,38 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 				new int[]{android.R.id.text1, android.R.id.text2},
 				0){
 			@Override
+					public int getCount() {
+						// TODO Auto-generated method stub
+						return 6*7;
+					}
+			@Override
 			public void bindView(View view, Context context, Cursor cursor) {
+				super.bindView(view, context, cursor);
+				int id = cursor.getInt(0);
 				// TODO Изменить заполнение текстовых полей и выборку из курсора (?) проблема с БД
 				((TextView) view.findViewById(R.id.text1)).setText(cursor.getString(cursor.getColumnIndex(SPECIALTY.NAME)));// Название группы
 				((TextView) view.findViewById(R.id.text2)).setText(cursor.getString(cursor.getColumnIndex(TIMETABLE.CLASSROOM)));// Номер аудитории
 				// TODO Педелать выбор текущей пары
-				int id = cursor.getInt(0);
 				if(id>42)
 					id-=42;
-				Calendar c2=Calendar.getInstance();
-				int currentHour=c2.get(Calendar.HOUR_OF_DAY);
-				int currentMinute=c2.get(Calendar.MINUTE);
-				int currentTime=currentHour*60+currentMinute;
-				int pair=id-(id/8)*7-1;
-				int pairtime=8*60+pair*(90+10);
-				if(c2.get(Calendar.DAY_OF_WEEK)==(id/8+2) && currentTime>=pairtime && currentTime<pairtime+90){
+				Calendar calendar=Calendar.getInstance();
+				//int currentHour=calendar.get(Calendar.HOUR_OF_DAY);
+				//int currentMinute=calendar.get(Calendar.MINUTE);
+				int currentTime=calendar.get(Calendar.HOUR_OF_DAY)*60+calendar.get(Calendar.MINUTE);
+				//int pair=id-(id/8)*7-1;
+				int pairTime=8*60+(id-(id/8)*7-1)*(90+10);
+				if(calendar.get(Calendar.DAY_OF_WEEK)==(id/8+2) && currentTime>=pairTime && currentTime<pairTime+90){
 					view.setBackgroundColor(Color.RED);
 				}
-				super.bindView(view, context, cursor);
 			}
-		});
+		});*/
+		mTimetableGrid.setAdapter(new TableCursorAdapter(
+				getActivity(),
+				R.layout.timetable_grid_item_2,
+				null,
+				new String[]{SPECIALTY.NAME, TIMETABLE.CLASSROOM},//, TIMETABLE.COLOR},
+				new int[]{R.id.text1, R.id.text2},
+				42));
 		// Вызов диалога "Изменение дня"
 		mTimetableGrid.setOnItemLongClickListener(new OnItemLongClickListener() {
 			@Override
@@ -134,8 +148,8 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 				// Создать и показать диалог "Изменение дня"
 				Bundle dialogInfo = new Bundle();
 				dialogInfo.putString("idDialog", DialogBuilder.IdDialog.Timetable_ChangeDay.toString());
-				dialogInfo.putInt("idTimetable", (int) id);
-				MainActivity.DialogBuilder.newInstance(dialogInfo).show(getFragmentManager(), DialogBuilder.IdDialog.Timetable_ChangeDay.toString());
+				dialogInfo.putInt("idTimetable", position+1);
+				MainActivity.DialogBuilder.newInstance(getActivity(), dialogInfo).show(getFragmentManager(), DialogBuilder.IdDialog.Timetable_ChangeDay.toString());
 				return true;
 			}
 		});
@@ -199,15 +213,17 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 	}
 	/** Перерисовать текущее расписание */
 	public void refillTimetable(){
-		((SimpleCursorAdapter)(mTimetableGrid.getAdapter()))
-				.changeCursor(mdbHelper.getReadableDatabase()
-						.query(
-								TABLES.TIMETABLE+" LEFT OUTER JOIN "+TABLES.SPECIALTY+" ON "+TIMETABLE.fSPECIALTY_ID+"="+SPECIALTY.fID,
+		SQLiteDatabase db = mdbHelper.getReadableDatabase();
+		((TableCursorAdapter)(mTimetableGrid.getAdapter()))
+				.changeCursor(
+						db.query(
+								TABLES.TIMETABLE+" JOIN "+TABLES.SPECIALTY+" ON "+TIMETABLE.fSPECIALTY_ID+"="+SPECIALTY.fID,
 								new String[]{TIMETABLE.fID, SPECIALTY.NAME, TIMETABLE.CLASSROOM, TIMETABLE.COLOR},
 								TIMETABLE.WEEK+"=?",
 								new String[]{String.valueOf(mCurrentWeek)},
 								null, null, null));
-		((SimpleCursorAdapter)mTimetableGrid.getAdapter()).notifyDataSetChanged();
+		((TableCursorAdapter)mTimetableGrid.getAdapter()).notifyDataSetChanged();
+		db.close();
 	}
 	@Override
 	public void onDialogDismiss(DialogBuilder.IdDialog dialogId) {
@@ -220,5 +236,126 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 			break;
 		}
 		
+	}
+	public class TableCursorAdapter extends CursorAdapter {
+		
+		private Context mContext;
+		private LayoutInflater mInflater;
+		private int mLayout;
+		private String[] mFrom;
+		private int[] mTo;
+		private int mSize;
+		private long mCursorId;
+		private int mCursorIdPosition;
+		private int mViewPosition;
+		private int mRowIDColumn;
+		/**
+		 * 
+		 * @param context The context where the ListView associated with this SimpleListItemFactory is running 
+		 * @param layout resource identifier of a layout file that defines the views for this list item. The layout file should include at least those named views defined in "to" 
+		 * @param c The database cursor. Can be null if the cursor is not available yet. 
+		 * @param from A list of column names representing the data to bind to the UI. Can be null if the cursor is not available yet. 
+		 * @param to The views that should display column in the "from" parameter. These should all be TextViews. The first N views in this list are given the values of the first N columns in the from parameter. Can be null if the cursor is not available yet. 
+		 * @param size How many items should be in the data set represented by this Adapter.
+		 */
+		public TableCursorAdapter(Context context,int layout, Cursor c, String[] from, int[] to, int size) {
+			super(context, c, 0);
+			mContext = context;
+			mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			mLayout = layout;
+			mFrom = from;
+			mTo = to;
+			mSize = size;
+			boolean cursorPresent = c != null;
+			mRowIDColumn = cursorPresent  ? c.getColumnIndexOrThrow("_id") : -1;
+			mViewPosition = 0;
+			setStartIdPosition(cursorPresent);
+		}
+		/**
+		 * Проверяет, совпадает ли позиция(!)(позиция+1) в списке с id записи 
+		 * @return true если совпадает, иначе - false
+		 */
+		protected boolean isAtCurrent() {
+			return mViewPosition == mCursorId ? true : false;
+		}
+		protected void setStartIdPosition(boolean cursorPresent){
+			if(cursorPresent){
+				setNextIdPosition();
+				getCursor().moveToPosition(-1);
+			}else {
+				mCursorId = mCursorIdPosition = -1;
+			}
+		}
+		protected void setNextIdPosition(){
+			if(getCursor().moveToNext()){
+				mCursorId = getCursor().getLong(mRowIDColumn);
+				mCursorIdPosition = getCursor().getPosition();
+			} else {
+				mCursorId = mCursorIdPosition = -1;
+			}
+		}
+		@Override
+		public void changeCursor(Cursor cursor) {
+			super.changeCursor(cursor);
+			boolean cursorPresent = cursor != null;
+			mRowIDColumn = cursorPresent  ? cursor.getColumnIndexOrThrow("_id") : -1;
+			setStartIdPosition(cursorPresent);
+		}
+		@Override
+		public int getCount() {
+			if(getCursor() != null)
+				return mSize;
+			else
+				return 0;
+		};
+		@Override
+		public Object getItem(int position) {
+			mViewPosition = position+1;
+			if(getCursor() != null){
+				if(isAtCurrent())
+					return super.getItem(mCursorIdPosition);
+				else
+					return null;
+			}else
+				return null;
+		}
+		@Override
+		public long getItemId(int position) {
+			mViewPosition = position+1;
+			if(isAtCurrent())
+				return super.getItemId(mCursorIdPosition);
+			else
+				return 0;
+		}
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			if((mViewPosition = position+1) == mCursorId) {
+				getCursor().moveToPosition(mCursorIdPosition);
+			}
+	        View view;
+	        if (convertView == null) {
+	            view = newView(mContext, getCursor(), parent);
+	        } else {
+	            view = convertView;
+	        }
+	        bindView(view, mContext, getCursor());
+	        return view;
+		}
+		@Override
+		public void bindView(View view, Context context, Cursor cursor) {
+			if(isAtCurrent()) {
+				for(int i=0; i < (mFrom.length > mTo.length ? mTo.length : mFrom.length); ++i){
+					TextView tv = (TextView) view.findViewById(mTo[i]);
+					String data = cursor.getString(cursor.getColumnIndex(mFrom[i]));
+					tv.setText(data);
+				}
+				setNextIdPosition();
+			}
+		}
+		@Override
+		public View newView(Context context, Cursor cursor, ViewGroup parent) {
+			View view = mInflater.inflate(mLayout, parent, false);
+			return view;
+		}
 	}
 }
