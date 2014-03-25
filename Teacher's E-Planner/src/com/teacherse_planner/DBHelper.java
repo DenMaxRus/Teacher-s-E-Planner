@@ -154,14 +154,14 @@ public class DBHelper extends SQLiteOpenHelper {
 		cv.put(SPECIALTY.NAME, "");
 		db.insert(TABLES.SPECIALTY, null, cv);
 		cv.clear();
-		/*// ƒобавл€ем 84 пустых записи в расписание (_id: 1-42 - перва€ недел€, 43-84 - втора€ недел€)
-		cv.put(TIMETABLE.WEEK, 1);
-		for(int i=0;i<42;++i)
-			db.insert(TABLES.TIMETABLE, null, cv);
-		cv.put(TIMETABLE.WEEK, 2);
-		for(int i=0;i<42;++i)
-			db.insert(TABLES.TIMETABLE, null, cv);
-		cv.clear();*/
+		
+		// TODO ”брать в дальнейшем - добавление стандартных групп в бд
+		String[] Groups=new String[]{"ѕ»бд-21", "ѕ—бд-11", "»¬“јѕбд-11", "Ќбд-21", "Ѕјбд-21", "—ќбд-31", "ћ бд-21", "—ќд-41", "”ѕбд-21", "ѕ»бд-11"};
+		for (String str : Groups) {
+			cv.put(SPECIALTY.NAME, str);
+			db.insert(TABLES.SPECIALTY, null, cv);
+		}
+		cv.clear();
 		cv.put(TIMETABLE.WEEK, 1);
 		cv.put(TIMETABLE.ID, 2);
 		cv.put(TIMETABLE.SPECIALTY_ID, 3);
@@ -170,13 +170,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		db.insert(TABLES.TIMETABLE, null, cv);
 		cv.put(TIMETABLE.ID, 32);
 		db.insert(TABLES.TIMETABLE, null, cv);
-		cv.clear();
-		// TODO ”брать в дальнейшем - добавление стандартных групп в бд
-		String[] Groups=new String[]{"ѕ»бд-21", "ѕ—бд-11", "»¬“јѕбд-11", "Ќбд-21", "Ѕјбд-21", "—ќбд-31", "ћ бд-21", "—ќд-41", "”ѕбд-21", "ѕ»бд-11"};
-		for (String str : Groups) {
-			cv.put(SPECIALTY.NAME, str);
-			db.insert(TABLES.SPECIALTY, null, cv);
-		}
+		
 		Log.d("MyLog", "Timetable DB Created");
 	}
 

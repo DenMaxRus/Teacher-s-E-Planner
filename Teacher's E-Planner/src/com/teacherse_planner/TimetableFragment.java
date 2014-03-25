@@ -13,6 +13,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -28,6 +29,7 @@ import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.WrapperListAdapter;
 
 public class TimetableFragment extends Fragment implements MainActivity.DialogBuilder.DialogCallbacks {
 	/** Заголовок */
@@ -61,7 +63,7 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 		// TODO Добавить actionbar
 		super.onCreate(savedInstanceState);
 		// Если есть сохраненное состояние - вынимаем оттуда неделю, иначе будет первая
-		mCurrentWeek = savedInstanceState == null ? 1 : savedInstanceState.getInt("mCurrentWeek");
+		mCurrentWeek = savedInstanceState == null ? 2 : savedInstanceState.getInt("mCurrentWeek");
 		
 		// TODO Заменить - один и тот же объект во всех классах.
 		mdbHelper = new DBHelper(getActivity());
@@ -98,40 +100,7 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 			}});
 		// Сетка расписания
 		mTimetableGrid = (GridView) mTimetableLayout.findViewById(R.id.timetable_grid);
-		// Заполнение таблицы из базы данных
-		/*mTimetableGrid.setAdapter(new SimpleCursorAdapter(// Двух уровневый адаптер: 1lvl - Название группы, 2lvl - номер аудитории
-				getActivity(),
-				R.layout.timetable_grid_item_2,
-				null,
-				new String[]{SPECIALTY.NAME, TIMETABLE.CLASSROOM, TIMETABLE.COLOR},
-				new int[]{android.R.id.text1, android.R.id.text2},
-				0){
-			@Override
-					public int getCount() {
-						// TODO Auto-generated method stub
-						return 6*7;
-					}
-			@Override
-			public void bindView(View view, Context context, Cursor cursor) {
-				super.bindView(view, context, cursor);
-				int id = cursor.getInt(0);
-				// TODO Изменить заполнение текстовых полей и выборку из курсора (?) проблема с БД
-				((TextView) view.findViewById(R.id.text1)).setText(cursor.getString(cursor.getColumnIndex(SPECIALTY.NAME)));// Название группы
-				((TextView) view.findViewById(R.id.text2)).setText(cursor.getString(cursor.getColumnIndex(TIMETABLE.CLASSROOM)));// Номер аудитории
-				// TODO Педелать выбор текущей пары
-				if(id>42)
-					id-=42;
-				Calendar calendar=Calendar.getInstance();
-				//int currentHour=calendar.get(Calendar.HOUR_OF_DAY);
-				//int currentMinute=calendar.get(Calendar.MINUTE);
-				int currentTime=calendar.get(Calendar.HOUR_OF_DAY)*60+calendar.get(Calendar.MINUTE);
-				//int pair=id-(id/8)*7-1;
-				int pairTime=8*60+(id-(id/8)*7-1)*(90+10);
-				if(calendar.get(Calendar.DAY_OF_WEEK)==(id/8+2) && currentTime>=pairTime && currentTime<pairTime+90){
-					view.setBackgroundColor(Color.RED);
-				}
-			}
-		});*/
+		// Заполнение таблицы из базы данных5
 		mTimetableGrid.setAdapter(new TableCursorAdapter(
 				getActivity(),
 				R.layout.timetable_grid_item_2,
@@ -162,7 +131,6 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 				new String[]{"8.00 - 9.30", "9.40 - 11.10", "11.30 - 13.00", "13.10 - 14.40", "14.50 - 16.20", "16.30 - 18.00", "18.00 - 19.30"}));
 		
 		return mTimetableLayout;
-		//return super.onCreateView(inflater, container, savedInstanceState);
 	}
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -221,7 +189,9 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 								new String[]{TIMETABLE.fID, SPECIALTY.NAME, TIMETABLE.CLASSROOM, TIMETABLE.COLOR},
 								TIMETABLE.WEEK+"=?",
 								new String[]{String.valueOf(mCurrentWeek)},
-								null, null, null));
+								null, null,
+								TIMETABLE.fID));
+		// TODO обновлять mTimetableGrid при загрузке пустого расписания
 		((TableCursorAdapter)mTimetableGrid.getAdapter()).notifyDataSetChanged();
 		db.close();
 	}
@@ -235,12 +205,11 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 		default:
 			break;
 		}
-		
 	}
 	public class TableCursorAdapter extends CursorAdapter {
 		
 		private Context mContext;
-		private LayoutInflater mInflater;
+		protected LayoutInflater mInflater;
 		private int mLayout;
 		private String[] mFrom;
 		private int[] mTo;
@@ -296,6 +265,7 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 		}
 		@Override
 		public void changeCursor(Cursor cursor) {
+			// TODO Auto-generated method stub
 			super.changeCursor(cursor);
 			boolean cursorPresent = cursor != null;
 			mRowIDColumn = cursorPresent  ? cursor.getColumnIndexOrThrow("_id") : -1;
@@ -350,6 +320,13 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 					tv.setText(data);
 				}
 				setNextIdPosition();
+			}
+			// Выделение текущей пары цветом TODO сделать бы градиентом
+			Calendar calendar=Calendar.getInstance();
+			int currentTime=calendar.get(Calendar.HOUR_OF_DAY)*60+calendar.get(Calendar.MINUTE);
+			int pairTime=8 * 60 + (mViewPosition - (mViewPosition / 8) * 7 - 1) * (90 + 10);
+			if(calendar.get(Calendar.DAY_OF_WEEK) == (mViewPosition / 8 + 2) && currentTime >= pairTime && currentTime < pairTime + 90) {
+				view.setBackgroundColor(Color.RED);
 			}
 		}
 		@Override
