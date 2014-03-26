@@ -19,6 +19,7 @@
 		android:divider="@android:color/black"
 		android:background="@android:color/black"
 		android:clickable="false" >
+
 	</ListView>
 		
 		<LinearLayout

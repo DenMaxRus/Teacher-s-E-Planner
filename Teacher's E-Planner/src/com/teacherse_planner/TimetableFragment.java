@@ -98,13 +98,31 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 		// Сетка расписания
 		mTimetableGrid = (GridView) mTimetableLayout.findViewById(R.id.timetable_grid);
 		// Заполнение таблицы из базы данных
-		mTimetableGrid.setAdapter(new TimetableGridAdapter(
+		mTimetableGrid.setAdapter(new TableCursorAdapter(
 				getActivity(),
 				R.layout.timetable_grid_item_2,
 				null,
-				new String[]{SPECIALTY.NAME, TIMETABLE.CLASSROOM},//, TIMETABLE.COLOR},
+				new String[]{SPECIALTY.NAME, TIMETABLE.CLASSROOM, TIMETABLE.COLOR},
 				new int[]{R.id.text1, R.id.text2},
-				42));
+				42){
+			@Override
+			public void bindView(View view, Context context, Cursor cursor) {
+				((TextView)view.findViewById(R.id.text1)).setText(cursor.getString(cursor.getColumnIndex(SPECIALTY.NAME)));
+				((TextView)view.findViewById(R.id.text1)).setText(cursor.getString(cursor.getColumnIndex(TIMETABLE.CLASSROOM)));
+				view.setBackgroundColor(cursor.getInt(cursor.getColumnIndex(TIMETABLE.COLOR)));
+			}
+			@Override
+			public void bindAfter(View view, Context context) {
+				super.bindAfter(view, context);
+				// Выделение текущей пары цветом TODO сделать градиентом и убрать календарь
+				Calendar calendar = Calendar.getInstance();
+				int currentTime = calendar.get(Calendar.HOUR_OF_DAY)*60+calendar.get(Calendar.MINUTE);
+				int pairTime = 8 * 60 + (getViewPosition() - (getViewPosition() / 8) * 7 - 1) * (90 + 10);
+				if(calendar.get(Calendar.DAY_OF_WEEK) == (getViewPosition() / 8 + 2) && currentTime >= pairTime && currentTime < pairTime + 90) {
+					view.setBackgroundColor(Color.RED);
+				}
+			}
+		});
 		// Вызов диалога "Изменение дня"
 		mTimetableGrid.setOnItemLongClickListener(new OnItemLongClickListener() {
 			@Override
@@ -169,6 +187,7 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 			return super.onOptionsItemSelected(item);
 		}
 	}
+
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
 		// Показать текущее значение недели в actionbar'e
@@ -199,23 +218,6 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 			break;
 		default:
 			break;
-		}
-	}
-	public class TimetableGridAdapter extends TableCursorAdapter {
-		public TimetableGridAdapter(Context context, int layout, Cursor c,
-				String[] from, int[] to, int size) {
-			super(context, layout, c, from, to, size);
-		}
-		@Override
-		public void bindAfter(View view, Context context) {
-			super.bindAfter(view, context);
-			// Выделение текущей пары цветом TODO сделать градиентом и убрать календарь
-			Calendar calendar = Calendar.getInstance();
-			int currentTime = calendar.get(Calendar.HOUR_OF_DAY)*60+calendar.get(Calendar.MINUTE);
-			int pairTime = 8 * 60 + (getViewPosition() - (getViewPosition() / 8) * 7 - 1) * (90 + 10);
-			if(calendar.get(Calendar.DAY_OF_WEEK) == (getViewPosition() / 8 + 2) && currentTime >= pairTime && currentTime < pairTime + 90) {
-				view.setBackgroundColor(Color.RED);
-			}
 		}
 	}
 }

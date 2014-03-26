@@ -8,6 +8,7 @@ import com.teacherse_planner.DBHelper.TABLES.SPECIALTY;
 import com.teacherse_planner.DBHelper.TABLES.TIMETABLE;
 import com.teacherse_planner.NavigationDrawerFragment.NavigationDrawerCallbacks;
 
+import android.R.integer;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.AlertDialog;
@@ -28,9 +29,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
+import android.widget.TextView;
 
 public class MainActivity extends Activity implements NavigationDrawerCallbacks {
 	
@@ -207,6 +211,7 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 				// Текущие значение (на момент открытия диалога)
 				final String currentClassroom = dayInfoIsEmpty ? "" : dayInfo.getString(dayInfo.getColumnIndex(TIMETABLE.CLASSROOM));
 				final int currentSpecialtyPosition = dayInfoIsEmpty ? 0 : dayInfo.getInt(dayInfo.getColumnIndex(SPECIALTY.aID)) - 1;
+				int currentColor = dayInfoIsEmpty ? 0 : dayInfo.getInt(dayInfo.getColumnIndex(TIMETABLE.COLOR));
 				
 				// Создание собственного вида для диалога, настрока спиннера и текстового поля
 				View dialogView = View.inflate(getActivity(), R.layout.dialog_timetable_griditemlongclick, null);
@@ -216,17 +221,50 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 				// Спиннер списка групп
 				final Spinner specialtiesSpinner = (Spinner) dialogView.findViewById(R.id.specialties_spinner);
 				// Заполнение списка выбора групп группами
-				specialtiesSpinner.setAdapter(new SimpleCursorAdapter(
+				SimpleCursorAdapter specialtiesSpinnerAdapter = new SimpleCursorAdapter(
 						getActivity(),
 						android.R.layout.simple_spinner_item,
 						mdbHelper.getReadableDatabase().query(TABLES.SPECIALTY, null, null, null, null, null, null),
 						new String[]{SPECIALTY.NAME},
 						new int[]{android.R.id.text1},
-						0));
+						0);
+				specialtiesSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+				specialtiesSpinner.setAdapter(specialtiesSpinnerAdapter);
 				specialtiesSpinner.setSelection(currentSpecialtyPosition);
+				db.close();
 				// Список цвета
 				final Spinner colorSpinner = (Spinner) dialogView.findViewById(R.id.color_spinner);
-				db.close();
+				int[] oldColors = getResources().getIntArray(R.array.colors);
+				Integer[] colors = new Integer[oldColors.length];
+				final String[] colorNames = getResources().getStringArray(R.array.color_name);
+				int currentColorPos = 0;
+				for(int i=0;i < oldColors.length; ++i) {
+					colors[i] = Integer.valueOf(oldColors[i]);
+					if(colors[i] == currentColor)
+						currentColorPos = i;
+				}
+				ArrayAdapter<Integer> colorSpinnerAdapter = new ArrayAdapter<Integer>(
+						getActivity(),
+						android.R.layout.simple_spinner_item,
+						colors){
+					@Override
+					public View getView(int position, View convertView, ViewGroup parent) {
+						View view = super.getView(position, convertView, parent);
+						view.setBackgroundColor(getItem(position));
+						((TextView)view.findViewById(android.R.id.text1)).setText(colorNames[position]);
+						return view;
+					}
+					@Override
+					public View getDropDownView(int position, View convertView, ViewGroup parent) {
+						View view =  super.getDropDownView(position, convertView, parent);
+						view.setBackgroundColor(getItem(position));
+						((TextView)view.findViewById(android.R.id.text1)).setText(colorNames[position]);
+						return view;
+					}
+				};
+				colorSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+				colorSpinner.setAdapter(colorSpinnerAdapter);
+				colorSpinner.setSelection(currentColorPos);
 				builder
 				.setMessage("Изменить день")
 				.setView(dialogView)
@@ -239,10 +277,10 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 						//Помещаемые значения
 						long selectedSpecialityId = specialtiesSpinner.getSelectedItemId();
 						String selectedClassroom = classroom.getText().toString();
-						String selectedColor = colorSpinner.getSelectedItem().toString();
+						Integer selectedColor = (Integer) colorSpinner.getSelectedItem();
 						
 						//Пустые ли новые значения
-						boolean newdayInfoisEmpty = (selectedSpecialityId == 1 && selectedClassroom.length() == 0 && selectedColor.compareTo(getResources().getStringArray(R.array.colors)[0]) == 0) ? true : false;
+						boolean newdayInfoisEmpty = (selectedSpecialityId == 1 && selectedClassroom.length() == 0 && selectedColor == getResources().getIntArray(R.array.colors)[0]) ? true : false;
 						if(!newdayInfoisEmpty){
 							ContentValues cv = new ContentValues();
 							cv.put(TIMETABLE.SPECIALTY_ID, selectedSpecialityId);
