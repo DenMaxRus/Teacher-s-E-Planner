@@ -11,5 +11,6 @@
 	<string name="dialog_timetable_griditem_title">Изменить день</string>
 	<string name="dialog_timetable_griditem_hint">Введите номер аудитории</string>
 	<string name="drawer_shadow">Drawer shadow</string>
+	<string name="drawer_hint">Drawer hint</string>
 
 </resources>

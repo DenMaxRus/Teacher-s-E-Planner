@@ -108,7 +108,7 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 			@Override
 			public void bindView(View view, Context context, Cursor cursor) {
 				((TextView)view.findViewById(R.id.text1)).setText(cursor.getString(cursor.getColumnIndex(SPECIALTY.NAME)));
-				((TextView)view.findViewById(R.id.text1)).setText(cursor.getString(cursor.getColumnIndex(TIMETABLE.CLASSROOM)));
+				((TextView)view.findViewById(R.id.text2)).setText(cursor.getString(cursor.getColumnIndex(TIMETABLE.CLASSROOM)));
 				view.setBackgroundColor(cursor.getInt(cursor.getColumnIndex(TIMETABLE.COLOR)));
 			}
 			@Override
@@ -116,7 +116,7 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 				super.bindAfter(view, context);
 				// Выделение текущей пары цветом TODO сделать градиентом и убрать календарь
 				Calendar calendar = Calendar.getInstance();
-				int currentTime = calendar.get(Calendar.HOUR_OF_DAY)*60+calendar.get(Calendar.MINUTE);
+				int currentTime = calendar.get(Calendar.HOUR_OF_DAY) * 60 + calendar.get(Calendar.MINUTE);
 				int pairTime = 8 * 60 + (getViewPosition() - (getViewPosition() / 8) * 7 - 1) * (90 + 10);
 				if(calendar.get(Calendar.DAY_OF_WEEK) == (getViewPosition() / 8 + 2) && currentTime >= pairTime && currentTime < pairTime + 90) {
 					view.setBackgroundColor(Color.RED);

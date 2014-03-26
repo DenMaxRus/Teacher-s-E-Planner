@@ -82,6 +82,7 @@ public final class R {
         public static final int app_name=0x7f070000;
         public static final int dialog_timetable_griditem_hint=0x7f070008;
         public static final int dialog_timetable_griditem_title=0x7f070007;
+        public static final int drawer_hint=0x7f07000a;
         public static final int drawer_shadow=0x7f070009;
         public static final int greetings=0x7f070002;
         public static final int navigation_drawer_close=0x7f070005;
