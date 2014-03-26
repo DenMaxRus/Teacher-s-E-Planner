@@ -6,7 +6,7 @@
 	android:baselineAligned="false"
 	android:weightSum="8"
 	android:orientation="horizontal"
-	tools:context="com.teacherse_planner.TimetableFragment" >
+	tools:context="com.teacherse_planner.TimetableFragment" xmlns:app="http://schemas.android.com/apk/res/com.teacherse_planner">
 	
 	<ListView
 		android:id="@+id/day_list"

@@ -148,7 +148,7 @@ public class NavigationDrawerFragment extends Fragment {
 	public void setUp(DrawerLayout drawerLayout){
 		mDrawerLayout = drawerLayout;
 		mDrawerLayout.setDrawerShadow(R.drawable.drawer_hint, Gravity.START);
-        // ”правление Navigation Drawer
+		// ”правление Navigation Drawer
         mDrawerToggle = new ActionBarDrawerToggle(
 				getActivity(),
 				mDrawerLayout,

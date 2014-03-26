@@ -71,7 +71,6 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		// TODO Разве здесь подключать адаптеры?
-		// Если еще не создавался - создать, иначе вернуть уже существующее полотно
 		mTimetableLayout = (LinearLayout) inflater.inflate(R.layout.fragment_timetable, container, false);// Вся панель расписания
 		// Лист дней недели
 		mDayList = (ListView) mTimetableLayout.findViewById(R.id.day_list);

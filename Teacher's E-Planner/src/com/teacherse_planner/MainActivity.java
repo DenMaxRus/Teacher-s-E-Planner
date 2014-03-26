@@ -34,21 +34,23 @@ import android.widget.Spinner;
 
 public class MainActivity extends Activity implements NavigationDrawerCallbacks {
 	
-	private Calendar mCalendar; //
-	public Calendar getCalendar(){
-		return mCalendar;
-	}
+	private Calendar mCalendar;
 	private DBHelper mdbHelper;
-	public DBHelper getDbHelper(){
-		return mdbHelper;
-	}
 	/** ”правл€ющий класс Navigation Drawer'a */
 	private NavigationDrawerFragment mNavigationDrawerFragment;
 	/** ‘рагмент расписани€ */
 	private TimetableFragment mTimetableFragment;
+	/** ‘рагмент оценок группы */
+	private GrouptableFragment mGrouptableFragment;
 	/** «аголовок текущего окна */
 	private CharSequence mTitle;
 	
+	public Calendar getCalendar(){
+		return mCalendar;
+	}
+	public DBHelper getDbHelper(){
+		return mdbHelper;
+	}
 	public TimetableFragment getmTimetableFragment() {// TODO убрать!!! используетс€ пока только в создании диалогов дл€ получени€ недели
 		return mTimetableFragment;
 	}
@@ -138,7 +140,6 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setTitle(mTitle);
     }
-	
     /**
      *  ласс, управл€ющий диалогами
      */

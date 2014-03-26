@@ -20,6 +20,7 @@ public class TableCursorAdapter extends CursorAdapter {
 	private int mCursorIdPosition;
 	private int mViewPosition;
 	private int mRowIDColumn;
+	private View mCleanView;
 	/** Текущая позиция в ListView + 1 */
 	public int getViewPosition() {
 		return mViewPosition;
