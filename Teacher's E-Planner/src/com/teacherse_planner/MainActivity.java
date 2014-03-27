@@ -334,7 +334,7 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 	 * A placeholder fragment containing a simple view.
 	 */
 	public static class PlaceholderFragment extends Fragment {
-
+		
 		public PlaceholderFragment() {
 		}
 

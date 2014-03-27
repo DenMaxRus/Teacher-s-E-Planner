@@ -3,7 +3,38 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:orientation="vertical"
+	android:orientation="horizontal"
+	android:weightSum="11"
+	android:baselineAligned="false"
 	tools:context="com.teacherse_planner.GrouptableFragment" >
-
+	
+	<ListView
+		android:id="@+id/student_list"
+		android:layout_width="0dp"
+		android:layout_height="match_parent"
+		android:layout_weight="1"
+		android:divider="@android:color/black"
+		android:dividerHeight="1dp" />
+	
+	<LinearLayout
+		android:layout_width="0dp"
+		android:layout_height="match_parent"
+		android:orientation="vertical"
+		android:layout_weight="10" >
+		
+		<GridView
+			android:id="@+id/group_lessons_grid"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:horizontalSpacing="1dp"
+			android:verticalSpacing="1dp" />
+		
+		<GridView
+			android:id="@+id/grouptable_grid"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:horizontalSpacing="1dp"
+			android:verticalSpacing="1dp" />
+				
+	</LinearLayout>
 </LinearLayout>

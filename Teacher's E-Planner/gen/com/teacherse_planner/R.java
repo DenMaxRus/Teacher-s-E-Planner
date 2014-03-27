@@ -45,22 +45,25 @@ public final class R {
         public static final int the_guy=0x7f020004;
     }
     public static final class id {
-        public static final int action_settings=0x7f0a000e;
+        public static final int action_settings=0x7f0a0011;
         public static final int classroom=0x7f0a0004;
         public static final int color_spinner=0x7f0a0005;
         public static final int container=0x7f0a0001;
-        public static final int current_week=0x7f0a000f;
-        public static final int day_list=0x7f0a0009;
+        public static final int current_week=0x7f0a0012;
+        public static final int day_list=0x7f0a000c;
         public static final int drawer_layout=0x7f0a0000;
-        public static final int drawer_menu_list=0x7f0a0007;
-        public static final int drawer_specialties_list=0x7f0a0008;
-        public static final int greetings_text=0x7f0a0006;
+        public static final int drawer_menu_list=0x7f0a000a;
+        public static final int drawer_specialties_list=0x7f0a000b;
+        public static final int greetings_text=0x7f0a0009;
+        public static final int group_lessons_grid=0x7f0a0007;
+        public static final int grouptable_grid=0x7f0a0008;
         public static final int navigation_drawer=0x7f0a0002;
-        public static final int pairtime_grid=0x7f0a000a;
+        public static final int pairtime_grid=0x7f0a000d;
         public static final int specialties_spinner=0x7f0a0003;
-        public static final int text1=0x7f0a000c;
-        public static final int text2=0x7f0a000d;
-        public static final int timetable_grid=0x7f0a000b;
+        public static final int student_list=0x7f0a0006;
+        public static final int text1=0x7f0a000f;
+        public static final int text2=0x7f0a0010;
+        public static final int timetable_grid=0x7f0a000e;
     }
     public static final class layout {
         public static final int activity_main_screen=0x7f030000;
