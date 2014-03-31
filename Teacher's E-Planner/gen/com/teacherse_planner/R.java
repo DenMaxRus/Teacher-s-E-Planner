@@ -9,16 +9,19 @@ package com.teacherse_planner;
 
 public final class R {
     public static final class array {
-        public static final int color_name=0x7f040001;
+        public static final int color_names=0x7f040001;
         public static final int colors=0x7f040000;
     }
     public static final class attr {
     }
     public static final class color {
         public static final int blue=0x7f050002;
+        public static final int fiol=0x7f050004;
         public static final int green=0x7f050001;
-        public static final int rage=0x7f050003;
+        public static final int lightblue=0x7f050006;
+        public static final int orange=0x7f050003;
         public static final int red=0x7f050000;
+        public static final int yellow=0x7f050005;
     }
     public static final class dimen {
         /**  Default screen margins, per the Android Design guidelines. 

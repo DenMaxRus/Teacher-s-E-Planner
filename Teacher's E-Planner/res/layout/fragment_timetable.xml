@@ -7,7 +7,7 @@
 	android:weightSum="8"
 	android:orientation="horizontal"
 	tools:context="com.teacherse_planner.TimetableFragment" >
-	
+
 	<ListView
 		android:id="@+id/day_list"
 		android:layout_width="0dp"
@@ -16,8 +16,8 @@
 		android:paddingRight="1dp"
 		android:paddingBottom="1dp"
 		android:dividerHeight="1dp"
-		android:divider="@android:color/black"
-		android:background="@android:color/black"
+		android:divider="@android:color/black" 
+		android:background="@android:color/black" 
 		android:clickable="false" >
 
 	</ListView>

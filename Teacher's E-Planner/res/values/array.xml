@@ -6,15 +6,19 @@
 		<item>@color/red</item>
 		<item>@color/green</item>
 		<item>@color/blue</item>
-		<item>@color/rage</item>
+		<item>@color/orange</item>
+		<item>@color/fiol</item>
+		<item>@color/yellow</item>
 	</integer-array>
 	
-	<string-array name="color_name">
+	<string-array name="color_names">
 		<item>none</item>
 		<item>red</item>
 		<item>green</item>
 		<item>blue</item>
-		<item>rage</item>
+		<item>orange</item>
+		<item>fiol</item>
+		<item>yellow</item>
 	</string-array>
 	
 </resources>

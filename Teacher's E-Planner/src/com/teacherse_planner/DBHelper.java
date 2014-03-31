@@ -1,5 +1,8 @@
 package com.teacherse_planner;
 
+import com.teacherse_planner.DBHelper.TABLES.HOMEREADING;
+import com.teacherse_planner.DBHelper.TABLES.HOMEWORK;
+import com.teacherse_planner.DBHelper.TABLES.HOMEWORK_RESULT;
 import com.teacherse_planner.DBHelper.TABLES.SPECIALTY;
 import com.teacherse_planner.DBHelper.TABLES.STUDENT;
 import com.teacherse_planner.DBHelper.TABLES.TIMETABLE;
@@ -23,7 +26,8 @@ public class DBHelper extends SQLiteOpenHelper {
 	private static final String STUDENT_ID="_id",STUDENT_NAME="name";*/
 	
 	public static abstract class TABLES {
-		public final static String TIMETABLE = "timetable", SPECIALTY = "specialty", STUDENT = "student";
+		
+		public final static String TIMETABLE = "timetable", SPECIALTY = "specialty", STUDENT = "student", SPECIALTY_CLASSES = "specialty_classes", HOMEREADING = "homereading", HOMEWORK_RESULT = "homework_result", HOMEWORK = "homework";
 		
 		/** Таблица расписания. Полные пути вида %TABLE%.%FIELD% можно получить через f%FIELD% переменные. */
 		public static abstract class TIMETABLE {
@@ -61,72 +65,88 @@ public class DBHelper extends SQLiteOpenHelper {
 			public final static String
 				ID = "_id",
 				NAME = "name",
+				NOTE = "note",
 				
 				fID = STUDENT + "." + ID,
 				fNAME = STUDENT + "." + NAME,
+				fNOTE = STUDENT + "." + NOTE,
 				
 				aID = "student_table_id";
 			private STUDENT(){}
 		};
+		/** Таблица домашних заданий. Полные пути вида %TABLE%.%FIELD% можно получить через f%FIELD% переменные. */
+		public static abstract class HOMEWORK {
+			public final static String
+				ID = "_id",
+				DATE ="date",
+				SPECIALTY_ID = "specialty_id",
+				HOMEWORK_TEXT = "homework_text",
+				
+				fID = HOMEWORK + "." + ID,
+				fDATE = HOMEWORK + "." + DATE,
+				fSPECIALTY_ID = HOMEWORK + "." + SPECIALTY_ID,
+				fHOMEWORK_TEXT = HOMEWORK + "." + HOMEWORK_TEXT;
+			private HOMEWORK(){}
+		}
+		/** Таблица оценок за домашнюю работу. Полные пути вида %TABLE%.%FIELD% можно получить через f%FIELD% переменные. */
+		public static abstract class HOMEWORK_RESULT {
+			public final static String
+				ID = "_id",
+				MARK = "mark",
+				NOTE = "note",
+				
+				fID = HOMEWORK_RESULT + "." + ID,
+				fMARK = HOMEWORK_RESULT + "." + MARK,
+				fNOTE = HOMEWORK_RESULT + "." + NOTE;
+			private HOMEWORK_RESULT(){}
+		}
+		/** Таблица резульатов домашнего чтения. Полные пути вида %TABLE%.%FIELD% можно получить через f%FIELD% переменные. */
+		public static abstract class HOMEREADING {
+			public final static String
+				ID = "_id",
+				SYMBOLS = "symbols",
+				WORDS = "words",
+				RETELLING = "retelling",
+				TRANSLATING = "translating",
+				
+				fID = HOMEREADING + "." + ID,
+				fSYMBOLS = HOMEREADING + "." + SYMBOLS,
+				fWORDS = HOMEREADING + "." + WORDS,
+				fRETELLING = HOMEREADING + "." + RETELLING,
+				fTRANSLATING = HOMEREADING + "." + TRANSLATING;
+			private HOMEREADING(){}
+		};
+		/** Таблица оценок, посещаемости и т.д. Полные пути вида %TABLE%.%FIELD% можно получить через f%FIELD% переменные. */
+		public static abstract class SPECIALTY_CLASSES {
+			public final static String
+				ID = "_id",
+				DATE ="date",
+				STUDENT_ID = "student_id",
+				CLASS_TYPE = "class_type",
+				CLASS_ID = "сlass_id",
+				
+				fID = SPECIALTY_CLASSES + "." + ID,
+				fDATE = SPECIALTY_CLASSES + "." + DATE,
+				fSTUDENT_ID = SPECIALTY_CLASSES + "." + STUDENT_ID,
+				fCLASS_TYPE = SPECIALTY_CLASSES + "." + CLASS_TYPE,
+				fCLASS_ID = SPECIALTY_CLASSES + "." + CLASS_ID;
+			private SPECIALTY_CLASSES(){}
+		};
+		private TABLES(){}
 	};
-
-	//;
-
-
 	
-	/*public enum TIMETABLE {
-		ID(TIMETABLE + TIMETABLE_ID),
-		SPECIALTY_ID(TIMETABLE + TIMETABLE_SPECIALTY_ID),
-		CLASSROOM(TIMETABLE + TIMETABLE_CLASSROOM),
-		WEEK(TIMETABLE + TIMETABLE_WEEK),
-		COLOR(TIMETABLE + TIMETABLE_COLOR);
-		private final String fieldName;
-		private TIMETABLE(String fieldName){
-			this.fieldName = fieldName;
-		}
-		@Override
-		public String toString() {
-			return fieldName;
-		}
-	}
-	public enum SPECIALTY {
-		ID(SPECIALTY + SPECIALTY_ID),
-		CLASSROOM(TIMETABLE + TIMETABLE_CLASSROOM),
-		WEEK(TIMETABLE + TIMETABLE_WEEK),
-		COLOR(TIMETABLE + TIMETABLE_COLOR);
-		private String fieldName; 
-		private SPECIALTY(String fieldName){
-			this.fieldName = fieldName;
-		}
-		@Override
-		public String toString() {
-			return fieldName;
-		}
-	}
-	public enum STUDENT {
-		ID(STUDENT + STUDENT_ID),
-		NAME(STUDENT + STUDENT_NAME);
-		private String fieldName; 
-		private STUDENT(String fieldName){
-			this.fieldName = fieldName;
-		}
-		@Override
-		public String toString() {
-			return fieldName;
-		}
-	}*/
-	
-	private static final String CREATE_SPECIALITY=
+	private static final String CREATE_SPECIALITY =
 	"create table "+TABLES.SPECIALTY+" ("
 		+SPECIALTY.ID+" integer primary key autoincrement, "
 		+SPECIALTY.NAME+" text unique "
 	+");";
-	private static final String CREATE_STUDENT=
+	private static final String CREATE_STUDENT =
 	"create table "+TABLES.STUDENT+" ("
 		+STUDENT.ID+" integer primary key autoincrement, "
-		+STUDENT.NAME+" text not null "
+		+STUDENT.NAME+" text not null, "
+		+STUDENT.NOTE+" text default null"
 	+");";
-	private static final String CREATE_TIMETABLE=
+	private static final String CREATE_TIMETABLE =
 	"create table "+TABLES.TIMETABLE+" ("
 		+TIMETABLE.ID+" integer, "
 		+TIMETABLE.SPECIALTY_ID+" integer default 1, "
@@ -135,6 +155,29 @@ public class DBHelper extends SQLiteOpenHelper {
 		+TIMETABLE.COLOR+" int default -1, "
 		+"primary key("+TIMETABLE.ID+", "+TIMETABLE.WEEK+"), "
 		+"foreign key("+TIMETABLE.SPECIALTY_ID+") references "+TABLES.SPECIALTY+" ("+SPECIALTY.ID+")"
+	+");";
+	private static final String CREATE_HOMEWORK =
+	"create table "+TABLES.HOMEWORK+" ("
+		+HOMEWORK.ID+" integer, "
+		+HOMEWORK.DATE+" integer, "
+		+HOMEWORK.SPECIALTY_ID+" integer, "
+		+HOMEWORK.HOMEWORK_TEXT+" text default null, "
+		+"foreign key("+HOMEWORK.SPECIALTY_ID+") references "+TABLES.SPECIALTY+" ("+SPECIALTY.ID+"), "
+		+"primary key("+HOMEWORK.ID+", "+HOMEWORK.DATE+", "+HOMEWORK.SPECIALTY_ID+")"
+	+");";
+	private static final String CREATE_HOMEWORK_RESULT =
+	"create table "+TABLES.HOMEWORK_RESULT+" ("
+		+HOMEWORK_RESULT.ID+" integer primary key autoincrement, "
+		+HOMEWORK_RESULT.MARK+" integer check("+HOMEWORK_RESULT.MARK+">0), "
+		+HOMEWORK_RESULT.NOTE+" text default null"
+	+");";
+	private static final String CREATE_HOMEREADING =
+	"create table "+TABLES.HOMEREADING+" ("
+		+HOMEREADING.ID+" integer primary key autoincrement, "
+		+HOMEREADING.SYMBOLS+" integer check("+HOMEREADING.SYMBOLS+">=0), "
+		+HOMEREADING.WORDS+" integer check("+HOMEREADING.WORDS+">=0), "
+		+HOMEREADING.RETELLING+" integer check("+HOMEREADING.RETELLING+"=0 or "+HOMEREADING.RETELLING+"=1), "
+		+HOMEREADING.TRANSLATING+" integer check("+HOMEREADING.TRANSLATING+"=0 or "+HOMEREADING.TRANSLATING+"=1)"
 	+");";
 	public DBHelper(Context context) {
 		super(context, DB_NAME, null, 1);
@@ -148,6 +191,9 @@ public class DBHelper extends SQLiteOpenHelper {
 		db.execSQL(CREATE_SPECIALITY);
 		db.execSQL(CREATE_STUDENT);
 		db.execSQL(CREATE_TIMETABLE);
+		db.execSQL(CREATE_HOMEWORK);
+		db.execSQL(CREATE_HOMEWORK_RESULT);
+		db.execSQL(CREATE_HOMEREADING);
 		
 		ContentValues cv=new ContentValues();
 		// Добавляем в группы пустое значение

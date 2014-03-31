@@ -8,7 +8,6 @@ import com.teacherse_planner.DBHelper.TABLES.SPECIALTY;
 import com.teacherse_planner.DBHelper.TABLES.TIMETABLE;
 import com.teacherse_planner.NavigationDrawerFragment.NavigationDrawerCallbacks;
 
-import android.R.integer;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.AlertDialog;
@@ -33,7 +32,6 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 public class MainActivity extends Activity implements NavigationDrawerCallbacks {
@@ -236,7 +234,7 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 				final Spinner colorSpinner = (Spinner) dialogView.findViewById(R.id.color_spinner);
 				int[] oldColors = getResources().getIntArray(R.array.colors);
 				Integer[] colors = new Integer[oldColors.length];
-				final String[] colorNames = getResources().getStringArray(R.array.color_name);
+				final String[] colorNames = getResources().getStringArray(R.array.color_names);
 				int currentColorPos = 0;
 				for(int i=0;i < oldColors.length; ++i) {
 					colors[i] = Integer.valueOf(oldColors[i]);

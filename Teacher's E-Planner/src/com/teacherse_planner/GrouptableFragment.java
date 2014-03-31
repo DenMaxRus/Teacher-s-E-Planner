@@ -21,7 +21,7 @@ public class GrouptableFragment extends Fragment implements NavigationDrawerCall
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		mGrouptableLayout = (LinearLayout) inflater.inflate(R.layout.fragment_group_table, container);
+		mGrouptableLayout = (LinearLayout) inflater.inflate(R.layout.fragment_group_table, container, false);
 		
 		mStudentList = (ListView) mGrouptableLayout.findViewById(R.id.student_list);
 		mGroupLessonsGrid = (GridView) mGrouptableLayout.findViewById(R.id.group_lessons_grid);

@@ -3,5 +3,8 @@
 	<color name="red">#FFFF0000</color>
 	<color name="green">#FF00FF00</color>
 	<color name="blue">#FF0000FF</color>
-	<color name="rage">#FFFF3300</color>
+	<color name="orange">#FFFF5500</color>
+	<color name="fiol">#FFB200FF</color>
+	<color name="yellow">#FFFFF600</color>
+	<color name="lightblue">#FF00DDFF</color>
 </resources>
