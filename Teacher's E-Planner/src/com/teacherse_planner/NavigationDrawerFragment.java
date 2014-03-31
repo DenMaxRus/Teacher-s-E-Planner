@@ -99,6 +99,14 @@ public class NavigationDrawerFragment extends Fragment {
 				new String[]{SPECIALTY.NAME},
 				new int[]{android.R.id.text1},
 				0));
+		mDrawerSpecialtiesList.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position,
+					long id) {
+				// TODO Добавить вызов группы
+				
+			}
+		});
 		
 		return mDrawerPanel;
 	}

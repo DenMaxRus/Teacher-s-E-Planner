@@ -9,6 +9,7 @@ import com.teacherse_planner.DBHelper.TABLES.TIMETABLE;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -65,10 +66,16 @@ public class DBHelper extends SQLiteOpenHelper {
 			public final static String
 				ID = "_id",
 				NAME = "name",
+				SPECIALTY_ID = "specialty_id",
+				TELEPHONE = "telephone",
+				EMAIL = "email",
 				NOTE = "note",
 				
 				fID = STUDENT + "." + ID,
 				fNAME = STUDENT + "." + NAME,
+				fSPECIALTY_ID = STUDENT + "." + SPECIALTY_ID,
+				fTELEPHONE = STUDENT + "." + TELEPHONE,
+				fEMAIL = STUDENT + "." + EMAIL,
 				fNOTE = STUDENT + "." + NOTE,
 				
 				aID = "student_table_id";
@@ -144,7 +151,11 @@ public class DBHelper extends SQLiteOpenHelper {
 	"create table "+TABLES.STUDENT+" ("
 		+STUDENT.ID+" integer primary key autoincrement, "
 		+STUDENT.NAME+" text not null, "
-		+STUDENT.NOTE+" text default null"
+		+STUDENT.SPECIALTY_ID+" integer default 1, "
+		+STUDENT.TELEPHONE+" integer default null, "
+		+STUDENT.EMAIL+" text default null, "
+		+STUDENT.NOTE+" text default null, "
+		+"foreign key("+TIMETABLE.SPECIALTY_ID+") references "+TABLES.SPECIALTY+" ("+SPECIALTY.ID+")"
 	+");";
 	private static final String CREATE_TIMETABLE =
 	"create table "+TABLES.TIMETABLE+" ("
@@ -179,6 +190,15 @@ public class DBHelper extends SQLiteOpenHelper {
 		+HOMEREADING.RETELLING+" integer check("+HOMEREADING.RETELLING+"=0 or "+HOMEREADING.RETELLING+"=1), "
 		+HOMEREADING.TRANSLATING+" integer check("+HOMEREADING.TRANSLATING+"=0 or "+HOMEREADING.TRANSLATING+"=1)"
 	+");";
+	
+	/** Получить всех студентов */
+	public Cursor getAllStudentsFromSpecialty(String specialty_id){
+		return getReadableDatabase().query(
+				TABLES.STUDENT+"JOIN "+TABLES.SPECIALTY+" ON "+STUDENT.fSPECIALTY_ID+"="+SPECIALTY.fID,
+				null,
+				SPECIALTY.fID+"=?",
+				new String[]{specialty_id}, null, null, null);
+	}
 	public DBHelper(Context context) {
 		super(context, DB_NAME, null, 1);
 		// TODO Добавить версию для сравнения

@@ -80,11 +80,12 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 		mDayList.addHeaderView(DayListHeader);
 		// TODO Либо изменить полностью, либо дополнить выбором текущего дня и выделением ячейки
 		final Calendar calendar = Calendar.getInstance(); // TODO Засунуть бы такие объекты в активити
-		mDayList.setAdapter(new ArrayAdapter<String>(
-				getActivity(),
-				R.layout.timetable_grid_item_2,
-				R.id.text1,
-				new String[]{"Пн", "Вт", "Ср", "Чт", "Пт", "Сб"}){
+		mDayList.setAdapter(
+				new ArrayAdapter<String>(
+					getActivity(),
+					R.layout.timetable_grid_item_2,
+					R.id.text1,
+					new String[]{"Пн", "Вт", "Ср", "Чт", "Пт", "Сб"}){
 			@Override
 			public View getView(int position, View convertView, ViewGroup parent) {
 				if(convertView == null)
@@ -98,13 +99,14 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 		// Сетка расписания
 		mTimetableGrid = (GridView) mTimetableLayout.findViewById(R.id.timetable_grid);
 		// Заполнение таблицы из базы данных
-		mTimetableGrid.setAdapter(new TableCursorAdapter(
-				getActivity(),
-				R.layout.timetable_grid_item_2,
-				null,
-				new String[]{SPECIALTY.NAME, TIMETABLE.CLASSROOM, TIMETABLE.COLOR},
-				new int[]{R.id.text1, R.id.text2},
-				42){
+		mTimetableGrid.setAdapter(
+				new TableCursorAdapter(
+					getActivity(),
+					R.layout.timetable_grid_item_2,
+					null,
+					new String[]{SPECIALTY.NAME, TIMETABLE.CLASSROOM, TIMETABLE.COLOR},
+					new int[]{R.id.text1, R.id.text2},
+					42){
 			@Override
 			public void bindView(View view, Context context, Cursor cursor) {
 				((TextView)view.findViewById(R.id.text1)).setText(cursor.getString(cursor.getColumnIndex(SPECIALTY.NAME)));
