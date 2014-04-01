@@ -12,5 +12,10 @@
 	<string name="dialog_timetable_griditem_hint">Введите номер аудитории</string>
 	<string name="drawer_shadow">Drawer shadow</string>
 	<string name="drawer_hint">Drawer hint</string>
+	<string name="add">Добавить</string>
+	<string name="cancel">Отменить</string>
+	<string name="delete">Удалить</string>
+	<string name="add_student">Добавить студента</string>
+	<string name="student_fio">Ф.И.О. студента</string>
 
 </resources>

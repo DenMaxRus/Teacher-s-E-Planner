@@ -6,7 +6,7 @@
 	android:orientation="horizontal"
 	android:weightSum="11"
 	android:baselineAligned="false"
-	tools:context="com.teacherse_planner.GrouptableFragment" >
+	tools:context="com.teacherse_planner.SpecialtytableFragment" >
 	
 	<ListView
 		android:id="@+id/student_list"
@@ -23,14 +23,14 @@
 		android:layout_weight="10" >
 		
 		<GridView
-			android:id="@+id/group_lessons_grid"
+			android:id="@+id/specialty_lessons_grid"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:horizontalSpacing="1dp"
 			android:verticalSpacing="1dp" />
 		
 		<GridView
-			android:id="@+id/grouptable_grid"
+			android:id="@+id/specialtytable_grid"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:horizontalSpacing="1dp"

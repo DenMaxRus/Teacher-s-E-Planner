@@ -194,7 +194,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	/** Получить всех студентов */
 	public Cursor getAllStudentsFromSpecialty(String specialty_id){
 		return getReadableDatabase().query(
-				TABLES.STUDENT+"JOIN "+TABLES.SPECIALTY+" ON "+STUDENT.fSPECIALTY_ID+"="+SPECIALTY.fID,
+				TABLES.STUDENT+" JOIN "+TABLES.SPECIALTY+" ON "+STUDENT.fSPECIALTY_ID+"="+SPECIALTY.fID,
 				null,
 				SPECIALTY.fID+"=?",
 				new String[]{specialty_id}, null, null, null);

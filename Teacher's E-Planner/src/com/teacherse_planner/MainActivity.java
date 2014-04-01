@@ -19,6 +19,7 @@ import android.app.FragmentTransaction;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -43,7 +44,7 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 	/** Фрагмент расписания */
 	private TimetableFragment mTimetableFragment;
 	/** Фрагмент оценок группы */
-	private GrouptableFragment mGrouptableFragment;
+	private SpecialtytableFragment mGrouptableFragment;
 	/** Заголовок текущего окна */
 	private CharSequence mTitle;
 	
@@ -130,12 +131,17 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 				.replace(R.id.container, new PlaceholderFragment());
 			mTitle = getResources().getText(R.string.app_name);
 			break;
+		case 5:// Группа 2
+			if(mGrouptableFragment == null)
+				mGrouptableFragment = new SpecialtytableFragment();
+			NewTransaction
+				.replace(R.id.container, mGrouptableFragment);
+			mTitle = mGrouptableFragment.getTitle();
+			break;
 		}
 		NewTransaction.commit();
 	}
-	/**
-	 * Перестроить ActionBar
-	 */
+	/** Перестроить ActionBar */
     public void restoreActionBar() {
         ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
@@ -145,7 +151,6 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
     /**
      * Класс, управляющий диалогами
      */
-    // TODO Подумать над класом диалогов
 	public static class DialogBuilder extends DialogFragment {
 		/** Текущий готовый диалог */
 		private static Dialog mCurrentDialogInstance = null;
@@ -155,7 +160,7 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 		private static Activity mContext;
 		/** Интерфейс для свзязи с фрагментами */
 		private DialogCallbacks mDialogCallbacks;
-		public static enum IdDialog { Timetable_ChangeDay }; // Сюда добавлять Id новых диалогов
+		public static enum IdDialog { Timetable_ChangeDay, Add_Specialty }; // Сюда добавлять Id новых диалогов
 		/** Возвращает текущий диалог 
 		 * @return Текущий диалог или null
 		 */
@@ -184,7 +189,7 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 			try {
 				mDialogCallbacks = (DialogCallbacks) getFragmentManager().findFragmentById(R.id.container);
         	} catch (ClassCastException e) {
-        		throw new ClassCastException("Fragent must implement DialogCallbacks.");
+        		throw new ClassCastException("Fragment must implement DialogCallbacks.");
         	}
 			// TODO Пока затычка
 			final DBHelper mdbHelper = new DBHelper(getActivity());
@@ -267,7 +272,7 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 				.setMessage("Изменить день")
 				.setView(dialogView)
 				.setCancelable(true)
-				.setPositiveButton("Сохранить", new DialogInterface.OnClickListener() {
+				.setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						SQLiteDatabase db = mdbHelper.getWritableDatabase();
@@ -296,10 +301,31 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 						dialog.dismiss();
 					}
 				})
-				.setNegativeButton("Отмена", null);
+				.setNegativeButton(R.string.cancel, null);
 			}
 				break;
-
+			case Add_Specialty:{
+				final EditText editSpecialty = new EditText(mContext);
+				editSpecialty.setHint("Введите название группы");
+				builder
+					.setMessage("Добавить группу")
+					.setView(editSpecialty)
+					.setCancelable(true)
+					.setPositiveButton(R.string.add, new OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							if(editSpecialty.length() != 0)	{
+								ContentValues cv = new ContentValues();
+								cv.put(SPECIALTY.NAME, editSpecialty.getText().toString());
+								mdbHelper.getWritableDatabase().insert(TABLES.SPECIALTY, null, cv);
+							}
+							dialog.dismiss();
+						}
+					})
+					.setNegativeButton(R.string.cancel, null);
+				
+			}
+				break;
 			default:
 				throw new InvalidKeyException("No such ID in DialogBuilder.IdDialog");
 			}

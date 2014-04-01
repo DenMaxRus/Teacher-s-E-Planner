@@ -2,30 +2,37 @@ package com.teacherse_planner;
 
 import com.teacherse_planner.DBHelper.TABLES;
 import com.teacherse_planner.DBHelper.TABLES.SPECIALTY;
+import com.teacherse_planner.MainActivity.DialogBuilder.IdDialog;
 
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
+import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
+import android.widget.HeaderViewListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 
-public class NavigationDrawerFragment extends Fragment {
+public class NavigationDrawerFragment extends Fragment implements MainActivity.DialogBuilder.DialogCallbacks {
 	
 	NavigationDrawerCallbacks mCallbacks;
 	
@@ -69,7 +76,7 @@ public class NavigationDrawerFragment extends Fragment {
 		mDrawerMenuList.setAdapter(new ArrayAdapter<String>(
 				getActivity(),
 				android.R.layout.simple_list_item_1,
-				new String[]{"Расписание", "Группы", "Настройки", "Выход", "Test"}));
+				new String[]{"Расписание", "Группы", "Настройки", "Выход", "Test", "Группа 2"}));
 		mDrawerMenuList.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position,
@@ -91,11 +98,21 @@ public class NavigationDrawerFragment extends Fragment {
 		// Создать и добавить футер для меню
 		TextView DrawerSpecialtiesListFooter = (TextView) inflater.inflate(android.R.layout.simple_list_item_1, null);
 		DrawerSpecialtiesListFooter.setText("Добавить группу");
+		DrawerSpecialtiesListFooter.setOnClickListener(
+				new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Bundle dialogInfo = new Bundle();
+				dialogInfo.putString("idDialog", MainActivity.DialogBuilder.IdDialog.Add_Specialty.toString());
+				MainActivity.DialogBuilder.newInstance(getActivity(), dialogInfo).show(getFragmentManager(), MainActivity.DialogBuilder.IdDialog.Add_Specialty.toString());
+			}
+		});
 		mDrawerSpecialtiesList.addFooterView(DrawerSpecialtiesListFooter);
 		mDrawerSpecialtiesList.setAdapter(new SimpleCursorAdapter(
 				getActivity(),
 				android.R.layout.simple_list_item_1,
-				mdbHelper.getReadableDatabase().query(TABLES.SPECIALTY, null, SPECIALTY.ID+">?", new String[]{"1"}, null, null, null),
+				null,
 				new String[]{SPECIALTY.NAME},
 				new int[]{android.R.id.text1},
 				0));
@@ -107,6 +124,8 @@ public class NavigationDrawerFragment extends Fragment {
 				
 			}
 		});
+		registerForContextMenu(mDrawerSpecialtiesList);
+		refillSpecialtiesList();
 		
 		return mDrawerPanel;
 	}
@@ -134,6 +153,23 @@ public class NavigationDrawerFragment extends Fragment {
         }
         super.onCreateOptionsMenu(menu, inflater);
     }
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v,
+    		ContextMenuInfo menuInfo) {
+    	// TODO Auto-generated method stub
+    	super.onCreateContextMenu(menu, v, menuInfo);
+    	menu.add(R.string.delete);
+    }
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+    	// TODO Auto-generated method stub
+    	AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+    	SQLiteDatabase db = mdbHelper.getWritableDatabase();
+    	db.delete(TABLES.SPECIALTY, SPECIALTY.ID+"=?", new String[]{String.valueOf(info.id)});
+    	db.close();
+    	refillSpecialtiesList();
+    	return true;
+    }
     public boolean isDrawerOpen() {
         return mDrawerLayout != null && mDrawerLayout.isDrawerOpen(Gravity.START);
     }
@@ -151,6 +187,20 @@ public class NavigationDrawerFragment extends Fragment {
 			mDrawerSpecialtiesList.setVisibility(ListView.VISIBLE);
 		
 	}
+	/** Перерисовать текущее расписание */
+	public void refillSpecialtiesList(){
+		SQLiteDatabase db = mdbHelper.getReadableDatabase();
+		SimpleCursorAdapter TimetableGridAdapter = (SimpleCursorAdapter)(((HeaderViewListAdapter)mDrawerSpecialtiesList.getAdapter()).getWrappedAdapter());		
+		TimetableGridAdapter
+				.changeCursor(
+						db.query(
+								TABLES.SPECIALTY,
+								null,
+								SPECIALTY.ID+">?",
+								new String[]{"1"},
+								null, null, null));
+		db.close();
+	}
 	/** Настройка NavigationDrawer'a
 	 * @param drawerLayout - Полотно NavigationDrawer'a */
 	public void setUp(DrawerLayout drawerLayout){
@@ -165,12 +215,10 @@ public class NavigationDrawerFragment extends Fragment {
 				R.string.navigation_drawer_close) {
 			@Override
 			public void onDrawerOpened(View drawerView) {
-				// TODO Auto-generated method stub
 				super.onDrawerOpened(drawerView);
 				getActivity().invalidateOptionsMenu();
 			}
 			public void onDrawerClosed(View drawerView) {
-				// TODO Auto-generated method stub
 				super.onDrawerClosed(drawerView);
 				// Закрыть список групп при закрытии NavigationDrawer'a
 				if(mDrawerSpecialtiesList != null && mDrawerSpecialtiesList.getVisibility() == ListView.VISIBLE)
@@ -197,5 +245,16 @@ public class NavigationDrawerFragment extends Fragment {
 	}
 	public static interface NavigationDrawerCallbacks{
 		void onNavigationMenuItemSelected(int position);
+	}
+	@Override
+	public void onDialogDismiss(IdDialog dialogId) {
+		switch (dialogId) {
+		case Add_Specialty:
+			refillSpecialtiesList();
+			break;
+		default:
+			break;
+		}
+		
 	}
 }

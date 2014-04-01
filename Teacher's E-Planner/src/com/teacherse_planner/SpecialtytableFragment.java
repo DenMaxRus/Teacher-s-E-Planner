@@ -12,16 +12,21 @@ import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 /** Окно списка группы */
-public class GrouptableFragment extends Fragment implements MainActivity.DialogBuilder.DialogCallbacks {
-	
+public class SpecialtytableFragment extends Fragment implements MainActivity.DialogBuilder.DialogCallbacks {
+	/** Заголовок */
+	private String mTitle = "Группа";
+	public String getTitle() {
+		return mTitle;
+	}
 	private LinearLayout mGrouptableLayout;
 	/** Список студентов */
 	private ListView mStudentList;
 	/** Список уроков */
-	private GridView mGroupLessonsGrid;
+	private GridView mSpecialtyLessonsGrid;
 	/** Сетка оценок */
-	private GridView mGrouptableGrid;
+	private GridView mSpecialtytableGrid;
 	
 	private DBHelper mdbHelper;
 	private int mCurrentSpecialityId;
@@ -30,7 +35,7 @@ public class GrouptableFragment extends Fragment implements MainActivity.DialogB
 		// TODO Добавить actionbar
 		super.onCreate(savedInstanceState);
 		// Вытаскиеваем текущую группу из сохраненного состояния или переданного
-		mCurrentSpecialityId = savedInstanceState == null ? 1 : savedInstanceState.getInt("mCurrentSpecialityId");
+		mCurrentSpecialityId = savedInstanceState == null ? 2 : savedInstanceState.getInt("mCurrentSpecialityId");
 		
 		// TODO Заменить - один и тот же объект во всех классах.
 		mdbHelper = new DBHelper(getActivity());
@@ -40,20 +45,33 @@ public class GrouptableFragment extends Fragment implements MainActivity.DialogB
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		mGrouptableLayout = (LinearLayout) inflater.inflate(R.layout.fragment_group_table, container, false);
+		mGrouptableLayout = (LinearLayout) inflater.inflate(R.layout.fragment_specialty_table, container, false);
 		
 		mStudentList = (ListView) mGrouptableLayout.findViewById(R.id.student_list);
+		TextView StudentListHeader = new TextView(getActivity());
+		StudentListHeader.setText(R.string.student_fio);
+		mStudentList.addHeaderView(StudentListHeader, null, false);
+		mStudentList.setHeaderDividersEnabled(true);
+		TextView StudentListFooter = new TextView(getActivity());
+		StudentListFooter.setText(R.string.add_student);
+		mStudentList.addFooterView(StudentListFooter, null, false);
+		mStudentList.setFooterDividersEnabled(true);
 		mStudentList.setAdapter(
 				new SimpleCursorAdapter(
 						getActivity(),
-						R.layout.pair_time_list_item_1,
+						R.layout.timetable_grid_item_2,
 						mdbHelper.getAllStudentsFromSpecialty(String.valueOf(mCurrentSpecialityId)),
 						new String[]{STUDENT.NAME},
 						new int[]{R.id.text1},
 						0));
+
 		
-		mGroupLessonsGrid = (GridView) mGrouptableLayout.findViewById(R.id.group_lessons_grid);
-		mGrouptableGrid = (GridView) mGrouptableLayout.findViewById(R.id.grouptable_grid);
+		mSpecialtyLessonsGrid = (GridView) mGrouptableLayout.findViewById(R.id.specialty_lessons_grid);
+		mSpecialtyLessonsGrid.setAdapter(new SimpleCursorAdapter(getActivity(), R.layout.student_grid_item, null, null, null, 0){
+			
+		});
+		
+		mSpecialtytableGrid = (GridView) mGrouptableLayout.findViewById(R.id.specialtytable_grid);
 		
 		return mGrouptableLayout;
 	}
