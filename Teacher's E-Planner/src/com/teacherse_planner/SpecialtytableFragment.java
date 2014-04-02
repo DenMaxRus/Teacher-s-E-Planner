@@ -7,6 +7,7 @@ import com.teacherse_planner.DBHelper.TABLES.STUDENT;
 import com.teacherse_planner.MainActivity.DialogBuilder.IdDialog;
 
 import android.app.Fragment;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,7 +20,7 @@ import android.widget.TextView;
 /** Окно списка группы */
 public class SpecialtytableFragment extends Fragment implements MainActivity.DialogBuilder.DialogCallbacks {
 	/** Заголовок */
-	private String mTitle = "Группа";
+	private String mTitle;
 	public String getTitle() {
 		return mTitle;
 	}
@@ -32,19 +33,19 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 	private GridView mSpecialtytableGrid;
 	
 	private DBHelper mdbHelper;
-	private int mCurrentSpecialityId;
+	private long mCurrentSpecialityId;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		// TODO Добавить actionbar
 		super.onCreate(savedInstanceState);
 		// Вытаскиеваем текущую группу из сохраненного состояния или переданного
-		mCurrentSpecialityId = savedInstanceState == null ? 2 : savedInstanceState.getInt("mCurrentSpecialityId");
-		
+		mCurrentSpecialityId = getArguments() == null ? 2 : getArguments().getLong("mCurrentSpecialityId");
 		// TODO Заменить - один и тот же объект во всех классах.
+		mTitle = "Группа \"" + (getArguments() == null ? "NULL" : getArguments().getString("SpecialtyName"))+"\"";
+		getActivity().setTitle(mTitle);
 		mdbHelper = new DBHelper(getActivity());
 		setHasOptionsMenu(true);
 	}
-	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -74,28 +75,34 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 				new SimpleCursorAdapter(
 						getActivity(),
 						R.layout.student_grid_item,
-						mdbHelper.getWritableDatabase().query(
-								true,
-								TABLES.SPECIALTY_CLASSES,
-								new String[]{SPECIALTY_CLASSES.DATE},
-								SPECIALTY.ID+"=?",
-								new String[]{String.valueOf(mCurrentSpecialityId)},
-								null,
-								null,
-								SPECIALTY_CLASSES.DATE,
-								null),
+						null,
 						new String[]{SPECIALTY_CLASSES.DATE},
 						new int[]{R.id.text1},
 						0){
 			
 		});
+		refillSpecialtyLessons();
 		
 		mSpecialtytableGrid = (GridView) mGrouptableLayout.findViewById(R.id.specialtytable_grid);
-		
+				
 		return mGrouptableLayout;
 	}
 	public void refillSpecialtyLessons(){
-		
+		SQLiteDatabase db = mdbHelper.getReadableDatabase();
+		SimpleCursorAdapter SpecialtyLessonsGridAdapter = (SimpleCursorAdapter)(mSpecialtyLessonsGrid.getAdapter());		
+		SpecialtyLessonsGridAdapter
+				.changeCursor(
+						db.query(
+							true,
+							TABLES.SPECIALTY_CLASSES,
+							new String[]{SPECIALTY_CLASSES.ID, SPECIALTY_CLASSES.DATE},
+							SPECIALTY.ID+"=?",
+							new String[]{String.valueOf(mCurrentSpecialityId)},
+							null,
+							null,
+							SPECIALTY_CLASSES.DATE,
+							null));
+		db.close();
 	}
 	@Override
 	public void onDialogDismiss(IdDialog dialogId) {

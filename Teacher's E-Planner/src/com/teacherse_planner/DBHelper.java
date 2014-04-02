@@ -198,7 +198,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		+SPECIALTY_CLASSES.STUDENT_ID+" integer, "
 		+SPECIALTY_CLASSES.CLASS_TYPE+" text not null, "
 		+SPECIALTY_CLASSES.CLASS_ID+" integer not null, "
-		+"foreign key("+SPECIALTY_CLASSES.STUDENT_ID+") references "+TABLES.STUDENT+" ("+STUDENT.ID+"), "
+		+"foreign key("+SPECIALTY_CLASSES.STUDENT_ID+") references "+TABLES.STUDENT+" ("+STUDENT.ID+")"
 	+");";
 	/** Получить всех студентов */
 	public Cursor getAllStudentsFromSpecialty(String specialty_id){

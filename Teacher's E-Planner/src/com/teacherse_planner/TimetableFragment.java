@@ -62,7 +62,7 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 		super.onCreate(savedInstanceState);
 		// Если есть сохраненное состояние - вынимаем оттуда неделю, иначе будет первая
 		mCurrentWeek = savedInstanceState == null ? 1 : savedInstanceState.getInt("mCurrentWeek");
-		
+		getActivity().setTitle(mTitle);
 		// TODO Заменить - один и тот же объект во всех классах.
 		mdbHelper = new DBHelper(getActivity());
 		setHasOptionsMenu(true);

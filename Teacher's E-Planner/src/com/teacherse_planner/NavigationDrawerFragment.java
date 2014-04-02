@@ -7,6 +7,7 @@ import com.teacherse_planner.MainActivity.DialogBuilder.IdDialog;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -121,7 +122,16 @@ public class NavigationDrawerFragment extends Fragment implements MainActivity.D
 			public void onItemClick(AdapterView<?> parent, View view, int position,
 					long id) {
 				// TODO Добавить вызов группы
-				
+				SpecialtytableFragment SF = ((MainActivity) getActivity()).getmSpecialtytableFragment();
+				if(SF == null)
+					SF = new SpecialtytableFragment();
+				Bundle args = new Bundle();
+				args.putLong("mCurrentSpecialityId", id);
+				Cursor c = (Cursor) mDrawerSpecialtiesList.getItemAtPosition(position);
+				args.putString("SpecialtyName", (c.getString(c.getColumnIndex(SPECIALTY.NAME))));
+				SF.setArguments(args);
+				getFragmentManager().beginTransaction().replace(R.id.container, SF).commit();
+				mDrawerLayout.closeDrawer(Gravity.LEFT);
 			}
 		});
 		registerForContextMenu(mDrawerSpecialtiesList);
@@ -162,7 +172,7 @@ public class NavigationDrawerFragment extends Fragment implements MainActivity.D
     }
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-    	// TODO Auto-generated method stub
+    	// Удаление группы из списка
     	AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
     	SQLiteDatabase db = mdbHelper.getWritableDatabase();
     	db.delete(TABLES.SPECIALTY, SPECIALTY.ID+"=?", new String[]{String.valueOf(info.id)});

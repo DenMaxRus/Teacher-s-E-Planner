@@ -44,7 +44,7 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 	/** Фрагмент расписания */
 	private TimetableFragment mTimetableFragment;
 	/** Фрагмент оценок группы */
-	private SpecialtytableFragment mGrouptableFragment;
+	private SpecialtytableFragment mSpecialtytableFragment;
 	/** Заголовок текущего окна */
 	private CharSequence mTitle;
 	
@@ -56,6 +56,15 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 	}
 	public TimetableFragment getmTimetableFragment() {// TODO убрать!!! используется пока только в создании диалогов для получения недели
 		return mTimetableFragment;
+	}
+	public SpecialtytableFragment getmSpecialtytableFragment(){
+		return mSpecialtytableFragment;
+	}
+	@Override
+	public void setTitle(CharSequence title) {
+		// TODO Auto-generated method stub
+		super.setTitle(title);
+		mTitle = title;
 	}
 	
 	@Override
@@ -116,7 +125,6 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 				mTimetableFragment = new TimetableFragment();
 			NewTransaction
 				.replace(R.id.container, mTimetableFragment);
-			mTitle = mTimetableFragment.getTitle();
 			break;
 		case 1:// Окно группы (обрабатывается самим NavigationDrawer'ом
 			break;
@@ -132,11 +140,10 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 			mTitle = getResources().getText(R.string.app_name);
 			break;
 		case 5:// Группа 2
-			if(mGrouptableFragment == null)
-				mGrouptableFragment = new SpecialtytableFragment();
+			if(mSpecialtytableFragment == null)
+				mSpecialtytableFragment = new SpecialtytableFragment();
 			NewTransaction
-				.replace(R.id.container, mGrouptableFragment);
-			mTitle = mGrouptableFragment.getTitle();
+				.replace(R.id.container, mSpecialtytableFragment);
 			break;
 		}
 		NewTransaction.commit();
