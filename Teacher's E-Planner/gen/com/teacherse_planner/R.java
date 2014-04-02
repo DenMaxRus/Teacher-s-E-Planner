@@ -21,6 +21,7 @@ public final class R {
         public static final int lightblue=0x7f050006;
         public static final int orange=0x7f050003;
         public static final int pen=0x7f050007;
+        public static final int pencil=0x7f050008;
         public static final int red=0x7f050000;
         public static final int yellow=0x7f050005;
     }
@@ -49,40 +50,43 @@ public final class R {
         public static final int note_list=0x7f020004;
         public static final int quad_list=0x7f020005;
         public static final int the_guy=0x7f020006;
+        public static final int wooden_table=0x7f020007;
     }
     public static final class id {
-        public static final int action_settings=0x7f0a0011;
+        public static final int action_settings=0x7f0a0012;
         public static final int classroom=0x7f0a0004;
         public static final int color_spinner=0x7f0a0005;
         public static final int container=0x7f0a0001;
-        public static final int current_week=0x7f0a0012;
-        public static final int day_list=0x7f0a000c;
+        public static final int current_week=0x7f0a0013;
+        public static final int day_list=0x7f0a000d;
         public static final int drawer_layout=0x7f0a0000;
-        public static final int drawer_menu_list=0x7f0a0007;
-        public static final int drawer_specialties_list=0x7f0a0008;
-        public static final int greetings_text=0x7f0a0006;
+        public static final int drawer_menu_list=0x7f0a0008;
+        public static final int drawer_specialties_list=0x7f0a0009;
+        public static final int greetings_text=0x7f0a0007;
         public static final int navigation_drawer=0x7f0a0002;
-        public static final int pairtime_grid=0x7f0a000d;
+        public static final int pairtime_grid=0x7f0a000e;
         public static final int specialties_spinner=0x7f0a0003;
-        public static final int specialty_lessons_grid=0x7f0a000a;
-        public static final int specialtytable_grid=0x7f0a000b;
-        public static final int student_list=0x7f0a0009;
-        public static final int text1=0x7f0a000f;
+        public static final int specialty_lessons_grid=0x7f0a000b;
+        public static final int specialtytable_grid=0x7f0a000c;
+        public static final int student_list=0x7f0a000a;
+        public static final int text1=0x7f0a0006;
         public static final int text2=0x7f0a0010;
-        public static final int timetable_grid=0x7f0a000e;
+        public static final int text_block=0x7f0a0011;
+        public static final int timetable_grid=0x7f0a000f;
     }
     public static final class layout {
         public static final int activity_main_screen=0x7f030000;
         public static final int dialog_timetable_griditemlongclick=0x7f030001;
-        public static final int fragment_main_screen=0x7f030002;
-        public static final int fragment_navigation_drawer=0x7f030003;
-        public static final int fragment_specialty_table=0x7f030004;
-        public static final int fragment_student_card=0x7f030005;
-        public static final int fragment_timetable=0x7f030006;
-        public static final int pair_time_list_item_1=0x7f030007;
-        public static final int student_grid_item=0x7f030008;
-        public static final int student_list_item_2=0x7f030009;
-        public static final int timetable_grid_item_2=0x7f03000a;
+        public static final int drawer_menu_item_1=0x7f030002;
+        public static final int fragment_main_screen=0x7f030003;
+        public static final int fragment_navigation_drawer=0x7f030004;
+        public static final int fragment_specialty_table=0x7f030005;
+        public static final int fragment_student_card=0x7f030006;
+        public static final int fragment_timetable=0x7f030007;
+        public static final int pair_time_list_item_1=0x7f030008;
+        public static final int student_grid_item=0x7f030009;
+        public static final int student_list_item_2=0x7f03000a;
+        public static final int timetable_grid_item_2=0x7f03000b;
     }
     public static final class menu {
         public static final int main_screen=0x7f090000;

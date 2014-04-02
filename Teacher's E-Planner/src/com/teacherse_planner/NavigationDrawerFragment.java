@@ -76,7 +76,7 @@ public class NavigationDrawerFragment extends Fragment implements MainActivity.D
 		mDrawerMenuList = (ListView) mDrawerPanel.findViewById(R.id.drawer_menu_list);
 		mDrawerMenuList.setAdapter(new ArrayAdapter<String>(
 				getActivity(),
-				android.R.layout.simple_list_item_1,
+				R.layout.drawer_menu_item_1,
 				new String[]{"Расписание", "Группы", "Настройки", "Выход", "Test", "Группа 2"}));
 		mDrawerMenuList.setOnItemClickListener(new OnItemClickListener() {
 			@Override
@@ -112,7 +112,7 @@ public class NavigationDrawerFragment extends Fragment implements MainActivity.D
 		mDrawerSpecialtiesList.addFooterView(SpecialtiesListFooter);
 		mDrawerSpecialtiesList.setAdapter(new SimpleCursorAdapter(
 				getActivity(),
-				android.R.layout.simple_list_item_1,
+				R.layout.drawer_menu_item_1,
 				null,
 				new String[]{SPECIALTY.NAME},
 				new int[]{android.R.id.text1},

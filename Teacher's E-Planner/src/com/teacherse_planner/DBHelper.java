@@ -164,7 +164,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		+TIMETABLE.SPECIALTY_ID+" integer default 1, "
 		+TIMETABLE.CLASSROOM+" text default null, "
 		+TIMETABLE.WEEK+" integer, "
-		+TIMETABLE.COLOR+" int default -1, "
+		+TIMETABLE.COLOR+" text default \"none\", "
 		+"primary key("+TIMETABLE.ID+", "+TIMETABLE.WEEK+"), "
 		+"foreign key("+TIMETABLE.SPECIALTY_ID+") references "+TABLES.SPECIALTY+" ("+SPECIALTY.ID+")"
 	+");";

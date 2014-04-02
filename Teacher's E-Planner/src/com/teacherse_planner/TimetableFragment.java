@@ -111,7 +111,8 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 			public void bindView(View view, Context context, Cursor cursor) {
 				((TextView)view.findViewById(R.id.text1)).setText(cursor.getString(cursor.getColumnIndex(SPECIALTY.NAME)));
 				((TextView)view.findViewById(R.id.text2)).setText(cursor.getString(cursor.getColumnIndex(TIMETABLE.CLASSROOM)));
-				view.setBackgroundColor(cursor.getInt(cursor.getColumnIndex(TIMETABLE.COLOR)));
+				(view.findViewById(R.id.text_block)).setBackgroundColor(cursor.getInt(cursor.getColumnIndex(TIMETABLE.COLOR)));
+				(view.findViewById(R.id.text_block)).getBackground().setAlpha(80);
 			}
 			@Override
 			public void bindAfter(View view, Context context) {
