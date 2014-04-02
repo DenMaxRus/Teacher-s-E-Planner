@@ -1,5 +1,8 @@
 package com.teacherse_planner;
 
+import com.teacherse_planner.DBHelper.TABLES;
+import com.teacherse_planner.DBHelper.TABLES.SPECIALTY;
+import com.teacherse_planner.DBHelper.TABLES.SPECIALTY_CLASSES;
 import com.teacherse_planner.DBHelper.TABLES.STUDENT;
 import com.teacherse_planner.MainActivity.DialogBuilder.IdDialog;
 
@@ -67,7 +70,23 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 
 		
 		mSpecialtyLessonsGrid = (GridView) mGrouptableLayout.findViewById(R.id.specialty_lessons_grid);
-		mSpecialtyLessonsGrid.setAdapter(new SimpleCursorAdapter(getActivity(), R.layout.student_grid_item, null, null, null, 0){
+		mSpecialtyLessonsGrid.setAdapter(
+				new SimpleCursorAdapter(
+						getActivity(),
+						R.layout.student_grid_item,
+						mdbHelper.getWritableDatabase().query(
+								true,
+								TABLES.SPECIALTY_CLASSES,
+								new String[]{SPECIALTY_CLASSES.DATE},
+								SPECIALTY.ID+"=?",
+								new String[]{String.valueOf(mCurrentSpecialityId)},
+								null,
+								null,
+								SPECIALTY_CLASSES.DATE,
+								null),
+						new String[]{SPECIALTY_CLASSES.DATE},
+						new int[]{R.id.text1},
+						0){
 			
 		});
 		
@@ -75,7 +94,9 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 		
 		return mGrouptableLayout;
 	}
-
+	public void refillSpecialtyLessons(){
+		
+	}
 	@Override
 	public void onDialogDismiss(IdDialog dialogId) {
 		// TODO Auto-generated method stub

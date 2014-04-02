@@ -96,11 +96,10 @@ public class NavigationDrawerFragment extends Fragment implements MainActivity.D
 		
 		mDrawerSpecialtiesList = (ListView) mDrawerPanel.findViewById(R.id.drawer_specialties_list);// Появляющийся список групп
 		// Создать и добавить футер для меню
-		TextView DrawerSpecialtiesListFooter = (TextView) inflater.inflate(android.R.layout.simple_list_item_1, null);
-		DrawerSpecialtiesListFooter.setText("Добавить группу");
-		DrawerSpecialtiesListFooter.setOnClickListener(
+		TextView SpecialtiesListFooter = (TextView) inflater.inflate(android.R.layout.simple_list_item_1, null);
+		SpecialtiesListFooter.setText("Добавить группу");
+		SpecialtiesListFooter.setOnClickListener(
 				new OnClickListener() {
-			
 			@Override
 			public void onClick(View v) {
 				Bundle dialogInfo = new Bundle();
@@ -108,7 +107,8 @@ public class NavigationDrawerFragment extends Fragment implements MainActivity.D
 				MainActivity.DialogBuilder.newInstance(getActivity(), dialogInfo).show(getFragmentManager(), MainActivity.DialogBuilder.IdDialog.Add_Specialty.toString());
 			}
 		});
-		mDrawerSpecialtiesList.addFooterView(DrawerSpecialtiesListFooter);
+		SpecialtiesListFooter.setBackgroundColor(getResources().getColor(android.R.color.holo_orange_light));
+		mDrawerSpecialtiesList.addFooterView(SpecialtiesListFooter);
 		mDrawerSpecialtiesList.setAdapter(new SimpleCursorAdapter(
 				getActivity(),
 				android.R.layout.simple_list_item_1,

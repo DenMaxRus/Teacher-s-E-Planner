@@ -4,6 +4,7 @@ import com.teacherse_planner.DBHelper.TABLES.HOMEREADING;
 import com.teacherse_planner.DBHelper.TABLES.HOMEWORK;
 import com.teacherse_planner.DBHelper.TABLES.HOMEWORK_RESULT;
 import com.teacherse_planner.DBHelper.TABLES.SPECIALTY;
+import com.teacherse_planner.DBHelper.TABLES.SPECIALTY_CLASSES;
 import com.teacherse_planner.DBHelper.TABLES.STUDENT;
 import com.teacherse_planner.DBHelper.TABLES.TIMETABLE;
 
@@ -190,7 +191,15 @@ public class DBHelper extends SQLiteOpenHelper {
 		+HOMEREADING.RETELLING+" integer check("+HOMEREADING.RETELLING+"=0 or "+HOMEREADING.RETELLING+"=1), "
 		+HOMEREADING.TRANSLATING+" integer check("+HOMEREADING.TRANSLATING+"=0 or "+HOMEREADING.TRANSLATING+"=1)"
 	+");";
-	
+	private static final String CREATE_SPECIALTY_CLASSES =
+	"create table "+TABLES.SPECIALTY_CLASSES+" ("
+		+SPECIALTY_CLASSES.ID+" integer primary key autoincrement, "
+		+SPECIALTY_CLASSES.DATE+" numeric not null, "
+		+SPECIALTY_CLASSES.STUDENT_ID+" integer, "
+		+SPECIALTY_CLASSES.CLASS_TYPE+" text not null, "
+		+SPECIALTY_CLASSES.CLASS_ID+" integer not null, "
+		+"foreign key("+SPECIALTY_CLASSES.STUDENT_ID+") references "+TABLES.STUDENT+" ("+STUDENT.ID+"), "
+	+");";
 	/** Получить всех студентов */
 	public Cursor getAllStudentsFromSpecialty(String specialty_id){
 		return getReadableDatabase().query(
@@ -206,7 +215,6 @@ public class DBHelper extends SQLiteOpenHelper {
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		// TODO Добавить новые таблицы
 		// Создаем таблицы
 		db.execSQL(CREATE_SPECIALITY);
 		db.execSQL(CREATE_STUDENT);
@@ -214,6 +222,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		db.execSQL(CREATE_HOMEWORK);
 		db.execSQL(CREATE_HOMEWORK_RESULT);
 		db.execSQL(CREATE_HOMEREADING);
+		db.execSQL(CREATE_SPECIALTY_CLASSES);
 		
 		ContentValues cv=new ContentValues();
 		// Добавляем в группы пустое значение
