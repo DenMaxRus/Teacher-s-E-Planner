@@ -1,5 +1,7 @@
 package com.teacherse_planner;
 
+import java.util.Calendar;
+
 import com.teacherse_planner.DBHelper.TABLES;
 import com.teacherse_planner.DBHelper.TABLES.SPECIALTY;
 import com.teacherse_planner.DBHelper.TABLES.SPECIALTY_CLASSES;
@@ -7,6 +9,8 @@ import com.teacherse_planner.DBHelper.TABLES.STUDENT;
 import com.teacherse_planner.MainActivity.DialogBuilder.IdDialog;
 
 import android.app.Fragment;
+import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -79,6 +83,15 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 						new String[]{SPECIALTY_CLASSES.DATE},
 						new int[]{R.id.text1},
 						0){
+					@Override
+					public void bindView(View view, Context context,
+							Cursor cursor) {
+						// TODO Auto-generated method stub
+						super.bindView(view, context, cursor);
+						Calendar calendar = Calendar.getInstance();
+						Cursor c = getCursor();
+						calendar.setTimeInMillis(c.getLong(c.getColumnIndex(SPECIALTY_CLASSES.DATE)));
+					}
 			
 		});
 		refillSpecialtyLessons();

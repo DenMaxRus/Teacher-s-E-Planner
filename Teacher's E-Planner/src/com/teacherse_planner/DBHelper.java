@@ -236,16 +236,6 @@ public class DBHelper extends SQLiteOpenHelper {
 			cv.put(SPECIALTY.NAME, str);
 			db.insert(TABLES.SPECIALTY, null, cv);
 		}
-		cv.clear();
-		cv.put(TIMETABLE.WEEK, 1);
-		cv.put(TIMETABLE.ID, 2);
-		cv.put(TIMETABLE.SPECIALTY_ID, 3);
-		db.insert(TABLES.TIMETABLE, null, cv);
-		cv.put(TIMETABLE.ID, 15);
-		db.insert(TABLES.TIMETABLE, null, cv);
-		cv.put(TIMETABLE.ID, 32);
-		db.insert(TABLES.TIMETABLE, null, cv);
-		
 		Log.d("MyLog", "Timetable DB Created");
 	}
 

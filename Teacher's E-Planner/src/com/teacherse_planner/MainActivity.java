@@ -139,12 +139,6 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 				.replace(R.id.container, new PlaceholderFragment());
 			mTitle = getResources().getText(R.string.app_name);
 			break;
-		case 5:// Группа 2
-			if(mSpecialtytableFragment == null)
-				mSpecialtytableFragment = new SpecialtytableFragment();
-			NewTransaction
-				.replace(R.id.container, mSpecialtytableFragment);
-			break;
 		}
 		NewTransaction.commit();
 	}

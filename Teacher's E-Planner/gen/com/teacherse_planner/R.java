@@ -20,6 +20,7 @@ public final class R {
         public static final int green=0x7f050001;
         public static final int lightblue=0x7f050006;
         public static final int orange=0x7f050003;
+        public static final int pen=0x7f050007;
         public static final int red=0x7f050000;
         public static final int yellow=0x7f050005;
     }
@@ -45,7 +46,9 @@ public final class R {
         public static final int drawer_shadow=0x7f020001;
         public static final int ic_drawer=0x7f020002;
         public static final int ic_launcher=0x7f020003;
-        public static final int the_guy=0x7f020004;
+        public static final int note_list=0x7f020004;
+        public static final int quad_list=0x7f020005;
+        public static final int the_guy=0x7f020006;
     }
     public static final class id {
         public static final int action_settings=0x7f0a0011;
@@ -87,11 +90,11 @@ public final class R {
     }
     public static final class string {
         public static final int action_settings=0x7f070003;
-        public static final int add=0x7f07000b;
-        public static final int add_student=0x7f07000e;
+        public static final int add=0x7f07000c;
+        public static final int add_student=0x7f07000f;
         public static final int app_name=0x7f070000;
-        public static final int cancel=0x7f07000c;
-        public static final int delete=0x7f07000d;
+        public static final int cancel=0x7f07000d;
+        public static final int delete=0x7f07000e;
         public static final int dialog_timetable_griditem_hint=0x7f070008;
         public static final int dialog_timetable_griditem_title=0x7f070007;
         public static final int drawer_hint=0x7f07000a;
@@ -100,7 +103,8 @@ public final class R {
         public static final int navigation_drawer_close=0x7f070005;
         public static final int navigation_drawer_open=0x7f070004;
         public static final int navigation_menu=0x7f070001;
-        public static final int student_fio=0x7f07000f;
+        public static final int quad_list=0x7f07000b;
+        public static final int student_fio=0x7f070010;
         public static final int the_guy_description=0x7f070006;
     }
     public static final class style {

@@ -18,7 +18,8 @@
 		android:dividerHeight="1dp"
 		android:divider="@android:color/black" 
 		android:background="@android:color/black" 
-		android:clickable="false" >
+		android:clickable="false"
+		android:scrollbars="none" >
 
 	</ListView>
 		
@@ -49,8 +50,10 @@
 				android:horizontalSpacing="1dp"
 				android:verticalSpacing="1dp"
 				android:numColumns="7"
+				android:clipChildren="true"
 				android:drawSelectorOnTop="true"
-				android:background="@android:color/black" >
+				android:background="@color/pen"
+				android:scrollbars="none" >
 			</GridView>
 		
 	</LinearLayout>
