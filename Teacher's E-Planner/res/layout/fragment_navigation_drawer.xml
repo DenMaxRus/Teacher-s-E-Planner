@@ -10,7 +10,7 @@
 		android:id="@+id/drawer_menu_list"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:padding="10dp"
+		android:padding="15dp"
 		android:divider="@color/pen"
 		android:dividerHeight="1dp"
 		android:background="@drawable/note_list" />
@@ -19,9 +19,15 @@
 		android:id="@+id/drawer_specialties_list"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:layout_marginLeft="60dp"
+		android:paddingLeft="25dp"
+		android:paddingRight="10dp"
+		android:paddingTop="48dp"
+		android:paddingBottom="48dp"
 		android:divider="@color/pen"
 		android:dividerHeight="1dp"
-		android:visibility="gone" />
-	
+		android:visibility="gone"
+		android:rotation="-6"
+		android:background="@drawable/note_additional" />
 
 </FrameLayout>

@@ -28,6 +28,7 @@ import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+
 /** Окно расписания на 2 недели */
 public class TimetableFragment extends Fragment implements MainActivity.DialogBuilder.DialogCallbacks {
 	/** Заголовок */
@@ -70,7 +71,7 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		// TODO Разве здесь подключать адаптеры?
+
 		mTimetableLayout = (LinearLayout) inflater.inflate(R.layout.fragment_timetable, container, false);// Вся панель расписания
 		// Лист дней недели
 		mDayList = (ListView) mTimetableLayout.findViewById(R.id.day_list);
@@ -92,7 +93,7 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 					convertView = getActivity().getLayoutInflater().inflate(R.layout.timetable_grid_item_2, parent, false);
 				
 				((TextView) convertView.findViewById(R.id.text1)).setText(getItem(position)); // День недели
-				((TextView) convertView.findViewById(R.id.text2)).setText((calendar.get(Calendar.DAY_OF_WEEK)==(position+2)?"Сегодня":String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)+position+2-calendar.get(Calendar.DAY_OF_WEEK))+" "+calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.UK))); // День месяца
+				((TextView) convertView.findViewById(R.id.text2)).setText((calendar.get(Calendar.DAY_OF_WEEK) == (position+2) ? "Сегодня":String.valueOf(calendar.get(Calendar.DAY_OF_MONTH) + position + 2 - calendar.get(Calendar.DAY_OF_WEEK)) + " " + calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.UK))); // День месяца
 				
 				return convertView;
 			}});
@@ -111,7 +112,7 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 			public void bindView(View view, Context context, Cursor cursor) {
 				((TextView)view.findViewById(R.id.text1)).setText(cursor.getString(cursor.getColumnIndex(SPECIALTY.NAME)));
 				((TextView)view.findViewById(R.id.text2)).setText(cursor.getString(cursor.getColumnIndex(TIMETABLE.CLASSROOM)));
-				(view.findViewById(R.id.text_block)).setBackgroundColor(cursor.getInt(cursor.getColumnIndex(TIMETABLE.COLOR)));
+				(view.findViewById(R.id.text_block)).setBackgroundColor(((MainActivity) getActivity()).getColor(cursor.getString((cursor.getColumnIndex(TIMETABLE.COLOR)))));
 				(view.findViewById(R.id.text_block)).getBackground().setAlpha(80);
 			}
 			@Override
@@ -122,7 +123,7 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 				int currentTime = calendar.get(Calendar.HOUR_OF_DAY) * 60 + calendar.get(Calendar.MINUTE);
 				int pairTime = 8 * 60 + (getViewPosition() - (getViewPosition() / 8) * 7 - 1) * (90 + 10);
 				if(calendar.get(Calendar.DAY_OF_WEEK) == (getViewPosition() / 8 + 2) && currentTime >= pairTime && currentTime < pairTime + 90) {
-					view.setBackgroundColor(Color.RED);
+					(view.findViewById(R.id.text_block)).setBackgroundColor(Color.RED);
 				}
 			}
 		});

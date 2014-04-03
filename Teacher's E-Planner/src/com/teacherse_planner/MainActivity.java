@@ -134,11 +134,6 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 			finish();
 			//System.exit(0);
 			break;
-		case 4:// Test
-			NewTransaction
-				.replace(R.id.container, new PlaceholderFragment());
-			mTitle = getResources().getText(R.string.app_name);
-			break;
 		}
 		NewTransaction.commit();
 	}
@@ -148,6 +143,18 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setTitle(mTitle);
+    }
+    public int getColor(String colorName){
+		String[] colorNames = getResources().getStringArray(R.array.color_names);
+		int colorIndex = 0;
+		for(int i=0;i<colorNames.length;++i){
+			if(colorNames[i].compareTo(colorName) == 0){
+				colorIndex = i;
+				break;
+			}
+		}
+		int[] colorCodes = getResources().getIntArray(R.array.color_codes);
+    	return colorCodes[colorIndex];
     }
     /**
      * Класс, управляющий диалогами
@@ -211,11 +218,17 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 						new String[]{String.valueOf(idTimetable), String.valueOf(currentWeek)},
 						null, null, null);
 				dayInfo.moveToFirst();
+				// Пуст ли текущий день?
 				final boolean dayInfoIsEmpty = dayInfo.getCount() == 0 ? true : false;
+				
+				// Массивы для работы с цветом
+				final int[] colorCodes = getResources().getIntArray(R.array.color_codes);
+				final String[] colorNames = getResources().getStringArray(R.array.color_names);
+				
 				// Текущие значение (на момент открытия диалога)
 				final String currentClassroom = dayInfoIsEmpty ? "" : dayInfo.getString(dayInfo.getColumnIndex(TIMETABLE.CLASSROOM));
 				final int currentSpecialtyPosition = dayInfoIsEmpty ? 0 : dayInfo.getInt(dayInfo.getColumnIndex(SPECIALTY.aID)) - 1;
-				int currentColor = dayInfoIsEmpty ? 0 : dayInfo.getInt(dayInfo.getColumnIndex(TIMETABLE.COLOR));
+				String currentColorName = dayInfoIsEmpty ? colorNames[0] : dayInfo.getString(dayInfo.getColumnIndex(TIMETABLE.COLOR));
 				
 				// Создание собственного вида для диалога, настрока спиннера и текстового поля
 				View dialogView = View.inflate(getActivity(), R.layout.dialog_timetable_griditemlongclick, null);
@@ -238,30 +251,28 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 				db.close();
 				// Список цвета
 				final Spinner colorSpinner = (Spinner) dialogView.findViewById(R.id.color_spinner);
-				int[] oldColors = getResources().getIntArray(R.array.colors);
-				Integer[] colors = new Integer[oldColors.length];
-				final String[] colorNames = getResources().getStringArray(R.array.color_names);
 				int currentColorPos = 0;
-				for(int i=0;i < oldColors.length; ++i) {
-					colors[i] = Integer.valueOf(oldColors[i]);
-					if(colors[i] == currentColor)
+				for(int i=0;i < colorNames.length; ++i) {
+					if(colorNames[i].compareTo(currentColorName) == 0){
 						currentColorPos = i;
+						break;
+					}
 				}
-				ArrayAdapter<Integer> colorSpinnerAdapter = new ArrayAdapter<Integer>(
+				ArrayAdapter<String> colorSpinnerAdapter = new ArrayAdapter<String>(
 						getActivity(),
 						android.R.layout.simple_spinner_item,
-						colors){
+						colorNames){
 					@Override
 					public View getView(int position, View convertView, ViewGroup parent) {
 						View view = super.getView(position, convertView, parent);
-						view.setBackgroundColor(getItem(position));
+						view.setBackgroundColor(colorCodes[position]);
 						((TextView)view.findViewById(android.R.id.text1)).setText(colorNames[position]);
 						return view;
 					}
 					@Override
 					public View getDropDownView(int position, View convertView, ViewGroup parent) {
 						View view =  super.getDropDownView(position, convertView, parent);
-						view.setBackgroundColor(getItem(position));
+						view.setBackgroundColor(colorCodes[position]);
 						((TextView)view.findViewById(android.R.id.text1)).setText(colorNames[position]);
 						return view;
 					}
@@ -281,10 +292,11 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 						//Помещаемые значения
 						long selectedSpecialityId = specialtiesSpinner.getSelectedItemId();
 						String selectedClassroom = classroom.getText().toString();
-						Integer selectedColor = (Integer) colorSpinner.getSelectedItem();
+						String selectedColor = (String) colorSpinner.getSelectedItem();
 						
+						int selectedColorPosition = colorSpinner.getSelectedItemPosition();
 						//Пустые ли новые значения
-						boolean newdayInfoisEmpty = (selectedSpecialityId == 1 && selectedClassroom.length() == 0 && selectedColor == getResources().getIntArray(R.array.colors)[0]) ? true : false;
+						boolean newdayInfoisEmpty = (selectedSpecialityId == 1 && selectedClassroom.length() == 0 && selectedColorPosition == 0) ? true : false;
 						if(!newdayInfoisEmpty){
 							ContentValues cv = new ContentValues();
 							cv.put(TIMETABLE.SPECIALTY_ID, selectedSpecialityId);

@@ -26,6 +26,6 @@
     	android:id="@+id/color_spinner"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:entries="@array/colors" />
+		android:entries="@array/color_names" />
 
 </LinearLayout>

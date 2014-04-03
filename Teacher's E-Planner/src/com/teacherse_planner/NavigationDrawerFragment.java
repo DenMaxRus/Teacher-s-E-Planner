@@ -72,12 +72,18 @@ public class NavigationDrawerFragment extends Fragment implements MainActivity.D
 		// TODO Что то сделать
 		// Вся панель NavigationDrawer
 		mDrawerPanel = (FrameLayout) inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
+		mDrawerPanel.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				maintainSpecialtiesList();
+			}
+		});
 		// Главное меню
 		mDrawerMenuList = (ListView) mDrawerPanel.findViewById(R.id.drawer_menu_list);
 		mDrawerMenuList.setAdapter(new ArrayAdapter<String>(
 				getActivity(),
 				R.layout.drawer_menu_item_1,
-				new String[]{"Расписание", "Группы", "Настройки", "Выход", "Test", "Группа 2"}));
+				new String[]{"Расписание", "Группы", "Настройки", "Выход"}));
 		mDrawerMenuList.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position,
@@ -115,7 +121,7 @@ public class NavigationDrawerFragment extends Fragment implements MainActivity.D
 				R.layout.drawer_menu_item_1,
 				null,
 				new String[]{SPECIALTY.NAME},
-				new int[]{android.R.id.text1},
+				new int[]{R.id.text1},
 				0));
 		mDrawerSpecialtiesList.setOnItemClickListener(new OnItemClickListener() {
 			@Override

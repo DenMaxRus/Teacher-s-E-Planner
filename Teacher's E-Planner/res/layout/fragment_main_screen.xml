@@ -18,7 +18,7 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_below="@+id/greetings_text"
-		android:src="@drawable/the_guy"
+		android:src="@drawable/ic_launcher"
 		android:contentDescription="@string/the_guy_description" />
 
 </RelativeLayout>

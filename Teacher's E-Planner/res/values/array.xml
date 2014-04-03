@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	
-	<integer-array name="colors">
+	<integer-array name="color_codes">
 		<item>@android:color/white</item>
 		<item>@color/red</item>
 		<item>@color/green</item>
