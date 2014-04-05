@@ -110,8 +110,8 @@ public class NavigationDrawerFragment extends Fragment implements MainActivity.D
 			@Override
 			public void onClick(View v) {
 				Bundle dialogInfo = new Bundle();
-				dialogInfo.putString("idDialog", MainActivity.DialogBuilder.IdDialog.Add_Specialty.toString());
-				MainActivity.DialogBuilder.newInstance(getActivity(), dialogInfo).show(getFragmentManager(), MainActivity.DialogBuilder.IdDialog.Add_Specialty.toString());
+				dialogInfo.putString("idDialog", MainActivity.DialogBuilder.IdDialog.ADD_SPECIALTY.toString());
+				MainActivity.DialogBuilder.newInstance(getActivity(), dialogInfo).show(getFragmentManager(), MainActivity.DialogBuilder.IdDialog.ADD_SPECIALTY.toString());
 			}
 		});
 		SpecialtiesListFooter.setBackgroundColor(getResources().getColor(android.R.color.holo_orange_light));
@@ -265,7 +265,7 @@ public class NavigationDrawerFragment extends Fragment implements MainActivity.D
 	@Override
 	public void onDialogDismiss(IdDialog dialogId) {
 		switch (dialogId) {
-		case Add_Specialty:
+		case ADD_SPECIALTY:
 			refillSpecialtiesList();
 			break;
 		default:

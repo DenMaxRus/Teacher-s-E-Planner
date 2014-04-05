@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical" >
+	
+	<TextView
+		android:id="@+id/symbols"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content" />
+	<LinearLayout
+		android:id="@+id/borders"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:padding="0dp"
+		android:background="@color/pen" >
+	<TextView
+		android:id="@+id/words"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:background="@android:color/white" />
+	</LinearLayout>
+
+</LinearLayout>

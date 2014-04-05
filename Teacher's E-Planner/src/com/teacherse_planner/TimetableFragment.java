@@ -110,10 +110,15 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 					42){
 			@Override
 			public void bindView(View view, Context context, Cursor cursor) {
-				((TextView)view.findViewById(R.id.text1)).setText(cursor.getString(cursor.getColumnIndex(SPECIALTY.NAME)));
-				((TextView)view.findViewById(R.id.text2)).setText(cursor.getString(cursor.getColumnIndex(TIMETABLE.CLASSROOM)));
-				(view.findViewById(R.id.text_block)).setBackgroundColor(((MainActivity) getActivity()).getColor(cursor.getString((cursor.getColumnIndex(TIMETABLE.COLOR)))));
-				(view.findViewById(R.id.text_block)).getBackground().setAlpha(80);
+				TextView text1 = (TextView) view.findViewById(R.id.text1);
+				text1.setText(cursor.getString(cursor.getColumnIndex(SPECIALTY.NAME)));
+				
+				TextView text2 = (TextView) view.findViewById(R.id.text2);
+				text2.setText(cursor.getString(cursor.getColumnIndex(TIMETABLE.CLASSROOM)));
+				
+				LinearLayout text_block = (LinearLayout) view.findViewById(R.id.text_block);
+				text_block.setBackgroundColor(((MainActivity) getActivity()).getColor(cursor.getString((cursor.getColumnIndex(TIMETABLE.COLOR)))));
+				text_block.getBackground().setAlpha(80);
 			}
 			@Override
 			public void bindAfter(View view, Context context) {
@@ -135,9 +140,9 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 				
 				// —оздать и показать диалог "»зменение дн€"
 				Bundle dialogInfo = new Bundle();
-				dialogInfo.putString("idDialog", DialogBuilder.IdDialog.Timetable_ChangeDay.toString());
+				dialogInfo.putString("idDialog", DialogBuilder.IdDialog.CHANGE_DAY.toString());
 				dialogInfo.putInt("idTimetable", position+1);
-				MainActivity.DialogBuilder.newInstance(getActivity(), dialogInfo).show(getFragmentManager(), DialogBuilder.IdDialog.Timetable_ChangeDay.toString());
+				MainActivity.DialogBuilder.newInstance(getActivity(), dialogInfo).show(getFragmentManager(), DialogBuilder.IdDialog.CHANGE_DAY.toString());
 				return true;
 			}
 		});
@@ -161,7 +166,7 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 	public void onResume() {
 		super.onResume();
 		// ѕроверить, есть ли диалог, если есть - добавить команду на восстановление
-		if(DialogBuilder.getCurrentDialogId() == DialogBuilder.IdDialog.Timetable_ChangeDay){
+		if(DialogBuilder.getCurrentDialogId() == DialogBuilder.IdDialog.CHANGE_DAY){
 			DialogBuilder.getCurrentDialog().show();
 		}
 	}
@@ -217,7 +222,7 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 	public void onDialogDismiss(DialogBuilder.IdDialog dialogId) {
 		// „то делать по закрытию диалоговых окон
 		switch (dialogId) {
-		case Timetable_ChangeDay:
+		case CHANGE_DAY:
 			refillTimetable();
 			break;
 		default:

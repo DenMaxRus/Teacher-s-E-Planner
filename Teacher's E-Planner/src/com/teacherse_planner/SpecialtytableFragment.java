@@ -1,22 +1,24 @@
 package com.teacherse_planner;
 
-import java.util.Calendar;
-
 import com.teacherse_planner.DBHelper.TABLES;
+import com.teacherse_planner.DBHelper.TABLES.HOMEREADING;
 import com.teacherse_planner.DBHelper.TABLES.SPECIALTY;
 import com.teacherse_planner.DBHelper.TABLES.SPECIALTY_CLASSES;
 import com.teacherse_planner.DBHelper.TABLES.STUDENT;
+import com.teacherse_planner.MainActivity.DialogBuilder;
 import com.teacherse_planner.MainActivity.DialogBuilder.IdDialog;
 
 import android.app.Fragment;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.GridView;
+import android.widget.Button;
+import android.widget.GridLayout;
+import android.widget.HeaderViewListAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
@@ -28,14 +30,14 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 	public String getTitle() {
 		return mTitle;
 	}
-	private LinearLayout mGrouptableLayout;
+	private LinearLayout mSpecialtytableLayout;
 	/** Список студентов */
 	private ListView mStudentList;
 	/** Список уроков */
-	private GridView mSpecialtyLessonsGrid;
+	private GridLayout mSpecialtyLessonsGrid;
 	/** Сетка оценок */
-	private GridView mSpecialtytableGrid;
-	
+	private GridLayout mSpecialtytableGrid;
+	private Button mAddClassButton; 
 	private DBHelper mdbHelper;
 	private long mCurrentSpecialityId;
 	@Override
@@ -53,9 +55,9 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		mGrouptableLayout = (LinearLayout) inflater.inflate(R.layout.fragment_specialty_table, container, false);
+		mSpecialtytableLayout = (LinearLayout) inflater.inflate(R.layout.fragment_specialty_table, container, false);
 		
-		mStudentList = (ListView) mGrouptableLayout.findViewById(R.id.student_list);
+		mStudentList = (ListView) mSpecialtytableLayout.findViewById(R.id.student_list);
 		TextView StudentListHeader = new TextView(getActivity());
 		StudentListHeader.setText(R.string.student_fio);
 		mStudentList.addHeaderView(StudentListHeader, null, false);
@@ -74,8 +76,20 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 						0));
 
 		
-		mSpecialtyLessonsGrid = (GridView) mGrouptableLayout.findViewById(R.id.specialty_lessons_grid);
-		mSpecialtyLessonsGrid.setAdapter(
+		mSpecialtyLessonsGrid = (GridLayout) mSpecialtytableLayout.findViewById(R.id.specialty_lessons_grid);
+		mAddClassButton = (Button) mSpecialtytableLayout.findViewById(R.id.add_student_button);
+		mAddClassButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View view) {
+				// Добавляем новое занятие
+				// TODO добавить передаваемые параметры
+				Bundle dialogInfo = new Bundle();
+				dialogInfo.putString("idDialog", DialogBuilder.IdDialog.ADD_CLASS_DATE.toString());
+				MainActivity.DialogBuilder.newInstance(getActivity(), dialogInfo).show(getFragmentManager(), DialogBuilder.IdDialog.ADD_CLASS_DATE.toString());
+			}
+		});
+		/*mSpecialtyLessonsGrid.setAdapter(
 				new SimpleCursorAdapter(
 						getActivity(),
 						R.layout.student_grid_item,
@@ -93,16 +107,85 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 						calendar.setTimeInMillis(c.getLong(c.getColumnIndex(SPECIALTY_CLASSES.DATE)));
 					}
 			
-		});
+		});*/
 		refillSpecialtyLessons();
 		
-		mSpecialtytableGrid = (GridView) mGrouptableLayout.findViewById(R.id.specialtytable_grid);
-				
-		return mGrouptableLayout;
+		mSpecialtytableGrid = (GridLayout) mSpecialtytableLayout.findViewById(R.id.specialtytable_grid);
+		
+		return mSpecialtytableLayout;
 	}
 	public void refillSpecialtyLessons(){
+		LayoutInflater inflater = getActivity().getLayoutInflater();
 		SQLiteDatabase db = mdbHelper.getReadableDatabase();
-		SimpleCursorAdapter SpecialtyLessonsGridAdapter = (SimpleCursorAdapter)(mSpecialtyLessonsGrid.getAdapter());		
+		Cursor lessons = db.query(
+				true,
+				TABLES.SPECIALTY_CLASSES,
+				new String[]{SPECIALTY_CLASSES.ID, SPECIALTY_CLASSES.DATE},
+				SPECIALTY.ID+"=?",
+				new String[]{String.valueOf(mCurrentSpecialityId)},
+				null,
+				null,
+				SPECIALTY_CLASSES.DATE,
+				null);
+		View lessonView = inflater.inflate(R.layout.pair_time_list_item_1, mSpecialtytableGrid, false);
+		TextView text1 = (TextView) lessonView.findViewById(R.id.text1);
+		GridLayout.LayoutParams lp = new GridLayout.LayoutParams();
+		for(int i=0; i <lessons.getCount(); ++i){
+			lessons.moveToPosition(i);
+			text1.setText(lessons.getString(lessons.getColumnIndex(SPECIALTY_CLASSES.DATE)));
+			lp.rowSpec=GridLayout.spec(i);
+			lessonView.setLayoutParams(lp);
+			mSpecialtyLessonsGrid.addView(lessonView);
+		}
+		Cursor studentListCursor = ((SimpleCursorAdapter) ((HeaderViewListAdapter) mStudentList.getAdapter()).getWrappedAdapter()).getCursor();
+		for(int i=0;i<studentListCursor.getCount();++i){			
+			studentListCursor.moveToPosition(i);
+			String studentId = studentListCursor.getString(studentListCursor.getColumnIndex(STUDENT.ID));
+			lessons.moveToFirst();
+			for(int l=0;l<lessons.getCount();++l){
+				LinearLayout view = new LinearLayout(getActivity());
+				lessons.moveToPosition(l);
+				String date = lessons.getString(studentListCursor.getColumnIndex(SPECIALTY_CLASSES.DATE));
+				Cursor allClasses = db.query(
+					TABLES.SPECIALTY_CLASSES,
+					new String[]{SPECIALTY_CLASSES.CLASS_ID,SPECIALTY_CLASSES.CLASS_TYPE},
+					SPECIALTY_CLASSES.STUDENT_ID+"=? AND "+SPECIALTY_CLASSES.DATE+"=?",
+					new String[]{studentId,date},
+					null,
+					null,
+					SPECIALTY_CLASSES.DATE);
+				for(int c=0;c<allClasses.getCount();++c){
+					allClasses.moveToPosition(c);
+					String classType = allClasses.getString(allClasses.getColumnIndex(SPECIALTY_CLASSES.CLASS_TYPE));
+					String classId = allClasses.getString(allClasses.getColumnIndex(SPECIALTY_CLASSES.CLASS_ID));
+					Cursor currentClass = db.query(
+							classType,
+							null,
+							"_id=?",
+							new String[]{classId},
+							null, null, null);
+					currentClass.moveToFirst();
+					switch(classType){
+					case TABLES.HOMEWORK_RESULT:
+						break;
+					case TABLES.HOMEREADING:
+						
+						int words = currentClass.getInt(currentClass.getColumnIndex(HOMEREADING.WORDS));
+						int symbols = currentClass.getInt(currentClass.getColumnIndex(HOMEREADING.SYMBOLS));
+						int retelling = currentClass.getInt(currentClass.getColumnIndex(HOMEREADING.RETELLING));
+						int translating = currentClass.getInt(currentClass.getColumnIndex(HOMEREADING.TRANSLATING));
+						
+						View homereadingView = inflater.inflate(R.layout.specialty_class_homereading_item, view, false);
+						LinearLayout borders = (LinearLayout) homereadingView.findViewById(R.id.borders);
+						borders.setPadding(symbols > 0 ? 1 : 0, translating, retelling, words > 0 ? 1 : 0);
+						view.addView(homereadingView);
+						break;
+					}
+					mSpecialtyLessonsGrid.addView(view);
+				}
+			}
+		}
+		/*SimpleCursorAdapter SpecialtyLessonsGridAdapter = (SimpleCursorAdapter)(mSpecialtyLessonsGrid.getAdapter());		
 		SpecialtyLessonsGridAdapter
 				.changeCursor(
 						db.query(
@@ -114,7 +197,7 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 							null,
 							null,
 							SPECIALTY_CLASSES.DATE,
-							null));
+							null));*/
 		db.close();
 	}
 	@Override

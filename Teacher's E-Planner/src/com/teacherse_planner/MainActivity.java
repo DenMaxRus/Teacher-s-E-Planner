@@ -12,6 +12,7 @@ import android.app.Activity;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
@@ -30,6 +31,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
@@ -168,7 +170,7 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 		private static Activity mContext;
 		/** Интерфейс для свзязи с фрагментами */
 		private DialogCallbacks mDialogCallbacks;
-		public static enum IdDialog { Timetable_ChangeDay, Add_Specialty }; // Сюда добавлять Id новых диалогов
+		public static enum IdDialog { CHANGE_DAY, ADD_SPECIALTY, ADD_CLASS_DATE, ADD_CLASS, SHOW_CLASS, ADD_HOMEWORK, ADD_HOMEREADING }; // Сюда добавлять Id новых диалогов
 		/** Возвращает текущий диалог 
 		 * @return Текущий диалог или null
 		 */
@@ -203,10 +205,11 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 			final DBHelper mdbHelper = new DBHelper(getActivity());
 			// Создаем различные окна диалогов
 			AlertDialog.Builder builder = new Builder(getActivity());
+			builder.setCancelable(true);
 			try {
-			mCurrentDialogId = IdDialog.valueOf(getArguments().getString("idDialog"));
+				mCurrentDialogId = IdDialog.valueOf(getArguments().getString("idDialog"));
 			switch (mCurrentDialogId) {
-			case Timetable_ChangeDay:{ // Диалог по долгому нажатию на клетку в расписании фрагмента TimetableFragment
+			case CHANGE_DAY:{ // Диалог по долгому нажатию на клетку в расписании фрагмента TimetableFragment
 				SQLiteDatabase db = mdbHelper.getReadableDatabase();
 				final int idTimetable = getArguments().getInt("idTimetable");
 				final int currentWeek = ((MainActivity) mContext).getmTimetableFragment().getWeek();
@@ -283,7 +286,6 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 				builder
 				.setMessage("Изменить день")
 				.setView(dialogView)
-				.setCancelable(true)
 				.setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
@@ -317,13 +319,17 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 				.setNegativeButton(R.string.cancel, null);
 			}
 				break;
-			case Add_Specialty:{
+			case ADD_SPECIALTY:{ // Диалог добавления новой группы
+				try {
+					mDialogCallbacks = (DialogCallbacks) getFragmentManager().findFragmentById(R.id.navigation_drawer);
+	        	} catch (ClassCastException e) {
+	        		throw new ClassCastException("Fragment must implement DialogCallbacks.");
+	        	}
 				final EditText editSpecialty = new EditText(mContext);
 				editSpecialty.setHint("Введите название группы");
 				builder
 					.setMessage("Добавить группу")
 					.setView(editSpecialty)
-					.setCancelable(true)
 					.setPositiveButton(R.string.add, new OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
@@ -336,6 +342,32 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 						}
 					})
 					.setNegativeButton(R.string.cancel, null);
+			}
+				break;
+			case ADD_CLASS_DATE:{ // Диалог добавления нового занятия (даты)
+				final DatePicker datePicker = new DatePicker(mContext);
+				builder
+					.setView(datePicker)
+					.setPositiveButton(R.string.add_lesson, new OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							// TODO Auto-generated method stub
+							SQLiteDatabase db = mdbHelper.getWritableDatabase();
+						}
+					})
+					.setNegativeButton(R.string.cancel, null);
+			}
+				break;
+			case SHOW_CLASS:{ //
+
+			}
+				break;
+			case ADD_HOMEREADING:{
+				
+			}
+				break;
+			case ADD_HOMEWORK:{
 				
 			}
 				break;

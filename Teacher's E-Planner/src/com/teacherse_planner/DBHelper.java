@@ -5,6 +5,7 @@ import com.teacherse_planner.DBHelper.TABLES.HOMEWORK;
 import com.teacherse_planner.DBHelper.TABLES.HOMEWORK_RESULT;
 import com.teacherse_planner.DBHelper.TABLES.SPECIALTY;
 import com.teacherse_planner.DBHelper.TABLES.SPECIALTY_CLASSES;
+import com.teacherse_planner.DBHelper.TABLES.SPECIALTY_CLASSES_DATE;
 import com.teacherse_planner.DBHelper.TABLES.STUDENT;
 import com.teacherse_planner.DBHelper.TABLES.TIMETABLE;
 
@@ -29,7 +30,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	
 	public static abstract class TABLES {
 		
-		public final static String TIMETABLE = "timetable", SPECIALTY = "specialty", STUDENT = "student", SPECIALTY_CLASSES = "specialty_classes", HOMEREADING = "homereading", HOMEWORK_RESULT = "homework_result", HOMEWORK = "homework";
+		public final static String TIMETABLE = "timetable", SPECIALTY = "specialty", STUDENT = "student",SPECIALTY_CLASSES_DATE = "specialty_classes_date", SPECIALTY_CLASSES = "specialty_classes", HOMEREADING = "homereading", HOMEWORK_RESULT = "homework_result", HOMEWORK = "homework";
 		
 		/** Таблица расписания. Полные пути вида %TABLE%.%FIELD% можно получить через f%FIELD% переменные. */
 		public static abstract class TIMETABLE {
@@ -124,6 +125,18 @@ public class DBHelper extends SQLiteOpenHelper {
 				fTRANSLATING = HOMEREADING + "." + TRANSLATING;
 			private HOMEREADING(){}
 		};
+		/** Таблица дат занятий. Полные пути вида %TABLE%.%FIELD% можно получить через f%FIELD% переменные. */
+		public static abstract class SPECIALTY_CLASSES_DATE {
+			public final static String
+				ID = "_id",
+				DATE ="date",
+				SPECIALTY_ID = "specialty_id",
+				
+				fID = SPECIALTY_CLASSES_DATE + "." + ID,
+				fDATE = SPECIALTY_CLASSES_DATE + "." + DATE,
+				fSPECIALTY_ID = SPECIALTY_CLASSES_DATE + "." + SPECIALTY_ID;
+			private SPECIALTY_CLASSES_DATE(){}
+		};
 		/** Таблица оценок, посещаемости и т.д. Полные пути вида %TABLE%.%FIELD% можно получить через f%FIELD% переменные. */
 		public static abstract class SPECIALTY_CLASSES {
 			public final static String
@@ -164,7 +177,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		+TIMETABLE.SPECIALTY_ID+" integer default 1, "
 		+TIMETABLE.CLASSROOM+" text default null, "
 		+TIMETABLE.WEEK+" integer, "
-		+TIMETABLE.COLOR+" text default \"none\", "
+		+TIMETABLE.COLOR+" text default 'none', "
 		+"primary key("+TIMETABLE.ID+", "+TIMETABLE.WEEK+"), "
 		+"foreign key("+TIMETABLE.SPECIALTY_ID+") references "+TABLES.SPECIALTY+" ("+SPECIALTY.ID+")"
 	+");";
@@ -191,6 +204,14 @@ public class DBHelper extends SQLiteOpenHelper {
 		+HOMEREADING.RETELLING+" integer check("+HOMEREADING.RETELLING+"=0 or "+HOMEREADING.RETELLING+"=1), "
 		+HOMEREADING.TRANSLATING+" integer check("+HOMEREADING.TRANSLATING+"=0 or "+HOMEREADING.TRANSLATING+"=1)"
 	+");";
+	private static final String CREATE_SPECIALTY_CLASSES_DATE =
+	"create table "+TABLES.SPECIALTY_CLASSES_DATE+" ("
+		+SPECIALTY_CLASSES_DATE.ID+" integer, "
+		+SPECIALTY_CLASSES_DATE.DATE+" numeric not null, "
+		+SPECIALTY_CLASSES_DATE.SPECIALTY_ID+" integer, "
+		+"foreign key("+SPECIALTY_CLASSES_DATE.SPECIALTY_ID+") references "+TABLES.STUDENT+" ("+STUDENT.ID+"), "
+		+"primary key("+SPECIALTY_CLASSES_DATE.ID+", "+SPECIALTY_CLASSES_DATE.DATE+")"
+	+");";
 	private static final String CREATE_SPECIALTY_CLASSES =
 	"create table "+TABLES.SPECIALTY_CLASSES+" ("
 		+SPECIALTY_CLASSES.ID+" integer primary key autoincrement, "
@@ -198,6 +219,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		+SPECIALTY_CLASSES.STUDENT_ID+" integer, "
 		+SPECIALTY_CLASSES.CLASS_TYPE+" text not null, "
 		+SPECIALTY_CLASSES.CLASS_ID+" integer not null, "
+		+"foreign key("+SPECIALTY_CLASSES.DATE+") references "+TABLES.SPECIALTY_CLASSES_DATE+" ("+SPECIALTY_CLASSES_DATE.DATE+"), "
 		+"foreign key("+SPECIALTY_CLASSES.STUDENT_ID+") references "+TABLES.STUDENT+" ("+STUDENT.ID+")"
 	+");";
 	/** Получить всех студентов */
@@ -222,13 +244,13 @@ public class DBHelper extends SQLiteOpenHelper {
 		db.execSQL(CREATE_HOMEWORK);
 		db.execSQL(CREATE_HOMEWORK_RESULT);
 		db.execSQL(CREATE_HOMEREADING);
+		db.execSQL(CREATE_SPECIALTY_CLASSES_DATE);
 		db.execSQL(CREATE_SPECIALTY_CLASSES);
 		
 		ContentValues cv=new ContentValues();
 		// Добавляем в группы пустое значение
 		cv.put(SPECIALTY.NAME, "");
 		db.insert(TABLES.SPECIALTY, null, cv);
-		cv.clear();
 		
 		// TODO Убрать в дальнейшем - добавление стандартных групп в бд
 		String[] Groups=new String[]{"ПИбд-21", "ПСбд-11", "ИВТАПбд-11", "Нбд-21", "БАбд-21", "СОбд-31", "МКбд-21", "СОд-41", "УПбд-21", "ПИбд-11"};
