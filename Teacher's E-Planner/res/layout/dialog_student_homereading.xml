@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/TableLayout1"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent" >
+	<TextView
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:gravity="center"
+		android:text="@string/homereading"
+		android:background="@android:color/holo_orange_light" />
+	<TableRow
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content" >
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="center"
+			android:text="@string/symbols" />
+		<EditText
+			android:id="@+id/symbols"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:inputType="number" />
+	</TableRow>
+	<TableRow
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content" >
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="center"
+			android:text="@string/translating" />
+		<CheckBox
+			android:id="@+id/translating_status"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content" />
+	</TableRow>
+	<TableRow
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content" >
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="center"
+			android:text="@string/retteling" />
+		<CheckBox
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content" />
+	</TableRow>
+	<TableRow
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content" >
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="center"
+			android:text="@string/words" />
+		<EditText
+			android:id="@+id/words"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:inputType="number" />
+	</TableRow>
+
+</TableLayout>

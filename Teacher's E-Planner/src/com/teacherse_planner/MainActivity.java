@@ -2,9 +2,12 @@ package com.teacherse_planner;
 
 import java.security.InvalidKeyException;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.Locale;
 
 import com.teacherse_planner.DBHelper.TABLES;
 import com.teacherse_planner.DBHelper.TABLES.SPECIALTY;
+import com.teacherse_planner.DBHelper.TABLES.SPECIALTY_CLASSES_DATE;
 import com.teacherse_planner.DBHelper.TABLES.TIMETABLE;
 import com.teacherse_planner.NavigationDrawerFragment.NavigationDrawerCallbacks;
 
@@ -170,7 +173,7 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 		private static Activity mContext;
 		/** Интерфейс для свзязи с фрагментами */
 		private DialogCallbacks mDialogCallbacks;
-		public static enum IdDialog { CHANGE_DAY, ADD_SPECIALTY, ADD_CLASS_DATE, ADD_CLASS, SHOW_CLASS, ADD_HOMEWORK, ADD_HOMEREADING }; // Сюда добавлять Id новых диалогов
+		public static enum IdDialog { CHANGE_DAY, ADD_SPECIALTY, ADD_LESSON_DATE, CHANGE_LESSON_DATE, ADD_CLASS, SHOW_CLASS, ADD_HOMEWORK, ADD_HOMEREADING }; // Сюда добавлять Id новых диалогов
 		/** Возвращает текущий диалог 
 		 * @return Текущий диалог или null
 		 */
@@ -210,9 +213,9 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 				mCurrentDialogId = IdDialog.valueOf(getArguments().getString("idDialog"));
 			switch (mCurrentDialogId) {
 			case CHANGE_DAY:{ // Диалог по долгому нажатию на клетку в расписании фрагмента TimetableFragment
-				SQLiteDatabase db = mdbHelper.getReadableDatabase();
 				final int idTimetable = getArguments().getInt("idTimetable");
 				final int currentWeek = ((MainActivity) mContext).getmTimetableFragment().getWeek();
+				SQLiteDatabase db = mdbHelper.getReadableDatabase();
 				// Получаем требуемые значения для заполнения текущими данными из БД
 				Cursor dayInfo = db.query(
 						TABLES.TIMETABLE+" INNER JOIN "+TABLES.SPECIALTY+" ON "+TIMETABLE.SPECIALTY_ID+"="+ SPECIALTY.aID,
@@ -344,7 +347,7 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 					.setNegativeButton(R.string.cancel, null);
 			}
 				break;
-			case ADD_CLASS_DATE:{ // Диалог добавления нового занятия (даты)
+			case ADD_LESSON_DATE:case CHANGE_LESSON_DATE:{ // Диалог добавления нового занятия (даты)
 				final DatePicker datePicker = new DatePicker(mContext);
 				builder
 					.setView(datePicker)
@@ -354,20 +357,32 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 						public void onClick(DialogInterface dialog, int which) {
 							// TODO Auto-generated method stub
 							SQLiteDatabase db = mdbHelper.getWritableDatabase();
+							Calendar calendar = Calendar.getInstance(Locale.ENGLISH);
+							calendar.set(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth());
+							long specialtyId = getArguments().getLong("mCurrentSpecialityId");
+							ContentValues cv = new ContentValues();
+							cv.put(SPECIALTY_CLASSES_DATE.SPECIALTY_ID, specialtyId);
+							cv.put(SPECIALTY_CLASSES_DATE.DATE, calendar.getTimeInMillis());
+						if(mCurrentDialogId == IdDialog.CHANGE_LESSON_DATE) {
+							cv.put
+						}
+							db.insert(TABLES.SPECIALTY_CLASSES_DATE, null, cv);
+							db.close();
+							dialog.dismiss();
 						}
 					})
 					.setNegativeButton(R.string.cancel, null);
 			}
 				break;
-			case SHOW_CLASS:{ //
+			case SHOW_CLASS:{ // Просмотр оценок текущего ученика
 
 			}
 				break;
-			case ADD_HOMEREADING:{
+			case ADD_HOMEREADING:{ // Добавить оценку за домашнее чтение
 				
 			}
 				break;
-			case ADD_HOMEWORK:{
+			case ADD_HOMEWORK:{ // Добавить оценку за домащнюю работу
 				
 			}
 				break;

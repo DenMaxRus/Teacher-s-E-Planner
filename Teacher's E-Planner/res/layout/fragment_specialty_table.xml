@@ -28,12 +28,7 @@
 			<GridLayout
 				android:id="@+id/specialty_lessons_grid"
 				android:layout_width="match_parent"
-				android:layout_height="wrap_content" >
-				<Button
-					android:id="@+id/add_student_button"
-					android:layout_row="0"
-					android:text="@string/add_lesson" />
-				</GridLayout>
+				android:layout_height="wrap_content" />
 			
 			<ScrollView
 				android:layout_width="match_parent"

@@ -19,5 +19,14 @@
 	<string name="add_student">Добавить студента</string>
 	<string name="add_lesson">Добавить занятие</string>
 	<string name="student_fio">Ф.И.О. студента</string>
+	<string name="current_classes">Текущие задания</string>
+	<string name="symbols">Символы</string>
+	<string name="retteling">Пересказ</string>
+	<string name="translating">Перевод</string>
+	<string name="words">Слова</string>
+	<string name="class_type">Тип занятия</string>
+	<string name="homereading">Домашнее чтение</string>
+	<string name="homework">Домашнее задание</string>
+	<string name="mark">Оценка</string>
 
 </resources>
