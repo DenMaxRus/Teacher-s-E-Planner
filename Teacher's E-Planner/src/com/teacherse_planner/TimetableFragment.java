@@ -141,7 +141,7 @@ public class TimetableFragment extends Fragment implements MainActivity.DialogBu
 				// Создать и показать диалог "Изменение дня"
 				Bundle dialogInfo = new Bundle();
 				dialogInfo.putString("idDialog", DialogBuilder.IdDialog.CHANGE_DAY.toString());
-				dialogInfo.putLong("idTimetable", id);
+				dialogInfo.putLong("itemId", id);
 				MainActivity.DialogBuilder.newInstance(getActivity(), dialogInfo).show(getFragmentManager(), DialogBuilder.IdDialog.CHANGE_DAY.toString());
 				return true;
 			}

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent" >
+	
+	<ImageView
+		android:layout_width="match_parent"
+		android:layout_height="48dp"
+		android:src="@drawable/quad_list"
+		android:scaleType="fitXY"
+		android:contentDescription="@string/quad_list" />
+	
+	<LinearLayout
+		android:id="@+id/class_content"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:orientation="horizontal" />
+	
+</FrameLayout>

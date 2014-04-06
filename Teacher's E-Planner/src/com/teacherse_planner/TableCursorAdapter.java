@@ -100,10 +100,8 @@ public class TableCursorAdapter extends CursorAdapter {
 	@Override
 	public long getItemId(int position) {
 		mViewPosition = position+1;
-		if(mViewPosition == mCursorId)
-			return super.getItemId(mCursorIdPosition);
-		else
-			return 0;
+		return mViewPosition;
+
 	}
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {

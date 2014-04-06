@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Locale;
 
 import com.teacherse_planner.DBHelper.TABLES;
+import com.teacherse_planner.DBHelper.TABLES.NA;
 import com.teacherse_planner.DBHelper.TABLES.SPECIALTY;
 import com.teacherse_planner.DBHelper.TABLES.SPECIALTY_CLASSES_DATE;
 import com.teacherse_planner.DBHelper.TABLES.TIMETABLE;
@@ -32,8 +33,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -176,7 +182,7 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 		private static Activity mContext;
 		/** Интерфейс для свзязи с фрагментами */
 		private DialogCallbacks mDialogCallbacks;
-		public static enum IdDialog { CHANGE_DAY, ADD_SPECIALTY, ADD_STUDENT, ADD_LESSON_DATE, CHANGE_LESSON_DATE, ADD_CLASS, SHOW_CLASS, ADD_HOMEWORK, ADD_HOMEREADING }; // Сюда добавлять Id новых диалогов
+		public static enum IdDialog { CHANGE_DAY, ADD_SPECIALTY, ADD_STUDENT, ADD_LESSON_DATE, CHANGE_LESSON_DATE, CHOOSE_CLASS, SHOW_CLASS, ADD_HOMEWORK, ADD_HOMEWORK_RESULT, ADD_HOMEREADING }; // Сюда добавлять Id новых диалогов
 		/** Возвращает текущий диалог 
 		 * @return Текущий диалог или null
 		 */
@@ -216,7 +222,7 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 				mCurrentDialogId = IdDialog.valueOf(getArguments().getString("idDialog"));
 			switch (mCurrentDialogId) {
 			case CHANGE_DAY:{ // Диалог по долгому нажатию на клетку в расписании фрагмента TimetableFragment
-				final long idTimetable = getArguments().getLong("idTimetable");
+				final long idTimetable = getArguments().getLong("itemId");
 				final int currentWeek = ((MainActivity) mContext).getTimetableFragment().getWeek();
 				SQLiteDatabase db = mdbHelper.getReadableDatabase();
 				// Получаем требуемые значения для заполнения текущими данными из БД
@@ -297,7 +303,7 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 					public void onClick(DialogInterface dialog, int which) {
 						SQLiteDatabase db = mdbHelper.getWritableDatabase();
 						
-						//Помещаемые значения
+						// Помещаемые значения
 						long selectedSpecialityId = specialtiesSpinner.getSelectedItemId();
 						String selectedClassroom = classroom.getText().toString();
 						String selectedColor = (String) colorSpinner.getSelectedItem();
@@ -374,6 +380,7 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 								db.update(TABLES.SPECIALTY_CLASSES_DATE, cv, SPECIALTY_CLASSES_DATE.ID+"=?", new String[]{lessonId});
 							}else
 								db.insert(TABLES.SPECIALTY_CLASSES_DATE, null, cv);
+							
 							db.close();
 							dialog.dismiss();
 						}
@@ -381,15 +388,94 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 					.setNegativeButton(R.string.cancel, null);
 			}
 				break;
+			case CHOOSE_CLASS:{
+				View dialogView = View.inflate(mContext, R.layout.dialog_student_choose_class, null);
+				
+				builder.setView(dialogView);
+			}
+				break;
 			case SHOW_CLASS:{ // Просмотр оценок текущего ученика
-
+				int classDateId = getArguments().getInt("classDateId");
+				int[] childrenId = getArguments().getIntArray("childrenId");
+				String[] str_childrenId = new String[childrenId.length];
+				for(int i = 0; i < childrenId.length; ++i)
+					str_childrenId[i] = String.valueOf(childrenId[i]);
+				SQLiteDatabase db = mdbHelper.getReadableDatabase();
+				Cursor classesDate = db.query(
+						TABLES.SPECIALTY_CLASSES_DATE,
+						new String[]{SPECIALTY_CLASSES_DATE.DATE},
+						SPECIALTY_CLASSES_DATE.ID+"=?",
+						new String[]{String.valueOf(classDateId)},
+						null, null, null);
+				classesDate.moveToFirst();
+				
+				long classDate = classesDate.getLong(classesDate.getColumnIndex(SPECIALTY_CLASSES_DATE.DATE));
+				
+				View dialogView = View.inflate(mContext, R.layout.dialog_student_class_item, null);
+				
+				final Button addClass = (Button) dialogView.findViewById(R.id.add);
+				addClass.setOnClickListener(new View.OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						Bundle dialogInfo = new Bundle(getArguments());
+						dialogInfo.putString("idDialog", DialogBuilder.IdDialog.CHOOSE_CLASS.toString());
+						newInstance(mContext, dialogInfo).show(getFragmentManager(), DialogBuilder.IdDialog.CHOOSE_CLASS.toString());
+					}
+				});
+				
+				final CheckBox naStatus = (CheckBox) dialogView.findViewById(R.id.na_status);
+				naStatus.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+					
+					@Override
+					public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+						addClass.setEnabled(!isChecked);
+					}
+				});
+				builder
+					.setView(dialogView)
+					.setPositiveButton(R.string.save, new OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							SQLiteDatabase db = mdbHelper.getWritableDatabase();
+							
+							ContentValues cv = new ContentValues();
+							
+							if(naStatus.isChecked()) {
+								cv.put(NA.DATE, 1);
+								db.insert(TABLES.NA, null, cv);
+							}
+							
+							db.close();
+							dialog.dismiss();
+						}
+					})
+					.setNegativeButton(R.string.cancel, null);
+				db.close();
 			}
 				break;
 			case ADD_HOMEREADING:{ // Добавить оценку за домашнее чтение
 				
 			}
 				break;
-			case ADD_HOMEWORK:{ // Добавить оценку за домащнюю работу
+			case ADD_HOMEWORK:{
+				View dialogView = View.inflate(mContext, R.layout.dialog_student_homework, null);
+				
+				builder
+					.setView(dialogView)
+					.setPositiveButton(R.string.save, new OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							// TODO Auto-generated method stub
+							
+						}
+					})
+					.setNegativeButton(R.string.cancel, null);
+			}
+				break;
+			case ADD_HOMEWORK_RESULT:{ // Добавить оценку за домащнюю работу
 				
 			}
 				break;
@@ -413,7 +499,6 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 			// TODO Auto-generated method stub
 			super.onDetach();
 			mCurrentDialogInstance = null;
-			mCurrentDialogId = null;
 		}
 		public static interface DialogCallbacks{
 			/** Вызывается после метода OnDismiss() 

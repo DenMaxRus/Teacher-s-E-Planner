@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent" >
+	
+	<ImageView
+		android:layout_width="match_parent"
+		android:layout_height="48dp"
+		android:src="@drawable/quad_list"
+		android:scaleType="fitXY"
+		android:contentDescription="@string/quad_list" />
+		
+	<TextView
+		android:id="@+id/text1"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"
+		android:gravity="center"
+		android:textColor="@color/pen"
+		android:textSize="12sp" />
+	
+</FrameLayout>

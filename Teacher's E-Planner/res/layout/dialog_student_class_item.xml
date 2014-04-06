@@ -3,13 +3,41 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:orientation="vertical" >
-	
-	<TextView
+	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:gravity="center"
-		android:text="@string/current_classes"
-		android:textColor="@color/pen"
-		android:background="@android:color/darker_gray" />
+		android:orientation="horizontal"
+		android:weightSum="10"
+		android:background="@android:color/holo_orange_light" >
+		
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_weight="2"
+			android:gravity="center"
+			android:text="@string/current_classes"
+			android:textColor="@color/pen" />
+		
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_weight="4"
+			android:text="@string/n_a" />
+		
+		<CheckBox
+			android:id="@+id/na_status"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:checked="false" />
+		
+	</LinearLayout>
+	
+	<Button
+		android:id="@+id/add"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:text="@string/add_lesson"
+		android:textColor="@color/pen" />
 
 </LinearLayout>

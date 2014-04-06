@@ -95,13 +95,16 @@ public class StudentCardFragment extends Fragment implements MainActivity.Dialog
 			cv.put(STUDENT.NOTE, mNote.getText().toString());
 			
 			SQLiteDatabase db = mdDbHelper.getWritableDatabase();
+			
 			if((getArguments().getString("type").compareTo("edit") == 0)) {
 				db.update(TABLES.STUDENT, cv, STUDENT.ID+"=?", new String[]{String.valueOf(mCurrentStudentId)});
 			} else {
 				cv.put(STUDENT.SPECIALTY_ID, getArguments().getLong("mCurrentSpecialtyId"));
 				db.insert(TABLES.STUDENT, null, cv);
 			}
+			
 			db.close();
+			
 			getFragmentManager().popBackStack();
 			break;
 		case R.id.cancel:

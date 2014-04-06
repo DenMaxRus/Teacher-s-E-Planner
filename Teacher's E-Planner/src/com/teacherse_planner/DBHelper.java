@@ -3,6 +3,7 @@ package com.teacherse_planner;
 import com.teacherse_planner.DBHelper.TABLES.HOMEREADING;
 import com.teacherse_planner.DBHelper.TABLES.HOMEWORK;
 import com.teacherse_planner.DBHelper.TABLES.HOMEWORK_RESULT;
+import com.teacherse_planner.DBHelper.TABLES.NA;
 import com.teacherse_planner.DBHelper.TABLES.SPECIALTY;
 import com.teacherse_planner.DBHelper.TABLES.SPECIALTY_CLASSES;
 import com.teacherse_planner.DBHelper.TABLES.SPECIALTY_CLASSES_DATE;
@@ -30,7 +31,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	
 	public static abstract class TABLES {
 		
-		public final static String TIMETABLE = "timetable", SPECIALTY = "specialty", STUDENT = "student",SPECIALTY_CLASSES_DATE = "specialty_classes_date", SPECIALTY_CLASSES = "specialty_classes", HOMEREADING = "homereading", HOMEWORK_RESULT = "homework_result", HOMEWORK = "homework";
+		public final static String TIMETABLE = "timetable", SPECIALTY = "specialty", STUDENT = "student",SPECIALTY_CLASSES_DATE = "specialty_classes_date", SPECIALTY_CLASSES = "specialty_classes", HOMEREADING = "homereading", HOMEWORK_RESULT = "homework_result", HOMEWORK = "homework", NA = "na";
 		
 		/** Таблица расписания. Полные пути вида %TABLE%.%FIELD% можно получить через f%FIELD% переменные. */
 		public static abstract class TIMETABLE {
@@ -96,7 +97,7 @@ public class DBHelper extends SQLiteOpenHelper {
 				fSPECIALTY_ID = HOMEWORK + "." + SPECIALTY_ID,
 				fHOMEWORK_TEXT = HOMEWORK + "." + HOMEWORK_TEXT;
 			private HOMEWORK(){}
-		}
+		};
 		/** Таблица оценок за домашнюю работу. Полные пути вида %TABLE%.%FIELD% можно получить через f%FIELD% переменные. */
 		public static abstract class HOMEWORK_RESULT {
 			public final static String
@@ -108,7 +109,7 @@ public class DBHelper extends SQLiteOpenHelper {
 				fMARK = HOMEWORK_RESULT + "." + MARK,
 				fNOTE = HOMEWORK_RESULT + "." + NOTE;
 			private HOMEWORK_RESULT(){}
-		}
+		};
 		/** Таблица резульатов домашнего чтения. Полные пути вида %TABLE%.%FIELD% можно получить через f%FIELD% переменные. */
 		public static abstract class HOMEREADING {
 			public final static String
@@ -154,6 +155,16 @@ public class DBHelper extends SQLiteOpenHelper {
 			private SPECIALTY_CLASSES(){}
 		};
 		private TABLES(){}
+		/** Таблица отсутствия. Полные пути вида %TABLE%.%FIELD% можно получить через f%FIELD% переменные. */
+		public static abstract class NA {
+			public final static String
+				ID = "_id",
+				DATE ="date",
+				
+				fID = NA + "." + ID,
+				fDATE = NA + "." + DATE;
+			private NA(){}
+		};
 	};
 	
 	private static final String CREATE_SPECIALITY =
@@ -222,6 +233,12 @@ public class DBHelper extends SQLiteOpenHelper {
 		+"foreign key("+SPECIALTY_CLASSES.DATE+") references "+TABLES.SPECIALTY_CLASSES_DATE+" ("+SPECIALTY_CLASSES_DATE.DATE+"), "
 		+"foreign key("+SPECIALTY_CLASSES.STUDENT_ID+") references "+TABLES.STUDENT+" ("+STUDENT.ID+")"
 	+");";
+	private static final String CREATE_NA =
+	"create table "+TABLES.NA+" ("
+		+NA.ID+" integer primary key autoincrement, "
+		+NA.DATE+" numeric, "
+		+"foreign key("+SPECIALTY_CLASSES.DATE+") references "+TABLES.SPECIALTY_CLASSES_DATE+" ("+SPECIALTY_CLASSES_DATE.DATE+")"
+	+");";
 	/** Получить всех студентов */
 	public Cursor getAllStudentsFromSpecialty(String specialty_id){
 		return getReadableDatabase().query(
@@ -246,6 +263,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		db.execSQL(CREATE_HOMEREADING);
 		db.execSQL(CREATE_SPECIALTY_CLASSES_DATE);
 		db.execSQL(CREATE_SPECIALTY_CLASSES);
+		db.execSQL(CREATE_NA);
 		
 		ContentValues cv=new ContentValues();
 		// Добавляем в группы пустое значение

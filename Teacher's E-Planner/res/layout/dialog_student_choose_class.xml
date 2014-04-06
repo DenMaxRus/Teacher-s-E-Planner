@@ -3,13 +3,15 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:orientation="vertical" >
+	
 	<TextView
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:gravity="center"
 		android:text="@string/class_type"
 		android:background="@android:color/holo_orange_light" />
-	<TextView
+	
+	<Button
 		android:id="@+id/homereading"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -18,7 +20,8 @@
 		android:text="@string/homereading"
 		android:textColor="@color/pen"
 		android:background="@android:color/darker_gray" />
-	<TextView
+	
+	<Button
 		android:id="@+id/mark"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"

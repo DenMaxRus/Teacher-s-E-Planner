@@ -11,10 +11,12 @@
 	<ListView
 		android:id="@+id/student_list"
 		android:layout_width="0dp"
-		android:layout_height="match_parent"
+		android:layout_height="wrap_content"
+		android:paddingRight="1dp"
 		android:layout_weight="1"
 		android:divider="@android:color/black"
-		android:dividerHeight="1dp" />
+		android:dividerHeight="1dp"
+		android:background="@color/pen" />
 	
 	<HorizontalScrollView
 		android:layout_width="0dp"
@@ -29,6 +31,8 @@
 				android:id="@+id/specialty_lessons_grid"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
+				android:paddingBottom="1dp"
+				android:rowCount="1"
 				android:background="@color/pen" />
 			
 			<ScrollView

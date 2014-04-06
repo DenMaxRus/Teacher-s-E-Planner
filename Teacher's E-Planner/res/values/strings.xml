@@ -33,5 +33,6 @@
 	<string name="note">Заметка</string>
 	<string name="save">Сохранить</string>
 	<string name="back">Назад</string>
+	<string name="n_a">Отсутствовал</string>
 
 </resources>

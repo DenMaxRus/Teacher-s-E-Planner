@@ -5,6 +5,7 @@ import java.util.Locale;
 
 import com.teacherse_planner.DBHelper.TABLES;
 import com.teacherse_planner.DBHelper.TABLES.HOMEREADING;
+import com.teacherse_planner.DBHelper.TABLES.HOMEWORK_RESULT;
 import com.teacherse_planner.DBHelper.TABLES.SPECIALTY_CLASSES;
 import com.teacherse_planner.DBHelper.TABLES.SPECIALTY_CLASSES_DATE;
 import com.teacherse_planner.DBHelper.TABLES.STUDENT;
@@ -19,9 +20,11 @@ import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.HeaderViewListAdapter;
 import android.widget.LinearLayout;
@@ -62,15 +65,17 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
+		
 		mSpecialtytableLayout = (LinearLayout) inflater.inflate(R.layout.fragment_specialty_table, container, false);
 		
 		mStudentList = (ListView) mSpecialtytableLayout.findViewById(R.id.student_list);
-		TextView StudentListHeader = new TextView(getActivity());
-		StudentListHeader.setText(R.string.student_fio);
+		
+		FrameLayout StudentListHeader = (FrameLayout) inflater.inflate(R.layout.student_list_item_1, mStudentList, false);
+		((TextView) StudentListHeader.findViewById(R.id.text1)).setText(R.string.student_fio);
 		mStudentList.addHeaderView(StudentListHeader, null, false);
 		mStudentList.setHeaderDividersEnabled(true);
-		TextView StudentListFooter = new TextView(getActivity());
-		StudentListFooter.setText(R.string.add_student);
+		
+		FrameLayout StudentListFooter = (FrameLayout) inflater.inflate(R.layout.student_list_item_1, mStudentList, false);
 		StudentListFooter.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -86,12 +91,13 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 				getFragmentManager().beginTransaction().replace(R.id.container, SC).addToBackStack(mTitle).commit();
 			}
 		});
+		((TextView) StudentListFooter.findViewById(R.id.text1)).setText(R.string.add_student);
 		mStudentList.addFooterView(StudentListFooter, null, false);
 		mStudentList.setFooterDividersEnabled(true);
 		mStudentList.setAdapter(
 				new SimpleCursorAdapter(
 						getActivity(),
-						R.layout.timetable_grid_item_2,
+						R.layout.student_list_item_1,
 						null,
 						new String[]{STUDENT.NAME},
 						new int[]{R.id.text1},
@@ -121,7 +127,7 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 		mSpecialtytableGrid = (GridLayout) mSpecialtytableLayout.findViewById(R.id.specialtytable_grid);
 
 		mSpecialtyLessonsGrid = (GridLayout) mSpecialtytableLayout.findViewById(R.id.specialty_lessons_grid);
-			
+		
 		refillSpecialtytableGrid();
 		
 		return mSpecialtytableLayout;
@@ -129,8 +135,10 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 	public void refillSpecialtytableGrid(){
 		mSpecialtyLessonsGrid.removeAllViews();
 		mSpecialtytableGrid.removeAllViews();
+		
 		LayoutInflater inflater = getActivity().getLayoutInflater();
 		SQLiteDatabase db = mdbHelper.getReadableDatabase();
+		
 		Cursor lessons = db.query(
 				TABLES.SPECIALTY_CLASSES_DATE,
 				new String[]{SPECIALTY_CLASSES_DATE.ID, SPECIALTY_CLASSES_DATE.DATE},
@@ -142,15 +150,30 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 			@Override
 			public void onClick(View v) {
 				Bundle dialogInfo = new Bundle();
+				dialogInfo.putString("idDialog", DialogBuilder.IdDialog.ADD_HOMEWORK.toString());
+				dialogInfo.putLong("mCurrentSpecialtyId", mCurrentSpecialtyId);
+				dialogInfo.putInt("lessonId", v.getId());
+				MainActivity.DialogBuilder.newInstance(getActivity(), dialogInfo).show(getFragmentManager(), DialogBuilder.IdDialog.ADD_HOMEWORK.toString());
+			}
+		};
+		OnLongClickListener onLongLessonClkLst = new OnLongClickListener() {
+			
+			@Override
+			public boolean onLongClick(View v) {
+				// Изменить  занятие
+				Bundle dialogInfo = new Bundle();
 				dialogInfo.putString("idDialog", DialogBuilder.IdDialog.CHANGE_LESSON_DATE.toString());
 				dialogInfo.putLong("mCurrentSpecialtyId", mCurrentSpecialtyId);
 				dialogInfo.putInt("lessonId", v.getId());
 				
-				MainActivity.DialogBuilder.newInstance(getActivity(), dialogInfo).show(getFragmentManager(), DialogBuilder.IdDialog.ADD_LESSON_DATE.toString());
+				MainActivity.DialogBuilder.newInstance(getActivity(), dialogInfo).show(getFragmentManager(), DialogBuilder.IdDialog.CHANGE_LESSON_DATE.toString());
+				return true;
 			}
 		};
 		Calendar calendar = Calendar.getInstance(Locale.ENGLISH);
 		// Добавление дат занятий первой строкой
+		int cellWidth = 60;
+		
 		for(int i=0; i < lessons.getCount(); ++i){
 			lessons.moveToPosition(i);
 			
@@ -159,36 +182,39 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 			String date = DateFormat.format("dd.MM", calendar).toString();
 			
 			GridLayout.LayoutParams lp = new GridLayout.LayoutParams();
+			lp.width = cellWidth;
 			lp.columnSpec = GridLayout.spec(i);
 			lp.rowSpec = GridLayout.spec(0);
-			lp.setMargins(0, 0, 1, 1);
-			lp.width = GridLayout.LayoutParams.WRAP_CONTENT;
-			lp.height = GridLayout.LayoutParams.MATCH_PARENT;
+			lp.rightMargin = 1;
 			
-			TextView lessonView = (TextView) inflater.inflate(R.layout.pair_time_list_item_1, mSpecialtyLessonsGrid, false);
-			lessonView.setText(date);
+			FrameLayout lessonView = (FrameLayout) inflater.inflate(R.layout.student_list_item_1, mSpecialtyLessonsGrid, false);
 			lessonView.setLayoutParams(lp);
-			lessonView.setOnClickListener(onLessonClkLst);
-			// Id View = Id записи в бд для удобного доступа
 			lessonView.setId(lessons.getInt(lessons.getColumnIndex(SPECIALTY_CLASSES_DATE.ID)));
+			lessonView.setOnClickListener(onLessonClkLst);
+			lessonView.setOnLongClickListener(onLongLessonClkLst);
 			
+			TextView text1 = (TextView) lessonView.findViewById(R.id.text1);
+			text1.setText(date);
+			// Id View = Id записи в бд для удобного доступа
 			mSpecialtyLessonsGrid.addView(lessonView);
 		}
 		// Установка кнопки "добавить занятие" последней
 		
-		GridLayout.LayoutParams bLP = new GridLayout.LayoutParams();
-		bLP.columnSpec = GridLayout.spec(lessons.getCount() > 0 ? lessons.getCount() : 0);
-		bLP.rowSpec = GridLayout.spec(0);
+		GridLayout.LayoutParams buttonLP = new GridLayout.LayoutParams();
+		buttonLP.columnSpec = GridLayout.spec(lessons.getCount() > 0 ? lessons.getCount() : 0);
+		buttonLP.rowSpec = GridLayout.spec(0);
+		buttonLP.height = 48;
 		
 		Button addLessonButton = new Button(getActivity());
-		addLessonButton.setLayoutParams(bLP);
+		addLessonButton.setBackgroundResource(R.drawable.quad_list);
+		addLessonButton.setLayoutParams(buttonLP);
 		addLessonButton.setText(R.string.add_lesson);
+		addLessonButton.setTextColor(getResources().getColor(R.color.pen));
 		addLessonButton.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View view) {
 				// Добавляем новое занятие
-				// TODO добавить передаваемые параметры
 				Bundle dialogInfo = new Bundle();
 				dialogInfo.putString("idDialog", DialogBuilder.IdDialog.ADD_LESSON_DATE.toString());
 				dialogInfo.putLong("mCurrentSpecialityId", mCurrentSpecialtyId);
@@ -197,66 +223,101 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 		});
 		mSpecialtyLessonsGrid.addView(addLessonButton);
 		
+		OnClickListener onClassClkLst = new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				ViewGroup view = (ViewGroup) v;
+				int[] childrenId = new int[view.getChildCount()];
+				for(int i = 0; i< view.getChildCount(); ++i)
+					childrenId[i] = view.getChildAt(i).getId();
+				Bundle dialogInfo = new Bundle();
+				dialogInfo.putString("idDialog", MainActivity.DialogBuilder.IdDialog.SHOW_CLASS.toString());
+				dialogInfo.putInt("classDateId", view.getId());
+				dialogInfo.putIntArray("childrenId", childrenId);
+				MainActivity.DialogBuilder.newInstance(getActivity(), dialogInfo).show(getFragmentManager(), MainActivity.DialogBuilder.IdDialog.SHOW_CLASS.toString());
+			}
+		};
+		
 		Cursor studentListCursor = ((SimpleCursorAdapter) ((HeaderViewListAdapter) mStudentList.getAdapter()).getWrappedAdapter()).getCursor();
 		for(int i=0; i < studentListCursor.getCount(); ++i){			
 			studentListCursor.moveToPosition(i);
+					
 			String studentId = studentListCursor.getString(studentListCursor.getColumnIndex(STUDENT.ID));
-			for(int l=0; l < lessons.getCount(); ++l){
-				LinearLayout view = new LinearLayout(getActivity());
-				lessons.moveToPosition(l);
-				String date = lessons.getString(lessons.getColumnIndex(SPECIALTY_CLASSES.DATE));
-				Cursor allClasses = db.query(
+			
+			Cursor allClasses = db.query(
 					TABLES.SPECIALTY_CLASSES,
-					new String[]{SPECIALTY_CLASSES.CLASS_ID,SPECIALTY_CLASSES.CLASS_TYPE},
-					SPECIALTY_CLASSES.STUDENT_ID+"=? AND "+SPECIALTY_CLASSES.DATE+"=?",
-					new String[]{studentId,date},
+					new String[]{SPECIALTY_CLASSES.CLASS_ID,SPECIALTY_CLASSES.CLASS_TYPE, SPECIALTY_CLASSES_DATE.DATE},
+					SPECIALTY_CLASSES.STUDENT_ID+"=?",
+					new String[]{studentId},
 					null,
 					null,
 					SPECIALTY_CLASSES.DATE);
-				for(int c=0; c < allClasses.getCount(); ++c){
-					allClasses.moveToPosition(c);
-					String classType = allClasses.getString(allClasses.getColumnIndex(SPECIALTY_CLASSES.CLASS_TYPE));
-					String classId = allClasses.getString(allClasses.getColumnIndex(SPECIALTY_CLASSES.CLASS_ID));
-					Cursor currentClass = db.query(
-							classType,
-							null,
-							"_id=?",
-							new String[]{classId},
-							null, null, null);
-					currentClass.moveToFirst();
-					switch(classType){
-					case TABLES.HOMEWORK_RESULT:
-						break;
-					case TABLES.HOMEREADING:
-						
-						int words = currentClass.getInt(currentClass.getColumnIndex(HOMEREADING.WORDS));
-						int symbols = currentClass.getInt(currentClass.getColumnIndex(HOMEREADING.SYMBOLS));
-						int retelling = currentClass.getInt(currentClass.getColumnIndex(HOMEREADING.RETELLING));
-						int translating = currentClass.getInt(currentClass.getColumnIndex(HOMEREADING.TRANSLATING));
-						
-						View homereadingView = inflater.inflate(R.layout.specialty_class_homereading_item, view, false);
-						LinearLayout borders = (LinearLayout) homereadingView.findViewById(R.id.borders);
-						borders.setPadding(symbols > 0 ? 1 : 0, translating, retelling, words > 0 ? 1 : 0);
-						view.addView(homereadingView);
-						break;
+			allClasses.moveToFirst();
+			
+			for(int l=0; l < lessons.getCount(); ++l){
+				lessons.moveToPosition(l);
+				
+				GridLayout.LayoutParams viewLP = new GridLayout.LayoutParams();
+				viewLP.columnSpec = GridLayout.spec(l);
+				viewLP.rowSpec = GridLayout.spec(i+2);
+				viewLP.width = cellWidth;
+				viewLP.setMargins(0, 0, 1, 1);
+				
+				FrameLayout view = (FrameLayout) inflater.inflate(R.layout.specialty_class_empty_item, mSpecialtytableGrid, false);
+				view.setId(lessons.getInt(lessons.getColumnIndex(SPECIALTY_CLASSES_DATE.ID)));
+				view.setLayoutParams(viewLP);
+				view.setOnClickListener(onClassClkLst);
+				
+				if(allClasses.getCount() > 0 && allClasses.getPosition() < allClasses.getCount()) {
+					long lessonDate = lessons.getLong(lessons.getColumnIndex(SPECIALTY_CLASSES_DATE.DATE));
+					long classDate = allClasses.getLong(allClasses.getColumnIndex(SPECIALTY_CLASSES.DATE));
+					if(lessonDate == classDate) {
+						String classType = allClasses.getString(allClasses.getColumnIndex(SPECIALTY_CLASSES.CLASS_TYPE));
+						String classId = allClasses.getString(allClasses.getColumnIndex(SPECIALTY_CLASSES.CLASS_ID));
+						Cursor currentClass = db.query(
+								classType,
+								null,
+								"_id=?",
+								new String[]{classId},
+								null, null, null);
+						currentClass.moveToFirst();
+						switch(classType){
+						case TABLES.HOMEWORK_RESULT:{
+							
+							int homeworkId = currentClass.getInt(currentClass.getColumnIndex(HOMEWORK_RESULT.ID));
+							String mark = currentClass.getString(currentClass.getColumnIndex(HOMEWORK_RESULT.MARK));
+							
+							TextView homeworkView = new TextView(getActivity());
+							homeworkView.setId(homeworkId);
+							homeworkView.setText(mark);
+							
+							view.addView(homeworkView);
+						}
+							break;
+						case TABLES.HOMEREADING:{
+							
+							int homereadingId = currentClass.getInt(currentClass.getColumnIndex(HOMEREADING.ID));
+							int words = currentClass.getInt(currentClass.getColumnIndex(HOMEREADING.WORDS));
+							int symbols = currentClass.getInt(currentClass.getColumnIndex(HOMEREADING.SYMBOLS));
+							int retelling = currentClass.getInt(currentClass.getColumnIndex(HOMEREADING.RETELLING));
+							int translating = currentClass.getInt(currentClass.getColumnIndex(HOMEREADING.TRANSLATING));
+							
+							View homereadingView = inflater.inflate(R.layout.specialty_class_homereading_item, view, false);
+							homereadingView.setId(homereadingId);
+							LinearLayout borders = (LinearLayout) homereadingView.findViewById(R.id.borders);
+							borders.setPadding(symbols > 0 ? 1 : 0, translating, retelling, words > 0 ? 1 : 0);
+							
+							view.addView(homereadingView);
+						}
+							break;
+						}
+						allClasses.moveToNext();
 					}
-					mSpecialtyLessonsGrid.addView(view);
 				}
+				mSpecialtytableGrid.addView(view);
 			}
 		}
-		/*SimpleCursorAdapter SpecialtyLessonsGridAdapter = (SimpleCursorAdapter)(mSpecialtyLessonsGrid.getAdapter());		
-		SpecialtyLessonsGridAdapter
-				.changeCursor(
-						db.query(
-							true,
-							TABLES.SPECIALTY_CLASSES,
-							new String[]{SPECIALTY_CLASSES.ID, SPECIALTY_CLASSES.DATE},
-							SPECIALTY.ID+"=?",
-							new String[]{String.valueOf(mCurrentSpecialityId)},
-							null,
-							null,
-							SPECIALTY_CLASSES.DATE,
-							null));*/
 		db.close();
 	}
 	public void refillStudentList(){
@@ -275,6 +336,5 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 		default:
 			break;
 		}
-		
 	}
 }

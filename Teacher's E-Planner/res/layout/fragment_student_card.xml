@@ -18,8 +18,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="text"
-        android:hint="@string/student_fio"
-        android:background="@android:drawable/editbox_background" >
+        android:hint="@string/student_fio" >
     </EditText>
     <!-- Телефон -->
 
@@ -35,8 +34,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="phone"
-        android:hint="@string/telephone"
-        android:background="@android:drawable/editbox_background" >
+        android:hint="@string/telephone" >
     </EditText>
     <!-- E-mail -->
 
@@ -52,8 +50,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textEmailAddress"
-        android:hint="@string/email"
-        android:background="@android:drawable/editbox_background" >
+        android:hint="@string/email" >
     </EditText>
     <!-- Заметка -->
 
@@ -68,37 +65,32 @@
         android:id="@+id/note"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-		android:minHeight="58dp"
+		android:minHeight="60dp"
         android:inputType="text"
-        android:hint="@string/note"
-        android:background="@android:drawable/editbox_background" >
+        android:hint="@string/note" >
     </EditText>
     
 	<LinearLayout
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		style="@android:style/ButtonBar" >
+		android:layout_height="wrap_content" >
 				
 	    <Button
 	        android:id="@+id/cancel"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:text="@android:string/cancel"
-	        style="@android:style/Widget.Holo.Button.Borderless" />
+	        android:text="@android:string/cancel" />
 	    
 	    <Button
 	        android:id="@+id/back"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:text="@string/back"
-	        style="@android:style/Widget.Holo.Button.Borderless" />
+	        android:text="@string/back" />
 	    
 	    <Button
 	        android:id="@+id/save"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:text="@string/save"
-	        style="@android:style/Widget.Holo.Button.Borderless" />
+	        android:text="@string/save" />
 	
 	</LinearLayout>
 	
