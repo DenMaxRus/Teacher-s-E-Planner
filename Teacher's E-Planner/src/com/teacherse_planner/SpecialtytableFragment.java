@@ -102,17 +102,13 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 			public void onItemClick(AdapterView<?> parent, View view, int position,
 					long id) {
 				// Вызвать заполненную карточку студента
-				Cursor parentCursor = ((SimpleCursorAdapter) (((HeaderViewListAdapter) parent.getAdapter()).getWrappedAdapter())).getCursor();
-				parentCursor.moveToPosition(position);
+				
 				
 				Bundle args = new Bundle();
 				args.putString("type", "edit");
-				args.putLong("mCurrentStudentId", parentCursor.getInt(parentCursor.getColumnIndex(STUDENT.ID)));
+				args.putLong("mCurrentStudentId", id);
 				args.putLong("mCurrentSpecialtyId", mCurrentSpecialtyId);
-				args.putString("mFIO", parentCursor.getString(parentCursor.getColumnIndex(STUDENT.NAME)));
-				args.putInt("mTelephone", parentCursor.getInt(parentCursor.getColumnIndex(STUDENT.TELEPHONE)));
-				args.putString("mEmail", parentCursor.getString(parentCursor.getColumnIndex(STUDENT.EMAIL)));
-				args.putString("mNote", parentCursor.getString(parentCursor.getColumnIndex(STUDENT.NOTE)));
+				
 				StudentCardFragment SC = ((MainActivity) getActivity()).getStudentCardFragment();
 				if(SC == null)
 					SC = new StudentCardFragment();

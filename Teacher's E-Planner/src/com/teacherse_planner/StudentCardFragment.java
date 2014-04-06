@@ -6,6 +6,7 @@ import com.teacherse_planner.MainActivity.DialogBuilder.IdDialog;
 
 import android.app.Fragment;
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -23,7 +24,7 @@ public class StudentCardFragment extends Fragment implements MainActivity.Dialog
 	private EditText mTelephone;
 	private EditText mEmail;
 	private EditText mNote;
-	private int mCurrentStudentId;
+	private long mCurrentStudentId;
 	
 	private DBHelper mdDbHelper;
 	
@@ -62,12 +63,24 @@ public class StudentCardFragment extends Fragment implements MainActivity.Dialog
 	private void restoreInformation(){
 		if(getArguments().getString("type").compareTo("edit") == 0){
 			Bundle args = getArguments();
+			mCurrentStudentId = args.getLong("mCurrentStudentId");
 			
-			mCurrentStudentId = args.getInt("mCurrentStudentId");
-			mFIO.setText(args.getString("mFIO"));
-			mTelephone.setText(String.valueOf(args.getInt("mTelephone")));
-			mEmail.setText(args.getString("mEmail"));
-			mNote.setText(args.getString("mNote"));
+			SQLiteDatabase db = mdDbHelper.getReadableDatabase();
+			
+			Cursor currentStudentInfo = db.query(
+					TABLES.STUDENT,
+					null,
+					STUDENT.ID+"=?",
+					new String[]{String.valueOf(mCurrentStudentId)},
+					null, null, null);
+			currentStudentInfo.moveToFirst();
+			
+			mFIO.setText(currentStudentInfo.getString(currentStudentInfo.getColumnIndex(STUDENT.NAME)));
+			mTelephone.setText(currentStudentInfo.getString(currentStudentInfo.getColumnIndex(STUDENT.TELEPHONE)));
+			mEmail.setText(currentStudentInfo.getString(currentStudentInfo.getColumnIndex(STUDENT.EMAIL)));
+			mNote.setText(currentStudentInfo.getString(currentStudentInfo.getColumnIndex(STUDENT.NOTE)));
+			
+			db.close();
 		}
 	}
 	@Override
@@ -93,7 +106,6 @@ public class StudentCardFragment extends Fragment implements MainActivity.Dialog
 			break;
 		case R.id.cancel:
 			restoreInformation();
-			getFragmentManager().popBackStack();
 			break;
 		case R.id.back:
 			getFragmentManager().popBackStack();

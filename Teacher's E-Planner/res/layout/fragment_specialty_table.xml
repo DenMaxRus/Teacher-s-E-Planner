@@ -19,8 +19,7 @@
 	<HorizontalScrollView
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_weight="10"
-		android:background="@color/pen" >
+		android:layout_weight="10" >
 		<LinearLayout
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
@@ -29,7 +28,8 @@
 			<GridLayout
 				android:id="@+id/specialty_lessons_grid"
 				android:layout_width="match_parent"
-				android:layout_height="match_parent" />
+				android:layout_height="match_parent"
+				android:background="@color/pen" />
 			
 			<ScrollView
 				android:layout_width="match_parent"
@@ -38,7 +38,8 @@
 				<GridLayout
 					android:id="@+id/specialtytable_grid"
 					android:layout_width="match_parent"
-					android:layout_height="wrap_content" />
+					android:layout_height="wrap_content"
+					android:background="@color/pen" />
 		
 			</ScrollView>
 			

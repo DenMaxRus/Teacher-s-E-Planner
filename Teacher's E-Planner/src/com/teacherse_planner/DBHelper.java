@@ -184,7 +184,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	private static final String CREATE_HOMEWORK =
 	"create table "+TABLES.HOMEWORK+" ("
 		+HOMEWORK.ID+" integer, "
-		+HOMEWORK.DATE+" long, "
+		+HOMEWORK.DATE+" numeric, "
 		+HOMEWORK.SPECIALTY_ID+" integer, "
 		+HOMEWORK.HOMEWORK_TEXT+" text default null, "
 		+"foreign key("+HOMEWORK.SPECIALTY_ID+") references "+TABLES.SPECIALTY+" ("+SPECIALTY.ID+"), "
@@ -207,7 +207,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	private static final String CREATE_SPECIALTY_CLASSES_DATE =
 	"create table "+TABLES.SPECIALTY_CLASSES_DATE+" ("
 		+SPECIALTY_CLASSES_DATE.ID+" integer primary key autoincrement, "
-		+SPECIALTY_CLASSES_DATE.DATE+" long, "
+		+SPECIALTY_CLASSES_DATE.DATE+" numeric, "
 		+SPECIALTY_CLASSES_DATE.SPECIALTY_ID+" integer, "
 		+"foreign key("+SPECIALTY_CLASSES_DATE.SPECIALTY_ID+") references "+TABLES.STUDENT+" ("+STUDENT.ID+"), "
 		+"unique ("+SPECIALTY_CLASSES_DATE.ID+", "+SPECIALTY_CLASSES_DATE.DATE+") on conflict replace"
@@ -215,7 +215,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	private static final String CREATE_SPECIALTY_CLASSES =
 	"create table "+TABLES.SPECIALTY_CLASSES+" ("
 		+SPECIALTY_CLASSES.ID+" integer primary key autoincrement, "
-		+SPECIALTY_CLASSES.DATE+" long, "
+		+SPECIALTY_CLASSES.DATE+" numeric, "
 		+SPECIALTY_CLASSES.STUDENT_ID+" integer, "
 		+SPECIALTY_CLASSES.CLASS_TYPE+" text not null, "
 		+SPECIALTY_CLASSES.CLASS_ID+" integer not null, "
@@ -260,8 +260,8 @@ public class DBHelper extends SQLiteOpenHelper {
 		}
 		
 		cv.clear();
-		cv.put(STUDENT.NAME, "Daniil Maximov");
 		cv.put(STUDENT.SPECIALTY_ID, 2);
+		cv.put(STUDENT.NAME, "Daniil Maximov");
 		db.insert(TABLES.STUDENT, null, cv);
 
 		Log.d("MyLog", "Timetable DB Created");

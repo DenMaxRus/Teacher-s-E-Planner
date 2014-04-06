@@ -9,7 +9,8 @@
 	<TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/student_fio" >
+        android:text="@string/student_fio"
+        android:background="@android:color/holo_orange_light" >
     </TextView>
 
     <EditText
@@ -25,7 +26,8 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/telephone" >
+        android:text="@string/telephone"
+        android:background="@android:color/holo_orange_light" >
     </TextView>
 
     <EditText
@@ -41,7 +43,8 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/email" >
+        android:text="@string/email"
+        android:background="@android:color/holo_orange_light" >
     </TextView>
 
     <EditText
@@ -57,7 +60,8 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/note" >
+        android:text="@string/note"
+        android:background="@android:color/holo_orange_light" >
     </TextView>
 
     <EditText
