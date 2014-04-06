@@ -88,13 +88,9 @@ public class DBHelper extends SQLiteOpenHelper {
 		public static abstract class HOMEWORK {
 			public final static String
 				ID = "_id",
-				DATE ="date",
-				SPECIALTY_ID = "specialty_id",
 				HOMEWORK_TEXT = "homework_text",
 				
 				fID = HOMEWORK + "." + ID,
-				fDATE = HOMEWORK + "." + DATE,
-				fSPECIALTY_ID = HOMEWORK + "." + SPECIALTY_ID,
 				fHOMEWORK_TEXT = HOMEWORK + "." + HOMEWORK_TEXT;
 			private HOMEWORK(){}
 		};
@@ -194,12 +190,8 @@ public class DBHelper extends SQLiteOpenHelper {
 	+");";
 	private static final String CREATE_HOMEWORK =
 	"create table "+TABLES.HOMEWORK+" ("
-		+HOMEWORK.ID+" integer, "
-		+HOMEWORK.DATE+" numeric, "
-		+HOMEWORK.SPECIALTY_ID+" integer, "
-		+HOMEWORK.HOMEWORK_TEXT+" text default null, "
-		+"foreign key("+HOMEWORK.SPECIALTY_ID+") references "+TABLES.SPECIALTY+" ("+SPECIALTY.ID+"), "
-		+"primary key("+HOMEWORK.ID+", "+HOMEWORK.DATE+", "+HOMEWORK.SPECIALTY_ID+")"
+		+HOMEWORK.ID+" integer primary key, "
+		+HOMEWORK.HOMEWORK_TEXT+" text default null"
 	+");";
 	private static final String CREATE_HOMEWORK_RESULT =
 	"create table "+TABLES.HOMEWORK_RESULT+" ("

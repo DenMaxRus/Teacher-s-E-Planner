@@ -149,10 +149,10 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 			
 			@Override
 			public void onClick(View v) {
+				// Изменить домашнее задание
 				Bundle dialogInfo = new Bundle();
 				dialogInfo.putString("idDialog", DialogBuilder.IdDialog.ADD_HOMEWORK.toString());
-				dialogInfo.putLong("mCurrentSpecialtyId", mCurrentSpecialtyId);
-				dialogInfo.putInt("lessonId", v.getId());
+				dialogInfo.putInt("homeworkId", v.getId());
 				MainActivity.DialogBuilder.newInstance(getActivity(), dialogInfo).show(getFragmentManager(), DialogBuilder.IdDialog.ADD_HOMEWORK.toString());
 			}
 		};

@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Locale;
 
 import com.teacherse_planner.DBHelper.TABLES;
+import com.teacherse_planner.DBHelper.TABLES.HOMEWORK;
 import com.teacherse_planner.DBHelper.TABLES.NA;
 import com.teacherse_planner.DBHelper.TABLES.SPECIALTY;
 import com.teacherse_planner.DBHelper.TABLES.SPECIALTY_CLASSES_DATE;
@@ -460,7 +461,24 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 			}
 				break;
 			case ADD_HOMEWORK:{
+				final int homeworkId = getArguments().getInt("homeworkId");
+								
+				SQLiteDatabase db = mdbHelper.getReadableDatabase();
+				
+				final Cursor homeworkCursor = db.query(
+						TABLES.HOMEWORK,
+						null,
+						HOMEWORK.ID+"=?",
+						new String[]{String.valueOf(homeworkId)},
+						null, null, null);
+				
 				View dialogView = View.inflate(mContext, R.layout.dialog_student_homework, null);
+				
+				final EditText homework = (EditText) dialogView.findViewById(R.id.homework);
+				if(homeworkCursor.getCount() != 0){
+					homeworkCursor.moveToFirst();
+					homework.setText(homeworkCursor.getString(homeworkCursor.getColumnIndex(HOMEWORK.HOMEWORK_TEXT)));
+				}
 				
 				builder
 					.setView(dialogView)
@@ -468,11 +486,26 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 						
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
-							// TODO Auto-generated method stub
-							
+							SQLiteDatabase db = mdbHelper.getWritableDatabase();
+							if(homework.getText().length() != 0) {
+								
+								ContentValues cv = new ContentValues();
+								cv.put(HOMEWORK.HOMEWORK_TEXT, homework.getText().toString());
+								
+								if(homeworkCursor.getCount() != 0){
+									db.update(TABLES.HOMEWORK, cv, HOMEWORK.ID+"=?", new String[]{String.valueOf(homeworkId)});
+								} else {
+									cv.put(HOMEWORK.ID, homeworkId);
+									db.insert(TABLES.HOMEWORK, null, cv);
+								}
+							} else {
+								db.delete(TABLES.HOMEWORK, HOMEWORK.ID+"=?", new String[]{String.valueOf(homeworkId)});
+							}
+							db.close();
 						}
 					})
 					.setNegativeButton(R.string.cancel, null);
+				db.close();
 			}
 				break;
 			case ADD_HOMEWORK_RESULT:{ // Добавить оценку за домащнюю работу
