@@ -226,7 +226,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	public Cursor getAllStudentsFromSpecialty(String specialty_id){
 		return getReadableDatabase().query(
 				TABLES.STUDENT+" JOIN "+TABLES.SPECIALTY+" ON "+STUDENT.fSPECIALTY_ID+"="+SPECIALTY.fID,
-				null,
+				new String[]{STUDENT.fID, STUDENT.fSPECIALTY_ID, STUDENT.fNAME, STUDENT.TELEPHONE, STUDENT.EMAIL, STUDENT.NOTE},
 				SPECIALTY.fID+"=?",
 				new String[]{specialty_id}, null, null, null);
 	}
@@ -258,6 +258,11 @@ public class DBHelper extends SQLiteOpenHelper {
 			cv.put(SPECIALTY.NAME, str);
 			db.insert(TABLES.SPECIALTY, null, cv);
 		}
+		
+		cv.clear();
+		cv.put(STUDENT.NAME, "Daniil Maximov");
+		cv.put(STUDENT.SPECIALTY_ID, 2);
+		db.insert(TABLES.STUDENT, null, cv);
 
 		Log.d("MyLog", "Timetable DB Created");
 	}

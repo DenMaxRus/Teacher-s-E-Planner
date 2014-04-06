@@ -2,7 +2,6 @@ package com.teacherse_planner;
 
 import java.security.InvalidKeyException;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.Locale;
 
 import com.teacherse_planner.DBHelper.TABLES;
@@ -15,7 +14,6 @@ import android.app.Activity;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
-import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
@@ -50,6 +48,8 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 	private TimetableFragment mTimetableFragment;
 	/** Фрагмент оценок группы */
 	private SpecialtytableFragment mSpecialtytableFragment;
+	/** Фрагмент карточка студента */
+	private StudentCardFragment mStudentCardFragment;
 	/** Заголовок текущего окна */
 	private CharSequence mTitle;
 	
@@ -59,11 +59,15 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 	public DBHelper getDbHelper(){
 		return mdbHelper;
 	}
-	public TimetableFragment getmTimetableFragment() {// TODO убрать!!! используется пока только в создании диалогов для получения недели
+	// TODO убрать? используется пока только в создании диалогов для получения недели
+	public TimetableFragment getTimetableFragment() {
 		return mTimetableFragment;
 	}
-	public SpecialtytableFragment getmSpecialtytableFragment(){
+	public SpecialtytableFragment getSpecialtytableFragment(){
 		return mSpecialtytableFragment;
+	}
+	public StudentCardFragment getStudentCardFragment(){
+		return mStudentCardFragment;
 	}
 	@Override
 	public void setTitle(CharSequence title) {
@@ -137,7 +141,6 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 			break;
 		case 3:// Выход
 			finish();
-			//System.exit(0);
 			break;
 		}
 		NewTransaction.commit();
@@ -173,7 +176,7 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 		private static Activity mContext;
 		/** Интерфейс для свзязи с фрагментами */
 		private DialogCallbacks mDialogCallbacks;
-		public static enum IdDialog { CHANGE_DAY, ADD_SPECIALTY, ADD_LESSON_DATE, CHANGE_LESSON_DATE, ADD_CLASS, SHOW_CLASS, ADD_HOMEWORK, ADD_HOMEREADING }; // Сюда добавлять Id новых диалогов
+		public static enum IdDialog { CHANGE_DAY, ADD_SPECIALTY, ADD_STUDENT, ADD_LESSON_DATE, CHANGE_LESSON_DATE, ADD_CLASS, SHOW_CLASS, ADD_HOMEWORK, ADD_HOMEREADING }; // Сюда добавлять Id новых диалогов
 		/** Возвращает текущий диалог 
 		 * @return Текущий диалог или null
 		 */
@@ -213,8 +216,8 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 				mCurrentDialogId = IdDialog.valueOf(getArguments().getString("idDialog"));
 			switch (mCurrentDialogId) {
 			case CHANGE_DAY:{ // Диалог по долгому нажатию на клетку в расписании фрагмента TimetableFragment
-				final int idTimetable = getArguments().getInt("idTimetable");
-				final int currentWeek = ((MainActivity) mContext).getmTimetableFragment().getWeek();
+				final long idTimetable = getArguments().getLong("idTimetable");
+				final int currentWeek = ((MainActivity) mContext).getTimetableFragment().getWeek();
 				SQLiteDatabase db = mdbHelper.getReadableDatabase();
 				// Получаем требуемые значения для заполнения текущими данными из БД
 				Cursor dayInfo = db.query(
@@ -347,6 +350,9 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 					.setNegativeButton(R.string.cancel, null);
 			}
 				break;
+			case ADD_STUDENT:
+				((MainActivity) getActivity()).getSpecialtytableFragment().refillStudentList();
+				break;
 			case ADD_LESSON_DATE:case CHANGE_LESSON_DATE:{ // Диалог добавления нового занятия (даты)
 				final DatePicker datePicker = new DatePicker(mContext);
 				builder
@@ -355,7 +361,7 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 						
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
-							// TODO Auto-generated method stub
+							// Добавить новое занятие, выбрав дату
 							SQLiteDatabase db = mdbHelper.getWritableDatabase();
 							Calendar calendar = Calendar.getInstance(Locale.ENGLISH);
 							calendar.set(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth());
@@ -363,10 +369,11 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 							ContentValues cv = new ContentValues();
 							cv.put(SPECIALTY_CLASSES_DATE.SPECIALTY_ID, specialtyId);
 							cv.put(SPECIALTY_CLASSES_DATE.DATE, calendar.getTimeInMillis());
-						if(mCurrentDialogId == IdDialog.CHANGE_LESSON_DATE) {
-							cv.put
-						}
-							db.insert(TABLES.SPECIALTY_CLASSES_DATE, null, cv);
+							if(mCurrentDialogId == IdDialog.CHANGE_LESSON_DATE) {
+								String lessonId = String.valueOf(getArguments().getInt("lessonId"));
+								db.update(TABLES.SPECIALTY_CLASSES_DATE, cv, SPECIALTY_CLASSES_DATE.ID+"=?", new String[]{lessonId});
+							}else
+								db.insert(TABLES.SPECIALTY_CLASSES_DATE, null, cv);
 							db.close();
 							dialog.dismiss();
 						}

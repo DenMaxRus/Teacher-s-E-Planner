@@ -127,8 +127,8 @@ public class NavigationDrawerFragment extends Fragment implements MainActivity.D
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position,
 					long id) {
-				// TODO Добавить вызов группы
-				SpecialtytableFragment SF = ((MainActivity) getActivity()).getmSpecialtytableFragment();
+				// Вызов списка группы
+				SpecialtytableFragment SF = ((MainActivity) getActivity()).getSpecialtytableFragment();
 				if(SF == null)
 					SF = new SpecialtytableFragment();
 				Bundle args = new Bundle();

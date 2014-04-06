@@ -6,5 +6,96 @@
 	android:orientation="vertical"
 	tools:context="com.teacherse_planner.StudentCardFragment" >
 	
+	<TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/student_fio" >
+    </TextView>
 
+    <EditText
+        android:id="@+id/fio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="text"
+        android:hint="@string/student_fio"
+        android:background="@android:drawable/editbox_background" >
+    </EditText>
+    <!-- Телефон -->
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/telephone" >
+    </TextView>
+
+    <EditText
+        android:id="@+id/telephone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="phone"
+        android:hint="@string/telephone"
+        android:background="@android:drawable/editbox_background" >
+    </EditText>
+    <!-- E-mail -->
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/email" >
+    </TextView>
+
+    <EditText
+        android:id="@+id/email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textEmailAddress"
+        android:hint="@string/email"
+        android:background="@android:drawable/editbox_background" >
+    </EditText>
+    <!-- Заметка -->
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/note" >
+    </TextView>
+
+    <EditText
+        android:id="@+id/note"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+		android:minHeight="58dp"
+        android:inputType="text"
+        android:hint="@string/note"
+        android:background="@android:drawable/editbox_background" >
+    </EditText>
+    
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		style="@android:style/ButtonBar" >
+				
+	    <Button
+	        android:id="@+id/cancel"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="@android:string/cancel"
+	        style="@android:style/Widget.Holo.Button.Borderless" />
+	    
+	    <Button
+	        android:id="@+id/back"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="@string/back"
+	        style="@android:style/Widget.Holo.Button.Borderless" />
+	    
+	    <Button
+	        android:id="@+id/save"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="@string/save"
+	        style="@android:style/Widget.Holo.Button.Borderless" />
+	
+	</LinearLayout>
+	
 </LinearLayout>

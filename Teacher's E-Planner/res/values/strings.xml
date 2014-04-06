@@ -28,5 +28,10 @@
 	<string name="homereading">Домашнее чтение</string>
 	<string name="homework">Домашнее задание</string>
 	<string name="mark">Оценка</string>
+	<string name="email">E-mail</string>
+	<string name="telephone">Номер телефона</string>
+	<string name="note">Заметка</string>
+	<string name="save">Сохранить</string>
+	<string name="back">Назад</string>
 
 </resources>
