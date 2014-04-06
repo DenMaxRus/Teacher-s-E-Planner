@@ -1,5 +1,6 @@
 package com.teacherse_planner;
 
+import com.teacherse_planner.DBHelper.TABLES.DISCIPLINE;
 import com.teacherse_planner.DBHelper.TABLES.HOMEREADING;
 import com.teacherse_planner.DBHelper.TABLES.HOMEWORK;
 import com.teacherse_planner.DBHelper.TABLES.HOMEWORK_RESULT;
@@ -31,7 +32,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	
 	public static abstract class TABLES {
 		
-		public final static String TIMETABLE = "timetable", SPECIALTY = "specialty", STUDENT = "student",SPECIALTY_CLASSES_DATE = "specialty_classes_date", SPECIALTY_CLASSES = "specialty_classes", HOMEREADING = "homereading", HOMEWORK_RESULT = "homework_result", HOMEWORK = "homework", NA = "na";
+		public final static String TIMETABLE = "timetable", DISCIPLINE = "discipline", SPECIALTY = "specialty", STUDENT = "student",SPECIALTY_CLASSES_DATE = "specialty_classes_date", SPECIALTY_CLASSES = "specialty_classes", HOMEREADING = "homereading", HOMEWORK_RESULT = "homework_result", HOMEWORK = "homework", NA = "na";
 		
 		/** Таблица расписания. Полные пути вида %TABLE%.%FIELD% можно получить через f%FIELD% переменные. */
 		public static abstract class TIMETABLE {
@@ -50,6 +51,19 @@ public class DBHelper extends SQLiteOpenHelper {
 			
 				aID = "timetable_table_id";
 			private TIMETABLE(){}
+		};
+		/** Таблица дисциплин. Полные пути вида %TABLE%.%FIELD% можно получить через f%FIELD% переменные. */
+		public static abstract class DISCIPLINE {
+			public final static String
+				ID = "_id",
+				NAME = "name",
+				
+				fID = DISCIPLINE + "." + ID,
+				fNAME = DISCIPLINE + "." + NAME,
+
+				aID = "specialty_table_id";
+			
+			private DISCIPLINE(){}
 		};
 		/** Таблица групп. Полные пути вида %TABLE%.%FIELD% можно получить через f%FIELD% переменные. */
 		public static abstract class SPECIALTY {
@@ -138,13 +152,13 @@ public class DBHelper extends SQLiteOpenHelper {
 		public static abstract class SPECIALTY_CLASSES {
 			public final static String
 				ID = "_id",
-				DATE ="date",
+				SPECIALTY_CLASSES_DATE_ID ="specialty_classes_date_id",
 				STUDENT_ID = "student_id",
 				CLASS_TYPE = "class_type",
 				CLASS_ID = "сlass_id",
 				
 				fID = SPECIALTY_CLASSES + "." + ID,
-				fDATE = SPECIALTY_CLASSES + "." + DATE,
+				fSPECIALTY_CLASSES_DATE_ID = SPECIALTY_CLASSES + "." + SPECIALTY_CLASSES_DATE_ID,
 				fSTUDENT_ID = SPECIALTY_CLASSES + "." + STUDENT_ID,
 				fCLASS_TYPE = SPECIALTY_CLASSES + "." + CLASS_TYPE,
 				fCLASS_ID = SPECIALTY_CLASSES + "." + CLASS_ID;
@@ -155,14 +169,16 @@ public class DBHelper extends SQLiteOpenHelper {
 		public static abstract class NA {
 			public final static String
 				ID = "_id",
-				DATE ="date",
 				
-				fID = NA + "." + ID,
-				fDATE = NA + "." + DATE;
+				fID = NA + "." + ID;
 			private NA(){}
 		};
 	};
-	
+	private static final String CREATE_DISCIPLINE =
+	"create table "+TABLES.DISCIPLINE+" ("
+		+DISCIPLINE.ID+" integer primary key autoincrement, "
+		+DISCIPLINE.NAME+" text unique not null"
+	+");";
 	private static final String CREATE_SPECIALITY =
 	"create table "+TABLES.SPECIALTY+" ("
 		+SPECIALTY.ID+" integer primary key autoincrement, "
@@ -218,18 +234,16 @@ public class DBHelper extends SQLiteOpenHelper {
 	private static final String CREATE_SPECIALTY_CLASSES =
 	"create table "+TABLES.SPECIALTY_CLASSES+" ("
 		+SPECIALTY_CLASSES.ID+" integer primary key autoincrement, "
-		+SPECIALTY_CLASSES.DATE+" numeric, "
+		+SPECIALTY_CLASSES.SPECIALTY_CLASSES_DATE_ID+" integer, "
 		+SPECIALTY_CLASSES.STUDENT_ID+" integer, "
 		+SPECIALTY_CLASSES.CLASS_TYPE+" text not null, "
 		+SPECIALTY_CLASSES.CLASS_ID+" integer not null, "
-		+"foreign key("+SPECIALTY_CLASSES.DATE+") references "+TABLES.SPECIALTY_CLASSES_DATE+" ("+SPECIALTY_CLASSES_DATE.DATE+"), "
+		+"foreign key("+SPECIALTY_CLASSES.SPECIALTY_CLASSES_DATE_ID+") references "+TABLES.SPECIALTY_CLASSES_DATE+" ("+SPECIALTY_CLASSES_DATE.ID+"), "
 		+"foreign key("+SPECIALTY_CLASSES.STUDENT_ID+") references "+TABLES.STUDENT+" ("+STUDENT.ID+")"
 	+");";
 	private static final String CREATE_NA =
 	"create table "+TABLES.NA+" ("
-		+NA.ID+" integer primary key autoincrement, "
-		+NA.DATE+" numeric, "
-		+"foreign key("+SPECIALTY_CLASSES.DATE+") references "+TABLES.SPECIALTY_CLASSES_DATE+" ("+SPECIALTY_CLASSES_DATE.DATE+")"
+		+NA.ID+" integer primary key"
 	+");";
 	/** Получить всех студентов */
 	public Cursor getAllStudentsFromSpecialty(String specialty_id){
@@ -237,7 +251,24 @@ public class DBHelper extends SQLiteOpenHelper {
 				TABLES.STUDENT+" JOIN "+TABLES.SPECIALTY+" ON "+STUDENT.fSPECIALTY_ID+"="+SPECIALTY.fID,
 				new String[]{STUDENT.fID, STUDENT.fSPECIALTY_ID, STUDENT.fNAME, STUDENT.TELEPHONE, STUDENT.EMAIL, STUDENT.NOTE},
 				SPECIALTY.fID+"=?",
-				new String[]{specialty_id}, null, null, null);
+				new String[]{specialty_id},
+				null, null, null);
+	}
+	public Cursor getAllLessonsOfSpecialty(String specialty_id){
+		return getReadableDatabase().query(
+				TABLES.SPECIALTY_CLASSES_DATE,
+				new String[]{SPECIALTY_CLASSES_DATE.ID, SPECIALTY_CLASSES_DATE.DATE},
+				SPECIALTY_CLASSES_DATE.SPECIALTY_ID+"=?",
+				new String[]{specialty_id},
+				null, null, null);
+	}
+	public Cursor getAllClassesOfStudentAtLesson(String student_id, String lesson_id){
+		return getReadableDatabase().query(
+				TABLES.SPECIALTY_CLASSES,
+				null,
+				SPECIALTY_CLASSES.STUDENT_ID+"=? AND "+SPECIALTY_CLASSES.SPECIALTY_CLASSES_DATE_ID+"=?",
+				new String[]{student_id,lesson_id},
+				null, null, null);
 	}
 	public DBHelper(Context context) {
 		super(context, DB_NAME, null, 1);
@@ -247,6 +278,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		// Создаем таблицы
+		db.execSQL(CREATE_DISCIPLINE);
 		db.execSQL(CREATE_SPECIALITY);
 		db.execSQL(CREATE_STUDENT);
 		db.execSQL(CREATE_TIMETABLE);
@@ -273,7 +305,10 @@ public class DBHelper extends SQLiteOpenHelper {
 		cv.put(STUDENT.SPECIALTY_ID, 2);
 		cv.put(STUDENT.NAME, "Daniil Maximov");
 		db.insert(TABLES.STUDENT, null, cv);
-
+		cv.clear();
+		cv.put(DISCIPLINE.NAME, "Иностранный язык");
+		db.insert(TABLES.DISCIPLINE, null, cv);
+		
 		Log.d("MyLog", "Timetable DB Created");
 	}
 

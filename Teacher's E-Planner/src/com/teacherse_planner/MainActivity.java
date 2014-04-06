@@ -40,7 +40,6 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -357,7 +356,7 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 					.setNegativeButton(R.string.cancel, null);
 			}
 				break;
-			case ADD_STUDENT:
+			case ADD_STUDENT: // Добавить студента
 				((MainActivity) getActivity()).getSpecialtytableFragment().refillStudentList();
 				break;
 			case ADD_LESSON_DATE:case CHANGE_LESSON_DATE:{ // Диалог добавления нового занятия (даты)
@@ -369,13 +368,17 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							// Добавить новое занятие, выбрав дату
+							long specialtyId = getArguments().getLong("mCurrentSpecialityId");
+							
 							SQLiteDatabase db = mdbHelper.getWritableDatabase();
+							
 							Calendar calendar = Calendar.getInstance(Locale.ENGLISH);
 							calendar.set(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth());
-							long specialtyId = getArguments().getLong("mCurrentSpecialityId");
+							
 							ContentValues cv = new ContentValues();
 							cv.put(SPECIALTY_CLASSES_DATE.SPECIALTY_ID, specialtyId);
 							cv.put(SPECIALTY_CLASSES_DATE.DATE, calendar.getTimeInMillis());
+							
 							if(mCurrentDialogId == IdDialog.CHANGE_LESSON_DATE) {
 								String lessonId = String.valueOf(getArguments().getInt("lessonId"));
 								db.update(TABLES.SPECIALTY_CLASSES_DATE, cv, SPECIALTY_CLASSES_DATE.ID+"=?", new String[]{lessonId});
@@ -389,7 +392,7 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 					.setNegativeButton(R.string.cancel, null);
 			}
 				break;
-			case CHOOSE_CLASS:{
+			case CHOOSE_CLASS:{ // Выбор типа занятия
 				View dialogView = View.inflate(mContext, R.layout.dialog_student_choose_class, null);
 				
 				builder.setView(dialogView);
@@ -444,7 +447,7 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 							ContentValues cv = new ContentValues();
 							
 							if(naStatus.isChecked()) {
-								cv.put(NA.DATE, 1);
+								cv.put(NA.ID, 1);
 								db.insert(TABLES.NA, null, cv);
 							}
 							
@@ -460,7 +463,7 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 				
 			}
 				break;
-			case ADD_HOMEWORK:{
+			case ADD_HOMEWORK:{ // Добавить 
 				final int homeworkId = getArguments().getInt("homeworkId");
 								
 				SQLiteDatabase db = mdbHelper.getReadableDatabase();

@@ -138,13 +138,9 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 		
 		LayoutInflater inflater = getActivity().getLayoutInflater();
 		SQLiteDatabase db = mdbHelper.getReadableDatabase();
+		// Все занесенные занятия текущей группы
+		Cursor allLessons = mdbHelper.getAllLessonsOfSpecialty(String.valueOf(mCurrentSpecialtyId));
 		
-		Cursor lessons = db.query(
-				TABLES.SPECIALTY_CLASSES_DATE,
-				new String[]{SPECIALTY_CLASSES_DATE.ID, SPECIALTY_CLASSES_DATE.DATE},
-				SPECIALTY_CLASSES_DATE.SPECIALTY_ID+"=?",
-				new String[]{String.valueOf(mCurrentSpecialtyId)},
-				null, null, null);
 		OnClickListener onLessonClkLst = new OnClickListener() {
 			
 			@Override
@@ -160,7 +156,7 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 			
 			@Override
 			public boolean onLongClick(View v) {
-				// Изменить  занятие
+				// Изменить дату занятия
 				Bundle dialogInfo = new Bundle();
 				dialogInfo.putString("idDialog", DialogBuilder.IdDialog.CHANGE_LESSON_DATE.toString());
 				dialogInfo.putLong("mCurrentSpecialtyId", mCurrentSpecialtyId);
@@ -171,13 +167,13 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 			}
 		};
 		Calendar calendar = Calendar.getInstance(Locale.ENGLISH);
-		// Добавление дат занятий первой строкой
-		int cellWidth = 60;
 		
-		for(int i=0; i < lessons.getCount(); ++i){
-			lessons.moveToPosition(i);
+		int cellWidth = 60;
+		// Добавление дат занятий первой строкой
+		for(int i=0; i < allLessons.getCount(); ++i){
+			allLessons.moveToPosition(i);
 			
-			long dateInmSec = lessons.getLong(lessons.getColumnIndex(SPECIALTY_CLASSES.DATE));
+			long dateInmSec = allLessons.getLong(allLessons.getColumnIndex(SPECIALTY_CLASSES_DATE.DATE));
 			calendar.setTimeInMillis(dateInmSec);
 			String date = DateFormat.format("dd.MM", calendar).toString();
 			
@@ -189,7 +185,7 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 			
 			FrameLayout lessonView = (FrameLayout) inflater.inflate(R.layout.student_list_item_1, mSpecialtyLessonsGrid, false);
 			lessonView.setLayoutParams(lp);
-			lessonView.setId(lessons.getInt(lessons.getColumnIndex(SPECIALTY_CLASSES_DATE.ID)));
+			lessonView.setId(allLessons.getInt(allLessons.getColumnIndex(SPECIALTY_CLASSES_DATE.ID)));
 			lessonView.setOnClickListener(onLessonClkLst);
 			lessonView.setOnLongClickListener(onLongLessonClkLst);
 			
@@ -198,10 +194,10 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 			// Id View = Id записи в бд для удобного доступа
 			mSpecialtyLessonsGrid.addView(lessonView);
 		}
-		// Установка кнопки "добавить занятие" последней
 		
+		// Установка кнопки "добавить занятие" последней
 		GridLayout.LayoutParams buttonLP = new GridLayout.LayoutParams();
-		buttonLP.columnSpec = GridLayout.spec(lessons.getCount() > 0 ? lessons.getCount() : 0);
+		buttonLP.columnSpec = GridLayout.spec(allLessons.getCount() > 0 ? allLessons.getCount() : 0);
 		buttonLP.rowSpec = GridLayout.spec(0);
 		buttonLP.height = 48;
 		
@@ -227,6 +223,7 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 			
 			@Override
 			public void onClick(View v) {
+				// Изменить/добавить урок
 				ViewGroup view = (ViewGroup) v;
 				int[] childrenId = new int[view.getChildCount()];
 				for(int i = 0; i< view.getChildCount(); ++i)
@@ -240,41 +237,40 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 		};
 		
 		Cursor studentListCursor = ((SimpleCursorAdapter) ((HeaderViewListAdapter) mStudentList.getAdapter()).getWrappedAdapter()).getCursor();
+		// Заполнение основной части таблицы данными об оценках и т.д.
 		for(int i=0; i < studentListCursor.getCount(); ++i){			
 			studentListCursor.moveToPosition(i);
 					
-			String studentId = studentListCursor.getString(studentListCursor.getColumnIndex(STUDENT.ID));
-			
-			Cursor allClasses = db.query(
-					TABLES.SPECIALTY_CLASSES,
-					new String[]{SPECIALTY_CLASSES.CLASS_ID,SPECIALTY_CLASSES.CLASS_TYPE, SPECIALTY_CLASSES_DATE.DATE},
-					SPECIALTY_CLASSES.STUDENT_ID+"=?",
-					new String[]{studentId},
-					null,
-					null,
-					SPECIALTY_CLASSES.DATE);
-			allClasses.moveToFirst();
-			
-			for(int l=0; l < lessons.getCount(); ++l){
-				lessons.moveToPosition(l);
+			int studentId = studentListCursor.getInt(studentListCursor.getColumnIndex(STUDENT.ID));
+
+			for(int l=0; l < allLessons.getCount(); ++l){
+				allLessons.moveToPosition(l);
 				
-				GridLayout.LayoutParams viewLP = new GridLayout.LayoutParams();
-				viewLP.columnSpec = GridLayout.spec(l);
-				viewLP.rowSpec = GridLayout.spec(i+2);
-				viewLP.width = cellWidth;
-				viewLP.setMargins(0, 0, 1, 1);
+				int lessonId = allLessons.getInt(studentListCursor.getColumnIndex(SPECIALTY_CLASSES_DATE.ID));
 				
-				FrameLayout view = (FrameLayout) inflater.inflate(R.layout.specialty_class_empty_item, mSpecialtytableGrid, false);
-				view.setId(lessons.getInt(lessons.getColumnIndex(SPECIALTY_CLASSES_DATE.ID)));
-				view.setLayoutParams(viewLP);
-				view.setOnClickListener(onClassClkLst);
+				Cursor allClasses = mdbHelper.getAllClassesOfStudentAtLesson(String.valueOf(studentId), String.valueOf(lessonId));
 				
-				if(allClasses.getCount() > 0 && allClasses.getPosition() < allClasses.getCount()) {
-					long lessonDate = lessons.getLong(lessons.getColumnIndex(SPECIALTY_CLASSES_DATE.DATE));
-					long classDate = allClasses.getLong(allClasses.getColumnIndex(SPECIALTY_CLASSES.DATE));
-					if(lessonDate == classDate) {
+				GridLayout.LayoutParams emptyViewLP = new GridLayout.LayoutParams();
+				emptyViewLP.columnSpec = GridLayout.spec(l);
+				emptyViewLP.rowSpec = GridLayout.spec(i+1);
+				emptyViewLP.width = cellWidth;
+				emptyViewLP.setMargins(0, 0, 1, 1);
+				// Пустая ячейка без оценок
+				FrameLayout emptyView = (FrameLayout) inflater.inflate(R.layout.specialty_class_empty_item, mSpecialtytableGrid, false);
+				emptyView.setId(0);
+				emptyView.setLayoutParams(emptyViewLP);
+				emptyView.setOnClickListener(onClassClkLst);
+				
+				if(allClasses.getCount() > 0) {
+					
+					int classLessonId = allClasses.getInt(allClasses.getColumnIndex(SPECIALTY_CLASSES.SPECIALTY_CLASSES_DATE_ID));
+					
+					if(lessonId == classLessonId) {
+						emptyView.setId(classLessonId);
+						
 						String classType = allClasses.getString(allClasses.getColumnIndex(SPECIALTY_CLASSES.CLASS_TYPE));
 						String classId = allClasses.getString(allClasses.getColumnIndex(SPECIALTY_CLASSES.CLASS_ID));
+						
 						Cursor currentClass = db.query(
 								classType,
 								null,
@@ -282,8 +278,9 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 								new String[]{classId},
 								null, null, null);
 						currentClass.moveToFirst();
+						
 						switch(classType){
-						case TABLES.HOMEWORK_RESULT:{
+						case TABLES.HOMEWORK_RESULT:{ // Обычная оценка за доамашнюю работу
 							
 							int homeworkId = currentClass.getInt(currentClass.getColumnIndex(HOMEWORK_RESULT.ID));
 							String mark = currentClass.getString(currentClass.getColumnIndex(HOMEWORK_RESULT.MARK));
@@ -292,7 +289,7 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 							homeworkView.setId(homeworkId);
 							homeworkView.setText(mark);
 							
-							view.addView(homeworkView);
+							emptyView.addView(homeworkView);
 						}
 							break;
 						case TABLES.HOMEREADING:{
@@ -303,19 +300,19 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 							int retelling = currentClass.getInt(currentClass.getColumnIndex(HOMEREADING.RETELLING));
 							int translating = currentClass.getInt(currentClass.getColumnIndex(HOMEREADING.TRANSLATING));
 							
-							View homereadingView = inflater.inflate(R.layout.specialty_class_homereading_item, view, false);
+							View homereadingView = inflater.inflate(R.layout.specialty_class_homereading_item, emptyView, false);
 							homereadingView.setId(homereadingId);
 							LinearLayout borders = (LinearLayout) homereadingView.findViewById(R.id.borders);
 							borders.setPadding(symbols > 0 ? 1 : 0, translating, retelling, words > 0 ? 1 : 0);
 							
-							view.addView(homereadingView);
+							emptyView.addView(homereadingView);
 						}
 							break;
 						}
 						allClasses.moveToNext();
 					}
 				}
-				mSpecialtytableGrid.addView(view);
+				mSpecialtytableGrid.addView(emptyView);
 			}
 		}
 		db.close();
