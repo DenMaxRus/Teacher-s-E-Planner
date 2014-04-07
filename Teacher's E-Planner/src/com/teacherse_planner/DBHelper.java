@@ -4,7 +4,6 @@ import com.teacherse_planner.DBHelper.TABLES.DISCIPLINE;
 import com.teacherse_planner.DBHelper.TABLES.HOMEREADING;
 import com.teacherse_planner.DBHelper.TABLES.HOMEWORK;
 import com.teacherse_planner.DBHelper.TABLES.HOMEWORK_RESULT;
-import com.teacherse_planner.DBHelper.TABLES.NA;
 import com.teacherse_planner.DBHelper.TABLES.SPECIALTY;
 import com.teacherse_planner.DBHelper.TABLES.SPECIALTY_CLASSES;
 import com.teacherse_planner.DBHelper.TABLES.SPECIALTY_CLASSES_DATE;
@@ -165,14 +164,6 @@ public class DBHelper extends SQLiteOpenHelper {
 			private SPECIALTY_CLASSES(){}
 		};
 		private TABLES(){}
-		/** Таблица отсутствия. Полные пути вида %TABLE%.%FIELD% можно получить через f%FIELD% переменные. */
-		public static abstract class NA {
-			public final static String
-				ID = "_id",
-				
-				fID = NA + "." + ID;
-			private NA(){}
-		};
 	};
 	private static final String CREATE_DISCIPLINE =
 	"create table "+TABLES.DISCIPLINE+" ("
@@ -237,13 +228,9 @@ public class DBHelper extends SQLiteOpenHelper {
 		+SPECIALTY_CLASSES.SPECIALTY_CLASSES_DATE_ID+" integer, "
 		+SPECIALTY_CLASSES.STUDENT_ID+" integer, "
 		+SPECIALTY_CLASSES.CLASS_TYPE+" text not null, "
-		+SPECIALTY_CLASSES.CLASS_ID+" integer not null, "
+		+SPECIALTY_CLASSES.CLASS_ID+" integer, "
 		+"foreign key("+SPECIALTY_CLASSES.SPECIALTY_CLASSES_DATE_ID+") references "+TABLES.SPECIALTY_CLASSES_DATE+" ("+SPECIALTY_CLASSES_DATE.ID+"), "
 		+"foreign key("+SPECIALTY_CLASSES.STUDENT_ID+") references "+TABLES.STUDENT+" ("+STUDENT.ID+")"
-	+");";
-	private static final String CREATE_NA =
-	"create table "+TABLES.NA+" ("
-		+NA.ID+" integer primary key"
 	+");";
 	/** Получить всех студентов */
 	public Cursor getAllStudentsFromSpecialty(String specialty_id){
@@ -270,6 +257,14 @@ public class DBHelper extends SQLiteOpenHelper {
 				new String[]{student_id,lesson_id},
 				null, null, null);
 	}
+	public Cursor getHomereading(String class_id){
+		return getReadableDatabase().query(
+				TABLES.HOMEREADING,
+				null,
+				HOMEREADING.ID+"=?",
+				new String[]{class_id},
+				null, null, null);
+	}
 	public DBHelper(Context context) {
 		super(context, DB_NAME, null, 1);
 		// TODO Добавить версию для сравнения
@@ -287,7 +282,6 @@ public class DBHelper extends SQLiteOpenHelper {
 		db.execSQL(CREATE_HOMEREADING);
 		db.execSQL(CREATE_SPECIALTY_CLASSES_DATE);
 		db.execSQL(CREATE_SPECIALTY_CLASSES);
-		db.execSQL(CREATE_NA);
 		
 		ContentValues cv=new ContentValues();
 		// Добавляем в группы пустое значение

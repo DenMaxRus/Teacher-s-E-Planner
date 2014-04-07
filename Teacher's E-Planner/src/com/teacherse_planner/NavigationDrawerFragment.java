@@ -83,7 +83,7 @@ public class NavigationDrawerFragment extends Fragment implements MainActivity.D
 		mDrawerMenuList.setAdapter(new ArrayAdapter<String>(
 				getActivity(),
 				R.layout.drawer_menu_item_1,
-				new String[]{"Расписание", "Группы", "Настройки", "Выход"}));
+				new String[]{"Расписание", "Группы", "Настройки", "Действия с базой", "Выбор дисциплины", "Выход"}));
 		mDrawerMenuList.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position,

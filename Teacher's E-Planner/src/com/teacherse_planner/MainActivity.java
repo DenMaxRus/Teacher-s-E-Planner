@@ -4,10 +4,12 @@ import java.security.InvalidKeyException;
 import java.util.Calendar;
 import java.util.Locale;
 
+
 import com.teacherse_planner.DBHelper.TABLES;
+import com.teacherse_planner.DBHelper.TABLES.HOMEREADING;
 import com.teacherse_planner.DBHelper.TABLES.HOMEWORK;
-import com.teacherse_planner.DBHelper.TABLES.NA;
 import com.teacherse_planner.DBHelper.TABLES.SPECIALTY;
+import com.teacherse_planner.DBHelper.TABLES.SPECIALTY_CLASSES;
 import com.teacherse_planner.DBHelper.TABLES.SPECIALTY_CLASSES_DATE;
 import com.teacherse_planner.DBHelper.TABLES.TIMETABLE;
 import com.teacherse_planner.NavigationDrawerFragment.NavigationDrawerCallbacks;
@@ -40,6 +42,7 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -145,7 +148,11 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 			break;
 		case 2:// Настройки
 			break;
-		case 3:// Выход
+		case 3:// Действия с базой
+			break;
+		case 4:// Выбор дисциплины
+			break;
+		case 5:// Выход
 			finish();
 			break;
 		}
@@ -393,30 +400,51 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 			}
 				break;
 			case CHOOSE_CLASS:{ // Выбор типа занятия
+				
 				View dialogView = View.inflate(mContext, R.layout.dialog_student_choose_class, null);
 				
+				View.OnClickListener onChoiceClkLst = new View.OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						getCurrentDialog().dismiss();
+						DialogBuilder.IdDialog currentIdDialog;
+						switch (v.getId()) {
+						case R.id.homereading:
+							currentIdDialog = DialogBuilder.IdDialog.ADD_HOMEREADING;
+							break;
+						case R.id.mark:
+							currentIdDialog = DialogBuilder.IdDialog.ADD_HOMEWORK_RESULT;
+							break;
+						default:
+							currentIdDialog = null;
+							break;
+						}
+						Bundle dialogInfo = new Bundle(getArguments());
+						dialogInfo.putString("idDialog", currentIdDialog.toString());
+						dialogInfo.putInt("classTypeId", v.getId());
+						newInstance(mContext, dialogInfo).show(getFragmentManager(), currentIdDialog.toString());
+					}
+				};
+				
+				Button homereadingButton = (Button) dialogView.findViewById(R.id.homereading);
+				Button homeworkButton = (Button) dialogView.findViewById(R.id.mark);
+				homereadingButton.setOnClickListener(onChoiceClkLst);
+				homeworkButton.setOnClickListener(onChoiceClkLst);
+
 				builder.setView(dialogView);
 			}
 				break;
 			case SHOW_CLASS:{ // Просмотр оценок текущего ученика
-				int classDateId = getArguments().getInt("classDateId");
-				int[] childrenId = getArguments().getIntArray("childrenId");
-				String[] str_childrenId = new String[childrenId.length];
-				for(int i = 0; i < childrenId.length; ++i)
-					str_childrenId[i] = String.valueOf(childrenId[i]);
-				SQLiteDatabase db = mdbHelper.getReadableDatabase();
-				Cursor classesDate = db.query(
-						TABLES.SPECIALTY_CLASSES_DATE,
-						new String[]{SPECIALTY_CLASSES_DATE.DATE},
-						SPECIALTY_CLASSES_DATE.ID+"=?",
-						new String[]{String.valueOf(classDateId)},
-						null, null, null);
-				classesDate.moveToFirst();
 				
-				long classDate = classesDate.getLong(classesDate.getColumnIndex(SPECIALTY_CLASSES_DATE.DATE));
+				final int lessonId = getArguments().getInt("lessonId");
+				final int studentId = getArguments().getInt("studentId");
+				
+				SQLiteDatabase db = mdbHelper.getReadableDatabase();
 				
 				View dialogView = View.inflate(mContext, R.layout.dialog_student_class_item, null);
 				
+				LinearLayout classesBlock = (LinearLayout) dialogView.findViewById(R.id.classes_block);
 				final Button addClass = (Button) dialogView.findViewById(R.id.add);
 				addClass.setOnClickListener(new View.OnClickListener() {
 					
@@ -436,22 +464,75 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 						addClass.setEnabled(!isChecked);
 					}
 				});
+				
+				Cursor classesData = db.query(
+						TABLES.SPECIALTY_CLASSES+" JOIN "+TABLES.SPECIALTY_CLASSES_DATE+" ON "+SPECIALTY_CLASSES.fSPECIALTY_CLASSES_DATE_ID+"="+SPECIALTY_CLASSES_DATE.fID,
+						new String[]{SPECIALTY_CLASSES_DATE.DATE, SPECIALTY_CLASSES_DATE.SPECIALTY_ID, SPECIALTY_CLASSES.CLASS_ID, SPECIALTY_CLASSES.CLASS_TYPE},
+						SPECIALTY_CLASSES.STUDENT_ID+"=? AND "+SPECIALTY_CLASSES_DATE.fID+"=?",
+						new String[]{String.valueOf(String.valueOf(studentId)), String.valueOf(lessonId)},
+						null, null, null);
+				
+				View.OnClickListener onClassClkLst = new View.OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						DialogBuilder.IdDialog currentIdDialog;
+						switch (((Button) v).getText().toString()) {
+						case TABLES.HOMEREADING:
+							currentIdDialog = DialogBuilder.IdDialog.ADD_HOMEREADING;
+							break;
+						case TABLES.HOMEWORK_RESULT:
+							currentIdDialog = DialogBuilder.IdDialog.ADD_HOMEWORK_RESULT;
+							break;
+						default:
+							currentIdDialog = null;
+							break;
+						}
+						Bundle dialogInfo = new Bundle(getArguments());
+						dialogInfo.putString("idDialog", currentIdDialog.toString());
+						dialogInfo.putInt("classTypeId", v.getId());
+						newInstance(mContext, dialogInfo).show(getFragmentManager(), currentIdDialog.toString());
+					}
+				};
+				
+				for(int i = 0; i < classesData.getCount(); ++i) {
+					classesData.moveToPosition(i);
+										
+					Button classView  = new Button(getActivity());
+					
+					String classType = classesData.getString(classesData.getColumnIndex(SPECIALTY_CLASSES.CLASS_TYPE));
+					int classTypeId = classesData.getInt(classesData.getColumnIndex(SPECIALTY_CLASSES.CLASS_ID));
+					
+					if(classType.compareTo(TABLES.NA) == 0) {
+						naStatus.setChecked(true);
+						break;
+					} else {
+						classView.setText(classType);
+						classView.setId(classTypeId);
+						classView.setOnClickListener(onClassClkLst);
+						
+						classesBlock.addView(classView);
+					}
+				}
+				
 				builder
 					.setView(dialogView)
 					.setPositiveButton(R.string.save, new OnClickListener() {
 						
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
-							SQLiteDatabase db = mdbHelper.getWritableDatabase();
-							
-							ContentValues cv = new ContentValues();
-							
 							if(naStatus.isChecked()) {
-								cv.put(NA.ID, 1);
-								db.insert(TABLES.NA, null, cv);
+								SQLiteDatabase db = mdbHelper.getWritableDatabase();
+								ContentValues cv = new ContentValues();
+															
+								cv.put(SPECIALTY_CLASSES.SPECIALTY_CLASSES_DATE_ID, lessonId);
+								cv.put(SPECIALTY_CLASSES.STUDENT_ID, studentId);
+								cv.put(SPECIALTY_CLASSES.CLASS_TYPE, TABLES.NA);
+								cv.putNull(SPECIALTY_CLASSES.CLASS_ID);
+								
+								db.insert(TABLES.SPECIALTY_CLASSES, null, cv);
+								db.close();
 							}
-							
-							db.close();
 							dialog.dismiss();
 						}
 					})
@@ -461,12 +542,68 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 				break;
 			case ADD_HOMEREADING:{ // Добавить оценку за домашнее чтение
 				
+				final int lessonId = getArguments().getInt("lessonId");
+				final int studentId = getArguments().getInt("studentId");
+				final int classTypeId = getArguments().getInt("classTypeId");
+
+				View dialogView = View.inflate(mContext, R.layout.dialog_student_homereading, null);
+				
+				final EditText symbols = (EditText) dialogView.findViewById(R.id.symbols);
+				final EditText words = (EditText) dialogView.findViewById(R.id.words);
+				final CheckBox translating = (CheckBox) dialogView.findViewById(R.id.translating);
+				final CheckBox retteling = (CheckBox) dialogView.findViewById(R.id.retteling);
+				
+				final Cursor homereadingData = mdbHelper.getHomereading(String.valueOf(classTypeId));
+				
+				if(homereadingData.getCount() != 0) {
+					homereadingData.moveToFirst();
+					
+					symbols.setText(homereadingData.getString(homereadingData.getColumnIndex(HOMEREADING.SYMBOLS)));
+					words.setText(homereadingData.getString(homereadingData.getColumnIndex(HOMEREADING.WORDS)));
+					translating.setEnabled(homereadingData.getInt(homereadingData.getColumnIndex(HOMEREADING.TRANSLATING)) == 0 ? false : true);
+					retteling.setEnabled(homereadingData.getInt(homereadingData.getColumnIndex(HOMEREADING.RETELLING)) == 0 ? false : true);
+				}
+				
+				builder
+					.setView(dialogView)
+					.setPositiveButton(R.string.save, new OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							SQLiteDatabase db = mdbHelper.getWritableDatabase();
+							
+							ContentValues cv = new ContentValues();
+							cv.put(HOMEREADING.SYMBOLS, symbols.getText().toString());
+							cv.put(HOMEREADING.WORDS, words.getText().toString());
+							cv.put(HOMEREADING.TRANSLATING, translating.isChecked() ? 1 : 0);
+							cv.put(HOMEREADING.RETELLING, retteling.isChecked() ? 1 : 0);
+							
+							if(homereadingData.getCount() == 0) {
+								long hrId = db.insert(TABLES.HOMEREADING, null, cv);
+								cv.clear();
+								cv.put(SPECIALTY_CLASSES.SPECIALTY_CLASSES_DATE_ID, lessonId);
+								cv.put(SPECIALTY_CLASSES.STUDENT_ID, studentId);
+								cv.put(SPECIALTY_CLASSES.CLASS_TYPE, TABLES.HOMEREADING);
+								cv.put(SPECIALTY_CLASSES.CLASS_ID, hrId);
+								db.insert(TABLES.SPECIALTY_CLASSES, null, cv);
+							} else {
+								db.update(TABLES.HOMEREADING, cv, HOMEREADING.ID+"=?", new String[]{String.valueOf(classTypeId)});
+							}
+							
+							db.close();
+							dialog.dismiss();
+						}
+					})
+					.setNegativeButton(R.string.cancel, null);
 			}
 				break;
-			case ADD_HOMEWORK:{ // Добавить 
+			case ADD_HOMEWORK:{ // Добавить домашнее задание
+				
 				final int homeworkId = getArguments().getInt("homeworkId");
 								
 				SQLiteDatabase db = mdbHelper.getReadableDatabase();
+				
+				View dialogView = View.inflate(mContext, R.layout.dialog_student_homework, null);
 				
 				final Cursor homeworkCursor = db.query(
 						TABLES.HOMEWORK,
@@ -474,8 +611,6 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 						HOMEWORK.ID+"=?",
 						new String[]{String.valueOf(homeworkId)},
 						null, null, null);
-				
-				View dialogView = View.inflate(mContext, R.layout.dialog_student_homework, null);
 				
 				final EditText homework = (EditText) dialogView.findViewById(R.id.homework);
 				if(homeworkCursor.getCount() != 0){
@@ -505,6 +640,7 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 								db.delete(TABLES.HOMEWORK, HOMEWORK.ID+"=?", new String[]{String.valueOf(homeworkId)});
 							}
 							db.close();
+							dialog.dismiss();
 						}
 					})
 					.setNegativeButton(R.string.cancel, null);
@@ -512,7 +648,36 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 			}
 				break;
 			case ADD_HOMEWORK_RESULT:{ // Добавить оценку за домащнюю работу
+				final int lessonId = getArguments().getInt("lessonId");
 				
+				SQLiteDatabase db = mdbHelper.getReadableDatabase();
+				
+				final Cursor homeworkData = db.query(
+						TABLES.HOMEWORK,
+						null,
+						HOMEWORK.ID+"=?",
+						new String[]{String.valueOf(lessonId)},
+						null, null, null);
+				
+				ViewGroup dialogView = (ViewGroup) View.inflate(mContext, R.layout.dialog_student_homework, null);
+				final EditText mark = new EditText(mContext);
+				if(homeworkData.getCount() != 0) {
+					mark.setText(homeworkData.getString(homeworkData.getColumnIndex(HOMEWORK.HOMEWORK_TEXT)));
+				}
+				dialogView.addView(mark);
+				
+				builder
+					.setView(dialogView)
+					.setPositiveButton(R.string.add, new OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							//if(homeworkData.getCount())
+							dialog.dismiss();
+						}
+					})
+					.setNegativeButton(R.string.cancel, null);
+				db.close();
 			}
 				break;
 			default:

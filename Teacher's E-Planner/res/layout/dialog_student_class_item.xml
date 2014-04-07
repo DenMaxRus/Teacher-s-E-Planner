@@ -11,32 +11,41 @@
 		android:background="@android:color/holo_orange_light" >
 		
 		<TextView
-			android:layout_width="match_parent"
+			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:layout_weight="2"
+			android:layout_weight="5"
 			android:gravity="center"
 			android:text="@string/current_classes"
-			android:textColor="@color/pen" />
+			android:textColor="@color/pencil" />
 		
 		<TextView
-			android:layout_width="match_parent"
+			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_weight="4"
-			android:text="@string/n_a" />
+			android:gravity="right"
+			android:text="@string/n_a"
+			android:textColor="@color/pencil" />
 		
 		<CheckBox
 			android:id="@+id/na_status"
-			android:layout_width="match_parent"
+			android:layout_width="0dp"
 			android:layout_height="wrap_content"
+			android:layout_weight="1"
 			android:checked="false" />
 		
 	</LinearLayout>
+	
+	<LinearLayout
+		android:id="@+id/classes_block"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical" />
 	
 	<Button
 		android:id="@+id/add"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:text="@string/add_lesson"
-		android:textColor="@color/pen" />
+		android:textColor="@color/pencil" />
 
 </LinearLayout>

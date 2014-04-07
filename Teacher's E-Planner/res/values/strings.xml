@@ -19,6 +19,7 @@
 	<string name="add_student">Добавить студента</string>
 	<string name="add_lesson">Добавить занятие</string>
 	<string name="student_fio">Ф.И.О. студента</string>
+	<string name="student_id">ID студента</string>
 	<string name="current_classes">Текущие задания</string>
 	<string name="symbols">Символы</string>
 	<string name="retteling">Пересказ</string>

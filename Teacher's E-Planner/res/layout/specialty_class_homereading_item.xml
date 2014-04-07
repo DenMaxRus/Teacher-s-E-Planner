@@ -2,16 +2,19 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
+	android:layout_gravity="center"
 	android:orientation="vertical" >
 	
 	<TextView
 		android:id="@+id/symbols"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content" />
+		android:layout_height="wrap_content"
+		android:textColor="@color/pen" />
 	<LinearLayout
 		android:id="@+id/borders"
-		android:layout_width="match_parent"
+		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
+		android:orientation="horizontal"
 		android:padding="0dp"
 		android:background="@color/pen" >
 	<TextView

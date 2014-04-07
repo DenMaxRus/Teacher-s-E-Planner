@@ -9,26 +9,25 @@
 		android:layout_height="wrap_content"
 		android:gravity="center"
 		android:text="@string/class_type"
+		android:textColor="@color/pencil"
 		android:background="@android:color/holo_orange_light" />
 	
 	<Button
 		android:id="@+id/homereading"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_margin="5dp"
+		android:layout_margin="3dp"
 		android:gravity="center"
 		android:text="@string/homereading"
-		android:textColor="@color/pen"
-		android:background="@android:color/darker_gray" />
+		android:textColor="@color/pencil" />
 	
 	<Button
 		android:id="@+id/mark"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_margin="5dp"
+		android:layout_margin="3dp"
 		android:gravity="center"
 		android:text="@string/mark"
-		android:textColor="@color/pen"
-		android:background="@android:color/darker_gray" />
+		android:textColor="@color/pencil" />
 
 </LinearLayout>

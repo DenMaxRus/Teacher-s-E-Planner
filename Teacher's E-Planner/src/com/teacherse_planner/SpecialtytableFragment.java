@@ -224,14 +224,10 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 			@Override
 			public void onClick(View v) {
 				// Изменить/добавить урок
-				ViewGroup view = (ViewGroup) v;
-				int[] childrenId = new int[view.getChildCount()];
-				for(int i = 0; i< view.getChildCount(); ++i)
-					childrenId[i] = view.getChildAt(i).getId();
 				Bundle dialogInfo = new Bundle();
 				dialogInfo.putString("idDialog", MainActivity.DialogBuilder.IdDialog.SHOW_CLASS.toString());
-				dialogInfo.putInt("classDateId", view.getId());
-				dialogInfo.putIntArray("childrenId", childrenId);
+				dialogInfo.putInt("lessonId", v.getId());
+				dialogInfo.putInt("studentId", (int) v.getTag(R.string.student_id));
 				MainActivity.DialogBuilder.newInstance(getActivity(), dialogInfo).show(getFragmentManager(), MainActivity.DialogBuilder.IdDialog.SHOW_CLASS.toString());
 			}
 		};
@@ -249,6 +245,7 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 				int lessonId = allLessons.getInt(studentListCursor.getColumnIndex(SPECIALTY_CLASSES_DATE.ID));
 				
 				Cursor allClasses = mdbHelper.getAllClassesOfStudentAtLesson(String.valueOf(studentId), String.valueOf(lessonId));
+				allClasses.moveToFirst();
 				
 				GridLayout.LayoutParams emptyViewLP = new GridLayout.LayoutParams();
 				emptyViewLP.columnSpec = GridLayout.spec(l);
@@ -257,60 +254,77 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 				emptyViewLP.setMargins(0, 0, 1, 1);
 				// Пустая ячейка без оценок
 				FrameLayout emptyView = (FrameLayout) inflater.inflate(R.layout.specialty_class_empty_item, mSpecialtytableGrid, false);
-				emptyView.setId(0);
+				emptyView.setId(lessonId);
+				emptyView.setTag(R.string.student_id, studentId);
 				emptyView.setLayoutParams(emptyViewLP);
 				emptyView.setOnClickListener(onClassClkLst);
 				
-				if(allClasses.getCount() > 0) {
+				for(int c = 0; c < allClasses.getCount(); ++c) {
+					allClasses.moveToPosition(c);
 					
-					int classLessonId = allClasses.getInt(allClasses.getColumnIndex(SPECIALTY_CLASSES.SPECIALTY_CLASSES_DATE_ID));
+					String classType = allClasses.getString(allClasses.getColumnIndex(SPECIALTY_CLASSES.CLASS_TYPE));
+					String classTypeId = allClasses.getString(allClasses.getColumnIndex(SPECIALTY_CLASSES.CLASS_ID));
 					
-					if(lessonId == classLessonId) {
-						emptyView.setId(classLessonId);
-						
-						String classType = allClasses.getString(allClasses.getColumnIndex(SPECIALTY_CLASSES.CLASS_TYPE));
-						String classId = allClasses.getString(allClasses.getColumnIndex(SPECIALTY_CLASSES.CLASS_ID));
-						
-						Cursor currentClass = db.query(
+					Cursor currentClass = null;
+					if(classType.compareTo(TABLES.NA) != 0) {
+						currentClass = db.query(
 								classType,
 								null,
 								"_id=?",
-								new String[]{classId},
+								new String[]{classTypeId},
 								null, null, null);
 						currentClass.moveToFirst();
-						
-						switch(classType){
-						case TABLES.HOMEWORK_RESULT:{ // Обычная оценка за доамашнюю работу
-							
-							int homeworkId = currentClass.getInt(currentClass.getColumnIndex(HOMEWORK_RESULT.ID));
-							String mark = currentClass.getString(currentClass.getColumnIndex(HOMEWORK_RESULT.MARK));
-							
-							TextView homeworkView = new TextView(getActivity());
-							homeworkView.setId(homeworkId);
-							homeworkView.setText(mark);
-							
-							emptyView.addView(homeworkView);
-						}
-							break;
-						case TABLES.HOMEREADING:{
-							
-							int homereadingId = currentClass.getInt(currentClass.getColumnIndex(HOMEREADING.ID));
-							int words = currentClass.getInt(currentClass.getColumnIndex(HOMEREADING.WORDS));
-							int symbols = currentClass.getInt(currentClass.getColumnIndex(HOMEREADING.SYMBOLS));
-							int retelling = currentClass.getInt(currentClass.getColumnIndex(HOMEREADING.RETELLING));
-							int translating = currentClass.getInt(currentClass.getColumnIndex(HOMEREADING.TRANSLATING));
-							
-							View homereadingView = inflater.inflate(R.layout.specialty_class_homereading_item, emptyView, false);
-							homereadingView.setId(homereadingId);
-							LinearLayout borders = (LinearLayout) homereadingView.findViewById(R.id.borders);
-							borders.setPadding(symbols > 0 ? 1 : 0, translating, retelling, words > 0 ? 1 : 0);
-							
-							emptyView.addView(homereadingView);
-						}
-							break;
-						}
-						allClasses.moveToNext();
 					}
+					View classView;
+					
+					switch(classType){
+					case TABLES.HOMEWORK_RESULT:{ // Обычная оценка за доамашнюю работу
+						
+						int homeworkId = currentClass.getInt(currentClass.getColumnIndex(HOMEWORK_RESULT.ID));
+						String mark = currentClass.getString(currentClass.getColumnIndex(HOMEWORK_RESULT.MARK));
+						
+						TextView homeworkView = new TextView(getActivity());
+						homeworkView.setId(homeworkId);
+						homeworkView.setText(mark);
+						
+						classView = homeworkView;
+					}
+						break;
+					case TABLES.HOMEREADING:{
+						
+						int homereadingId = currentClass.getInt(currentClass.getColumnIndex(HOMEREADING.ID));
+						int words = currentClass.getInt(currentClass.getColumnIndex(HOMEREADING.WORDS));
+						int symbols = currentClass.getInt(currentClass.getColumnIndex(HOMEREADING.SYMBOLS));
+						int retelling = currentClass.getInt(currentClass.getColumnIndex(HOMEREADING.RETELLING));
+						int translating = currentClass.getInt(currentClass.getColumnIndex(HOMEREADING.TRANSLATING));
+						
+						View homereadingView = inflater.inflate(R.layout.specialty_class_homereading_item, emptyView, false);
+						homereadingView.setId(homereadingId);
+						LinearLayout borders = (LinearLayout) homereadingView.findViewById(R.id.borders);
+						borders.setPadding((symbols > 0 ? 1 : 0), translating, retelling, (words > 0 ? 1 : 0));
+						
+						TextView sumbolsText = (TextView) homereadingView.findViewById(R.id.symbols);
+						sumbolsText.setText(String.valueOf(symbols/1000));
+						
+						TextView wordsText = (TextView) homereadingView.findViewById(R.id.words);
+						wordsText.setText(String.valueOf(words));
+						
+						classView = homereadingView;
+					}
+						break;
+					case TABLES.NA:{
+						
+						TextView naView = new TextView(getActivity());
+						naView.setText("Н");
+						naView.setTextColor(getResources().getColor(R.color.pen));
+						
+						classView = naView;
+					}
+						break;
+					default:
+						classView = new View(getActivity());
+					}
+					emptyView.addView(classView);
 				}
 				mSpecialtytableGrid.addView(emptyView);
 			}
@@ -324,7 +338,7 @@ public class SpecialtytableFragment extends Fragment implements MainActivity.Dia
 	@Override
 	public void onDialogDismiss(IdDialog dialogId) {
 		switch (dialogId) {
-		case ADD_LESSON_DATE:case CHANGE_LESSON_DATE:
+		case ADD_LESSON_DATE:case CHANGE_LESSON_DATE:case SHOW_CLASS:case ADD_HOMEREADING:case ADD_HOMEWORK_RESULT:
 			refillSpecialtytableGrid();
 			break;
 		case ADD_STUDENT:
